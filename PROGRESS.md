@@ -13,7 +13,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P4 | booking-service consumer + booking API (§11) | DONE | 1e47790 | ConsumerIT 5, BookingApiIT 4, SeatAllocatorTest 3; caller via headers until P6 |
 | P5 | Relay (§10) + `StubBookingServer` ITs | DONE | 9853361 | RelayIT 10/10, RetryPolicyTest 4; service token supplied once P6 adds `TokenService` |
 | P6 | Security (§12): issuer, JWKS, resource servers, authz matrix, tenant 404s | DONE | 4be40a3 | SecurityMatrixIT 80 tests (roster 51, booking 29); reconciliation rows join the matrix in P7 |
-| P7 | Reconciliation (§9) incl. approval, startup recovery | TODO | | |
+| P7 | Reconciliation (§9) incl. approval, startup recovery | DONE | 57751f7 | ReconciliationIT 24/24, BriefExampleIT 2/2, matrix 115 cells; lineage checked against COMPLETED runs (known-issues #18) |
 | P8 | Caching, metrics, structured logs, PII guard, faults bean, dev seeders | TODO | | |
 | P9 | Concurrency ITs (§17.3), run 3x consecutively | TODO | | |
 | P10 | `docker-compose.faults.yml` + fault scripts (§18) | TODO | | |
