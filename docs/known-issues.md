@@ -48,7 +48,10 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 12. **JSON shape errors** (wrong type, unknown enum) are 400 `MALFORMED_JSON` with the property path; unknown properties are 422 `UNKNOWN_FIELD` with the dotted path (e.g. `hr.pickupPoint`). Field names only, never values.
 13. **Batch and `RECONCILIATION_IN_PROGRESS`:** a lock timeout during a batch line propagates as 503 for the whole request. Lines already processed are committed, and a retry is absorbed by event identity.
 14. **JDBC exception translation:** Spring 6+ defaults `JdbcTemplate` to the SQLSTATE-subclass translator, which leaves PostgreSQL `55P03` (lock_timeout) uncategorised. Our `JdbcClient`s use `SQLErrorCodeSQLExceptionTranslator`, so it becomes `CannotAcquireLockException` → 503.
-15. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+15. **SERVICE column of the roster matrix:** the relay's real service token has `aud = ["booking"]` (§10), so roster rejects it with 401 before any role check. The matrix's 403 cells are exercised with a SERVICE-role token carrying both audiences. `SecurityMatrixIT.wrongAudienceIs401` also proves the real service token cannot call roster.
+16. **EMPLOYEE "self only"** on `GET /employees/{id}`: another employee's id in the same tenant is 403. Another tenant's employee is 404, as is any other tenant's resource. In booking, another employee's booking is 404 (no existence leak), and booking for someone else is 403.
+17. **Booking test decoder:** §17's "test JwtDecoder bean" is a Spring Framework `@TestBean` that replaces the JWKS-backed decoder with one trusting a test keypair. It applies the same production validators (`SecurityConfig.validator()`).
+18. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 
@@ -63,4 +66,4 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
-- **P3–P5 tenant resolution:** until JWT security lands in P6, `TenantContext` reads the tenant from an `X-Tenant-Id` header. This is a build-order stand-in, replaced in P6.
+- *(resolved in P6)* P3–P5 read the tenant from an `X-Tenant-Id` header as a build-order stand-in. Since P6 the tenant, roles and employee id come only from the validated JWT.
