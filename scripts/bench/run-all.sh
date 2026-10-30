@@ -9,6 +9,8 @@ docker compose --profile bench run --no-deps --rm k6 run /scripts/ingest-test.js
 
 log "running capped-heap reconciliation benchmarks"
 ./mvnw -q -pl roster-service -am verify -Pbenchmark
+cp roster-service/target/failsafe-reports/com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT.txt bench/results/reconciliation-test.txt
+cp roster-service/target/failsafe-reports/com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT-output.txt bench/results/reconciliation-output.txt
 # Reuse Maven's test runtime classpath, without adding a build dependency.
 ./mvnw -q -pl roster-service -am test-compile dependency:build-classpath -Dmdep.outputFile=target/bench-classpath.txt
 java -cp "roster-service/target/test-classes:roster-service/target/classes:$(cat roster-service/target/bench-classpath.txt)" \
@@ -19,6 +21,8 @@ reset_stack
   date -u +%Y-%m-%dT%H:%M:%SZ
   uname -a
   if command -v nproc >/dev/null; then nproc; free -h; else sysctl hw.ncpu hw.memsize; fi
+  if command -v lscpu >/dev/null; then lscpu; fi
+  df -h .
   java -version 2>&1
   docker info --format 'Docker CPUs={{.NCPU}} memory_bytes={{.MemTotal}}'
   psql_roster "SELECT version()"

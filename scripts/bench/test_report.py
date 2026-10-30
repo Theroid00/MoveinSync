@@ -24,14 +24,14 @@ class ReportTest(unittest.TestCase):
                 runs = [{"total_ms": i, "phase_ms": {"digest": 1, "assess": 1, "apply": 1},
                          "rows_per_second": 10, "peak_heap_bytes": 1024, "buckets_mismatched": 2, "outbox_rows": 1}
                         for i in (4, 5, 6)]
-                (report.RESULTS / f"recon-{scenario}.json").write_text(json.dumps({"measured_runs": runs, "heap_limit_bytes": 256 * 1024**2,
+                (report.RESULTS / f"recon-{scenario}.json").write_text(json.dumps({"measured_runs": runs, "warmup_runs": 0, "heap_limit_bytes": 256 * 1024**2,
                                                                                "postgres_version": "TEST FIXTURE DATABASE"}))
             histogram = ('outbox_delivery_lag_seconds_bucket{le="1"} 5\n'
                          'outbox_delivery_lag_seconds_bucket{le="2"} 10\n'
                          'outbox_delivery_lag_seconds_bucket{le="+Inf"} 10\n')
             for rate in (100, 250, 500, 1000):
                 summary = {"metrics": {"ingest_ms": {p: rate for p in ("p(50)", "p(95)", "p(99)", "p(99.9)")},
-                                       "iterations": {"count": 6000, "rate": 100}, "checks": {"passes": 6000, "fails": 0}}}
+                                       "iterations": {"count": 6000, "rate": 80}, "checks": {"passes": 6000, "fails": 0}}}
                 (report.RESULTS / f"k6-{rate}.json").write_text(json.dumps(summary))
                 (report.RESULTS / f"prometheus-{rate}.txt").write_text(histogram)
             (raw_dir / "contention.jsonl").write_text(json.dumps({"type": "Point", "metric": "ingest_ms", "data": {
@@ -41,6 +41,8 @@ class ReportTest(unittest.TestCase):
             first = (root / "docs/benchmark.md").read_text()
             self.assertIn("**250/s**", first)
             self.assertIn("**100.00 ms**", first)
+            self.assertIn("| 100 | 100.0 |", first)
+            self.assertIn("no warm-up", first)
             (raw_dir / "contention.jsonl").unlink()
             report.main()
             self.assertEqual(first, (root / "docs/benchmark.md").read_text())

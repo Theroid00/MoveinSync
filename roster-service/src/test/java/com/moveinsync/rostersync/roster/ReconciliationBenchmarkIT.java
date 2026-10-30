@@ -34,7 +34,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-/** One warm-up and three fresh-baseline measurements per scenario; profile enforces -Xmx256m. */
+/** Three fresh-baseline measurements without warm-up; profile enforces -Xmx256m. */
 @Tag("benchmark")
 @SpringBootTest
 class ReconciliationBenchmarkIT extends AbstractPostgresIT {
@@ -62,7 +62,7 @@ class ReconciliationBenchmarkIT extends AbstractPostgresIT {
 
         for (String scenario : ExportGenerator.SCENARIOS) {
             List<Map<String, Object>> measurements = new ArrayList<>();
-            for (int iteration = 0; iteration < 4; iteration++) {
+            for (int iteration = 1; iteration <= 3; iteration++) {
                 bulkTx.inTenant(tenant, s -> {
                     bulk.sql("TRUNCATE employee, employee_history, outbox_event, staging_employee, record_error, "
                             + "reconciliation_run, employee_tombstone, ingest_event").update();
@@ -128,10 +128,10 @@ class ReconciliationBenchmarkIT extends AbstractPostgresIT {
                 measurement.put("peak_heap_bytes", peak.get()); measurement.put("buckets_mismatched", row.bucketsMismatched());
                 measurement.put("outbox_rows", outbox); measurement.put("counts", counts);
                 System.out.println("benchmark " + scenario + " iteration=" + iteration + " " + json.writeValueAsString(measurement));
-                if (iteration > 0) { measurements.add(measurement); }
+                measurements.add(measurement);
                 Files.writeString(results.resolve("recon-" + scenario + ".json"), json.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(Map.of("scenario", scenario, "seed", 42, "heap_limit_bytes", Runtime.getRuntime().maxMemory(),
-                                "warmup_runs", 1, "measured_runs", measurements, "postgres_version", postgresVersion)));
+                                "warmup_runs", 0, "measured_runs", measurements, "postgres_version", postgresVersion)));
             }
         }
     }

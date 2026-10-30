@@ -1,6 +1,6 @@
 # Remaining work and next steps
 
-Updated 2026-10-31. Resume from **P11**, not from the older Claude session summary. Read [PROGRESS.md](../PROGRESS.md) first; [the build spec](spec/AGENT_BUILD_SPEC.md) is the source of truth for acceptance criteria.
+Updated 2026-10-31. P11 execution is now underway on Linux; the user has requested three measured reconciliation runs **without warm-up**. Resume from **P11**, not from the older Claude session summary. Read [PROGRESS.md](../PROGRESS.md) first; [the build spec](spec/AGENT_BUILD_SPEC.md) is the source of truth for acceptance criteria.
 
 ## Current state
 
@@ -50,7 +50,7 @@ If the remote run fails, retain the console log, Failsafe report and partial out
 ### P11 acceptance checklist
 
 - [ ] `scripts/bench/run-all.sh` exits zero on the benchmark machine.
-- [ ] Each of `initial`, `typical`, `heavy`, `quiet`, `cut`, `invalid` has one warm-up and **three measured iterations**, each starting from the correct restored baseline at `-Xmx256m`.
+- [ ] Each of `initial`, `typical`, `heavy`, `quiet`, `cut`, `invalid` has **three measured iterations without warm-up** (user instruction supersedes the original spec), each starting from the correct restored baseline at `-Xmx256m`.
 - [ ] Exact outcomes hold: initial creates 200,000; typical updates 6,000 / creates 2,000 / deactivates 2,000; heavy updates 100,000; quiet updates 100; cut blocks with zero mutations; invalid suppresses inferred deactivations.
 - [ ] Typical and heavy each satisfy `digest + assess + apply < 60,000 ms`; quiet touches less than 1% of 65,536 buckets.
 - [ ] All four 60-second k6 rates (100/250/500/1000 per second) and the 250/s contention run finish. The report includes latency, achieved rate, errors, drops, the observed apply-window p99, lock timing and delivery lag.

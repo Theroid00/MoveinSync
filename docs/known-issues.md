@@ -76,6 +76,9 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
+- **Benchmark protocol override (2026-10-31):** the user explicitly requested no warm-up. Final P11 reconciliation measurements use three fresh-baseline measured runs, with `warmup_runs=0`, retaining the 256 MiB heap cap, exact mutation assertions and timing bounds. The first Linux run began before this instruction; its reconciliation results will be replaced by a no-warm-up run.
+
+
 - **Benchmark baseline and RLS (§19):** PostgreSQL rejects `COPY FROM` directly into an RLS table for the app role. The unmeasured fixture COPYs into a temporary table, then `INSERT ... SELECT`s into `employee` under the bulk tenant transaction, retaining RLS. Only the disposable benchmark container grants `TRUNCATE` to `roster_app`; production grants are unchanged.
 
 - **P11 execution deferred to another computer (user request):** no complete local benchmark results are accepted. A local 200k-row attempt timed out in the apply UPDATE (300 s); `ANALYZE recon_plan` was added because PostgreSQL does not auto-analyze temporary tables. Normal tests pass; performance and the full runner still require the remote run. Partial results and failure evidence are in `bench/local-attempts/`, with execution instructions in `bench/README.md`. P11's gate and P12–P13 remain pending.

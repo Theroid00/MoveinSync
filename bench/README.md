@@ -20,7 +20,7 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 
 The runner **resets the roster-sync Compose volumes** before the API tests and between rates. Use a dedicated test checkout and keep unrelated traffic off ports 8080/8081. It runs:
 
-1. Six 200k-row reconciliation scenarios, each with one warm-up and three measured iterations, capped at `-Xmx256m`. Fixture setup is excluded. Every run checks exact mutation counts; typical and heavy assert digest + assess + apply < 60 seconds.
+1. Six 200k-row reconciliation scenarios, each with three measured iterations and **no warm-up**, as requested by the user on 2026-10-31, capped at `-Xmx256m`. Fixture setup is excluded. Every run checks exact mutation counts; typical and heavy assert digest + assess + apply < 60 seconds. This user instruction supersedes the warm-up protocol in the original spec.
 2. Fixed-seed CSV generation, API load at 100/250/500/1000 requests per second for 60 seconds each, and the 250/s contention run.
 3. Machine capture, raw JSON and metrics under `bench/results/`, and generation of `docs/benchmark.md` from those files.
 

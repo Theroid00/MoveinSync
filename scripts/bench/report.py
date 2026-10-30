@@ -51,10 +51,12 @@ def main():
     assert histogram_quantile('outbox_delivery_lag_seconds_bucket{le="1"} 5\n'
                               'outbox_delivery_lag_seconds_bucket{le="2"} 10\n'
                               'outbox_delivery_lag_seconds_bucket{le="+Inf"} 10', .75) == 1.5
+    warmups = json.loads((RESULTS / "recon-initial.json").read_text())["warmup_runs"]
+    protocol = "no warm-up (user-requested protocol)" if warmups == 0 else f"{warmups} warm-up run"
     lines = ["# Benchmark results", "", "## Machine", "", "```text",
              (RESULTS / "machine.txt").read_text().strip(), "```", "",
              "## Reconciliation", "",
-             "200,000 baseline rows, fixed seed 42, one warm-up and three measured runs per scenario. "
+             f"200,000 baseline rows, fixed seed 42, three measured runs per scenario with {protocol}. "
              "Each iteration restores its baseline outside the timing. Java heap limit: 256 MiB. "
              "Exact mutation counts and the typical/heavy 60-second bound are assertions.", "",
              "| Scenario | Total ms median (min–max) | Digest + assess + apply ms median (min–max) | Rows/s median | Peak heap MiB (max) | Mismatched buckets median | Outbox rows |",
@@ -66,7 +68,7 @@ def main():
     for scenario in ("initial", "typical", "heavy", "quiet", "cut", "invalid"):
         data = json.loads((RESULTS / f"recon-{scenario}.json").read_text())
         runs = data["measured_runs"]
-        assert len(runs) == 3 and data["heap_limit_bytes"] <= 256 * 1024**2
+        assert len(runs) == 3 and data["warmup_runs"] == warmups and data["heap_limit_bytes"] <= 256 * 1024**2
         totals = [r["total_ms"] for r in runs]
         diff = [sum(r["phase_ms"].get(p, 0) for p in ("digest", "assess", "apply")) for r in runs]
         if scenario in ("typical", "heavy"):
@@ -82,7 +84,8 @@ def main():
               "## API load", "",
               "k6 constant arrival rate, 60 seconds per rate, 200 initial VUs / 1,000 maximum. "
               "Payload modes: 50% new, 46% updates over 10,000 seeded IDs, 2% exact duplicates, 2% older versions. "
-              "Latency uses the measured ingest requests; setup is excluded. Thresholds are reported, not enforced.", "",
+              "Latency uses the measured ingest requests; achieved rate is completed iterations / 60 seconds, excluding setup. "
+              "Thresholds are reported, not enforced.", "",
               "| Target /s | Achieved /s | p50 ms | p95 ms | p99 ms | p99.9 ms | Errors % | Dropped iterations |",
               "|---:|---:|---:|---:|---:|---:|---:|---:|"]
     knee = None
@@ -93,7 +96,7 @@ def main():
         dropped = metric(data, "dropped_iterations")["count"] if "dropped_iterations" in data["metrics"] else 0
         if knee is None and latency["p(99)"] > 100:
             knee = rate
-        lines.append(f"| {rate} | {iterations['rate']:.1f} | " + " | ".join(f"{latency[p]:.2f}" for p in ("p(50)", "p(95)", "p(99)", "p(99.9)"))
+        lines.append(f"| {rate} | {iterations['count'] / 60:.1f} | " + " | ".join(f"{latency[p]:.2f}" for p in ("p(50)", "p(95)", "p(99)", "p(99.9)"))
                      + f" | {error:.2f} | {dropped:,.0f} |")
     lines += ["", f"First tested rate where p99 exceeds 100 ms: **{str(knee) + '/s' if knee else 'not reached'}**.", "",
               "## Contention", ""]
