@@ -62,7 +62,9 @@ class ErrorContractIT extends AbstractApiIT {
         assertThat(r.text("traceId")).as(code).isNotBlank();
         assertThat(r.text("title")).as(code).isNotBlank();
         assertThat(r.body().get("status").asInt()).isEqualTo(status);
-        assertThat(r.raw()).as(code).doesNotContain("Exception", "\tat ", ".java:", "stackTrace", "SELECT", "7731");
+        // The random traceId is excluded: a UUID can contain any 4 hex digits, including a marker.
+        String withoutTraceId = r.raw().replace(r.text("traceId"), "");
+        assertThat(withoutTraceId).as(code).doesNotContain("Exception", "\tat ", ".java:", "stackTrace", "SELECT", "7731");
     }
 
     @Test
