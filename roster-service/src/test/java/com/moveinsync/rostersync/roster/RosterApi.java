@@ -73,6 +73,14 @@ public final class RosterApi {
         return perform(delete("/api/v1/employees/{id}", id), tenant, Role.ADMIN);
     }
 
+    public Response outboxStatus(String tenant) {
+        return perform(get("/api/v1/outbox/status"), tenant, Role.OPERATOR);
+    }
+
+    public Response replayOutbox(String tenant, long outboxId) {
+        return perform(post("/api/v1/outbox/{id}/replay", outboxId), tenant, Role.OPERATOR);
+    }
+
     public Response perform(MockHttpServletRequestBuilder request, String tenant, Role role) {
         if (tenant != null) {
             request.header(TenantContext.TENANT_HEADER, tenant).header(TenantContext.PRINCIPAL_HEADER, role.name().toLowerCase());

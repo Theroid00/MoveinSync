@@ -36,6 +36,8 @@ public abstract class AbstractPostgresIT {
         registry.add("spring.flyway.user", () -> DB + "_owner");
         registry.add("spring.flyway.password", () -> DB + "_owner_pw");
         registry.add("app.bulk-datasource.url", () -> jdbcUrl("socketTimeout=330&connectTimeout=2"));
+        // Tests drive the relay explicitly (OutboxRelay.runOnce) instead of the scheduler.
+        registry.add("app.relay.enabled", () -> "false");
     }
 
     protected static String jdbcUrl(String params) {

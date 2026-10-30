@@ -33,3 +33,7 @@ BulkPoolIT
 SeatAllocatorTest
 ConsumerIT
 BookingApiIT
+
+# P5
+RetryPolicyTest
+RelayIT
