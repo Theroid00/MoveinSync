@@ -107,7 +107,7 @@ public class OutboxRelay {
     }
 
     @PreDestroy
-    void shutdown() {
+    public void shutdown() {
         workers.shutdownNow();
     }
 }
