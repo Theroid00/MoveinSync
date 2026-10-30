@@ -1,0 +1,76 @@
+name: roster-sync
+
+# One command: `docker compose up --build` → postgres + roster-service (8080) + booking-service (8081), seeded.
+# Image tags are pinned (never `latest`); digests are recorded in docs/known-issues.md.
+
+x-java-health: &java-health
+  interval: 5s
+  timeout: 3s
+  retries: 30
+  start_period: 20s
+
+services:
+  postgres:
+    image: postgres:18.6
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      # Postgres 18 images keep PGDATA under /var/lib/postgresql/<major>/docker: mount the parent.
+      - pgdata:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # TCP on purpose: during init the entrypoint runs a socket-only temporary server.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U roster_app -d roster"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+    restart: unless-stopped
+
+  roster:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.roster
+    image: roster-sync/roster-service:local
+    environment:
+      DB_HOST: postgres
+      APP_BOOKING_BASE_URL: http://booking:8081
+      APP_JWT_KEY_PATH: /data/jwt/key.pem
+      APP_RECON_DIR: /data/recon
+      APP_AUTH_DEV_ISSUER_ENABLED: "true"
+      APP_DEV_SEED_ENABLED: "true"
+    volumes:
+      - jwtkeys:/data/jwt
+      - recon:/data/recon
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-health
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | grep -q '\"UP\"'"]
+    restart: unless-stopped
+
+  booking:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.booking
+    image: roster-sync/booking-service:local
+    environment:
+      DB_HOST: postgres
+      APP_ROSTER_JWKS_URI: http://roster:8080/.well-known/jwks.json
+      APP_DEV_SEED_ENABLED: "true"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      <<: *java-health
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8081/actuator/health | grep -q '\"UP\"'"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  jwtkeys:
+  recon:

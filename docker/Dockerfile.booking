@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# Multi-stage build from the repository root: a clean clone needs only Docker.
+FROM eclipse-temurin:21.0.13_9-jdk-noble AS build
+WORKDIR /src
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+COPY event-contract/pom.xml event-contract/pom.xml
+COPY roster-service/pom.xml roster-service/pom.xml
+COPY booking-service/pom.xml booking-service/pom.xml
+COPY event-contract/src event-contract/src
+COPY booking-service/src/main booking-service/src/main
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw -q -B -pl booking-service -am package -Dmaven.test.skip=true \
+ && cp booking-service/target/booking-service-*.jar /app.jar
+
+FROM eclipse-temurin:21.0.13_9-jre-noble
+RUN groupadd --system app && useradd --system --gid app --home /app app \
+ && mkdir -p /app /data/jwt /data/recon && chown -R app:app /app /data
+COPY --from=build /app.jar /app/app.jar
+USER app
+WORKDIR /app
+EXPOSE 8081
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-XX:+ExitOnOutOfMemoryError", "-jar", "/app/app.jar"]
