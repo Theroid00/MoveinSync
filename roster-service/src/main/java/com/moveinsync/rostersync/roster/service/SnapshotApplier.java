@@ -8,17 +8,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import com.moveinsync.rostersync.roster.cache.TenantSettings;
 import com.moveinsync.rostersync.roster.core.BucketDiff;
 import com.moveinsync.rostersync.roster.core.SafetyBrake;
 import com.moveinsync.rostersync.roster.core.Sha256;
+import com.moveinsync.rostersync.roster.fault.FaultInjector;
+import com.moveinsync.rostersync.roster.observability.RosterMetrics;
 import com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository;
 import com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository.Assessment;
 import com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository.TenantSourceState;
 import com.moveinsync.rostersync.roster.repository.ReconciliationRunRepository;
 import com.moveinsync.rostersync.roster.repository.RunRow;
 import com.moveinsync.rostersync.roster.repository.StagingRepository;
-import com.moveinsync.rostersync.roster.repository.TenantConfigRepository;
-import com.moveinsync.rostersync.roster.repository.TenantSourceRepository;
 import com.moveinsync.rostersync.roster.repository.TenantTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,32 +45,43 @@ public class SnapshotApplier {
     private final ReconciliationApplyRepository apply;
     private final ReconciliationRunRepository runs;
     private final StagingRepository staging;
-    private final TenantSourceRepository tenantSources;
-    private final TenantConfigRepository tenantConfig;
+    private final TenantSettings tenantSettings;
+    private final RosterMetrics metrics;
+    private final FaultInjector faults;
     private final JsonMapper json;
 
     public SnapshotApplier(@Qualifier("bulk") TenantTx bulkTx, ReconciliationApplyRepository apply,
                            ReconciliationRunRepository runs, StagingRepository staging,
-                           TenantSourceRepository tenantSources, TenantConfigRepository tenantConfig, JsonMapper json) {
+                           TenantSettings tenantSettings, RosterMetrics metrics, FaultInjector faults, JsonMapper json) {
         this.bulkTx = bulkTx;
         this.apply = apply;
         this.runs = runs;
         this.staging = staging;
-        this.tenantSources = tenantSources;
-        this.tenantConfig = tenantConfig;
+        this.tenantSettings = tenantSettings;
+        this.metrics = metrics;
+        this.faults = faults;
         this.json = json;
     }
 
     public Result assessAndApply(UUID runId) {
         RunRow run = runs.find(runId).orElseThrow();
-        long lockKey = tenantSources.lockKey(run.tenantId(), run.sourceId()).orElseThrow(NotFoundException::new);
-        int thresholdBp = tenantConfig.brakeThresholdBp(run.tenantId()).orElse(SafetyBrake.DEFAULT_THRESHOLD_BP);
+        Long lockKey = tenantSettings.lockKey(run.tenantId(), run.sourceId());
+        if (lockKey == null) {
+            throw new NotFoundException();
+        }
+        int thresholdBp = tenantSettings.brakeThresholdBp(run.tenantId());
 
         Result result = bulkTx.inTenant(run.tenantId(), status -> {
             apply.statementTimeout300s();
             apply.lockExclusive(lockKey);
-            return assessAndApplyLocked(run, thresholdBp);
+            long locked = System.nanoTime();
+            try {
+                return assessAndApplyLocked(run, thresholdBp);
+            } finally {
+                metrics.lockHeld(System.nanoTime() - locked);
+            }
         });
+        metrics.reconciliationRun(result == Result.DUPLICATE ? "COMPLETED" : result.name());
         if (result != Result.AWAITING_APPROVAL) {
             bulkTx.inTenant(run.tenantId(), status -> staging.delete(runId));
         }
@@ -107,7 +119,7 @@ public class SnapshotApplier {
         Integer[] mismatched = mismatchedSet.toArray(Integer[]::new);
         Set<Integer> allBuckets = new HashSet<>(stagedDigests.keySet());
         allBuckets.addAll(storeDigests.keySet());
-        apply.phase(runId, "digest", millisSince(t0));
+        phase(runId, "digest", t0);
 
         long t1 = System.nanoTime();
         apply.createPlan(tenant, source, runId, mismatched);
@@ -139,12 +151,13 @@ public class SnapshotApplier {
             apply.awaitApproval(runId, flags, assessment, ratioBp, assessmentHash, mismatched.length);
             apply.insertBrakeAlert(tenant, runId, json.writeValueAsString(Map.of("runId", runId.toString(),
                     "missing", assessment.missing(), "baseline", assessment.baseline(), "ratioBp", ratioBp)));
-            apply.phase(runId, "assess", millisSince(t1));
+            phase(runId, "assess", t1);
+            metrics.brakeTrip();
             log.warn("event=safety_brake runId={} missing={} baseline={} ratioBp={}", runId, assessment.missing(),
                     assessment.baseline(), ratioBp);
             return Result.AWAITING_APPROVAL;                  // committed with zero employee changes
         }
-        apply.phase(runId, "assess", millisSince(t1));
+        phase(runId, "assess", t1);
 
         long t2 = System.nanoTime();
         String exportedAt = run.exportedAt().toString();
@@ -153,6 +166,7 @@ public class SnapshotApplier {
         Map<String, Integer> updated = apply.applyUpdates(tenant, source, runId, exportedAt);
         int conflicts = apply.recordConflicts(tenant, runId);
         int deactivated = inferAbsences ? apply.applyDeactivations(tenant, source, runId, cutoff, mismatched, exportedAt) : 0;
+        faults.hit("DURING_RECON_APPLY");             // mid-transaction: a halt here must leave no partial run
         apply.advanceTenantSource(tenant, source, cutoff, inferAbsences);
 
         Map<String, Object> counts = new LinkedHashMap<>();
@@ -168,7 +182,7 @@ public class SnapshotApplier {
         Result result = inferAbsences ? Result.COMPLETED : Result.PARTIAL_NO_DEACTIVATIONS;
         apply.finishRun(runId, result.name(), flags, assessment, ratioBp, assessmentHash, mismatched.length,
                 json.writeValueAsString(counts));
-        apply.phase(runId, "apply", millisSince(t2));
+        phase(runId, "apply", t2);
         log.info("event=recon_applied runId={} status={} bucketsMismatched={} counts={}", runId, result, mismatched.length, counts);
         return result;
     }
@@ -179,6 +193,12 @@ public class SnapshotApplier {
      */
     static byte[] assessmentHash(long cutoff, Assessment a) {
         return Sha256.of(cutoff + "|" + a.baseline() + "|" + a.missing() + "|" + a.missingIdsHashHex());
+    }
+
+    private void phase(UUID runId, String phase, long startedNanos) {
+        long millis = millisSince(startedNanos);
+        apply.phase(runId, phase, millis);
+        metrics.reconciliationPhase(phase, millis);
     }
 
     private static long millisSince(long nanos) {

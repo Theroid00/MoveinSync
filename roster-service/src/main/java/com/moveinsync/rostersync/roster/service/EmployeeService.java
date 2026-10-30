@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.moveinsync.rostersync.contract.EmployeeChangedEvent;
 import com.moveinsync.rostersync.contract.ErrorCode;
 import com.moveinsync.rostersync.contract.EventType;
+import com.moveinsync.rostersync.roster.cache.TenantSettings;
 import com.moveinsync.rostersync.roster.core.FieldError;
 import com.moveinsync.rostersync.roster.repository.EmployeeRepository;
 import com.moveinsync.rostersync.roster.repository.EmployeeRow;
@@ -18,7 +19,6 @@ import com.moveinsync.rostersync.roster.repository.IngestEventRepository;
 import com.moveinsync.rostersync.roster.repository.IngestEventRepository.IngestEventView;
 import com.moveinsync.rostersync.roster.repository.LockRepository;
 import com.moveinsync.rostersync.roster.repository.OutboxRepository;
-import com.moveinsync.rostersync.roster.repository.TenantSourceRepository;
 import com.moveinsync.rostersync.roster.repository.TenantTx;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.PessimisticLockingFailureException;
@@ -32,19 +32,19 @@ public class EmployeeService {
 
     private final TenantTx tenantTx;
     private final LockRepository locks;
-    private final TenantSourceRepository tenantSources;
+    private final TenantSettings tenantSettings;
     private final EmployeeRepository employees;
     private final HistoryRepository history;
     private final IngestEventRepository ingestEvents;
     private final OutboxRepository outbox;
     private final String sourceId;
 
-    public EmployeeService(TenantTx tenantTx, LockRepository locks, TenantSourceRepository tenantSources,
+    public EmployeeService(TenantTx tenantTx, LockRepository locks, TenantSettings tenantSettings,
                            EmployeeRepository employees, HistoryRepository history, IngestEventRepository ingestEvents,
                            OutboxRepository outbox, @Value("${app.tenant-source-default}") String sourceId) {
         this.tenantTx = tenantTx;
         this.locks = locks;
-        this.tenantSources = tenantSources;
+        this.tenantSettings = tenantSettings;
         this.employees = employees;
         this.history = history;
         this.ingestEvents = ingestEvents;
@@ -118,7 +118,10 @@ public class EmployeeService {
     }
 
     private long locked(String tenantId, String employeeId, java.util.function.LongSupplier work) {
-        long lockKey = tenantSources.lockKey(tenantId, sourceId).orElseThrow(NotFoundException::new);
+        Long lockKey = tenantSettings.lockKey(tenantId, sourceId);
+        if (lockKey == null) {
+            throw new NotFoundException();
+        }
         try {
             return tenantTx.inTenant(tenantId, s -> {
                 locks.lockTimeout3s();

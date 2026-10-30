@@ -102,6 +102,14 @@ public class OutboxRelayRepository {
         return counts;
     }
 
+    /** Counts by state across all tenants (metrics only). */
+    public Map<String, Long> countsByStateAllTenants() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        jdbc.sql("SELECT state, count(*) AS n FROM outbox_event GROUP BY state")
+                .query((RowCallbackHandler) rs -> counts.put(rs.getString("state"), rs.getLong("n")));
+        return counts;
+    }
+
     /** Age in seconds of the oldest undelivered row (all tenants when tenantId is null); 0 when none. */
     public double oldestPendingAgeSeconds(String tenantId) {
         return jdbc.sql("""

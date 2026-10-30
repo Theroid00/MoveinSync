@@ -13,7 +13,11 @@ spring:
 logging.structured.format.console: ecs
 management:
   endpoints.web.exposure.include: health,info,prometheus
-  metrics.distribution.percentiles-histogram.roster_event_apply_seconds: true
+  # Histograms for roster_event_apply_seconds and outbox_delivery_lag_seconds are published in code
+  # (Timer.publishPercentileHistogram), keyed by meter name rather than the exported name.
+  metrics.distribution.percentiles-histogram:
+    roster.event.apply: true
+    outbox.delivery.lag: true
 app:
   tenant-source-default: hr-main
   relay: { enabled: true, poll-ms: 200, batch: 100, lease-secs: 30, max-attempts: 10, retention-days: 7 }

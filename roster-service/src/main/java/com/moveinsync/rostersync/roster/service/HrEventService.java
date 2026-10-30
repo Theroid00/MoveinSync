@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.moveinsync.rostersync.contract.EmployeeChangedEvent;
 import com.moveinsync.rostersync.contract.EventType;
 import com.moveinsync.rostersync.roster.cache.OfficeCatalog;
+import com.moveinsync.rostersync.roster.cache.TenantSettings;
 import com.moveinsync.rostersync.roster.core.Bucketer;
 import com.moveinsync.rostersync.roster.core.CanonicalHasher;
 import com.moveinsync.rostersync.roster.core.Decision;
@@ -22,6 +23,9 @@ import com.moveinsync.rostersync.roster.core.Incoming;
 import com.moveinsync.rostersync.roster.core.OwnershipPolicy;
 import com.moveinsync.rostersync.roster.core.RecordValidator;
 import com.moveinsync.rostersync.roster.core.VersionPolicy;
+import com.moveinsync.rostersync.roster.fault.FaultInjector;
+import com.moveinsync.rostersync.roster.observability.Mdc;
+import com.moveinsync.rostersync.roster.observability.RosterMetrics;
 import com.moveinsync.rostersync.roster.repository.EmployeeRepository;
 import com.moveinsync.rostersync.roster.repository.EmployeeRow;
 import com.moveinsync.rostersync.roster.repository.HistoryRepository;
@@ -34,6 +38,8 @@ import com.moveinsync.rostersync.roster.repository.TenantTx;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Versioned ingestion of one HR event (spec §8). Validation happens first, outside the main
@@ -54,13 +60,17 @@ public class HrEventService {
     private final RecordErrorRepository recordErrors;
     private final OfficeCatalog officeCatalog;
     private final RejectionRecorder rejections;
+    private final TenantSettings tenantSettings;
+    private final RosterMetrics metrics;
+    private final FaultInjector faults;
     private final String sourceId;
     private final RecordValidator validator = RecordValidator.forApi();
 
     public HrEventService(TenantTx tenantTx, LockRepository locks, TenantSourceRepository tenantSources,
                           IngestEventRepository ingestEvents, EmployeeRepository employees, HistoryRepository history,
                           OutboxRepository outbox, RecordErrorRepository recordErrors, OfficeCatalog officeCatalog,
-                          RejectionRecorder rejections, @Value("${app.tenant-source-default}") String sourceId) {
+                          RejectionRecorder rejections, TenantSettings tenantSettings, RosterMetrics metrics,
+                          FaultInjector faults, @Value("${app.tenant-source-default}") String sourceId) {
         this.tenantTx = tenantTx;
         this.locks = locks;
         this.tenantSources = tenantSources;
@@ -71,16 +81,32 @@ public class HrEventService {
         this.recordErrors = recordErrors;
         this.officeCatalog = officeCatalog;
         this.rejections = rejections;
+        this.tenantSettings = tenantSettings;
+        this.metrics = metrics;
+        this.faults = faults;
         this.sourceId = sourceId;
     }
 
     public IngestResult ingest(String tenantId, HrEventRequest request) {
+        long started = System.nanoTime();
+        try (Mdc.Scope scope = Mdc.event(request.eventId(), request.employeeId())) {
+            IngestResult result = ingestValidated(tenantId, request);
+            record(result);
+            metrics.applyLatency(System.nanoTime() - started);
+            return result;
+        }
+    }
+
+    private IngestResult ingestValidated(String tenantId, HrEventRequest request) {
         Set<String> offices = officeCatalog.activeOffices(tenantId);
         List<FieldError> errors = validator.validate(request, offices::contains);
         if (!errors.isEmpty()) {
             return rejections.reject(tenantId, sourceId, request, errors);
         }
-        long lockKey = tenantSources.lockKey(tenantId, sourceId).orElseThrow(NotFoundException::new);
+        Long lockKey = tenantSettings.lockKey(tenantId, sourceId);
+        if (lockKey == null) {
+            throw new NotFoundException();
+        }
         try {
             return tenantTx.inTenant(tenantId, status -> applyLocked(tenantId, lockKey, request));
         } catch (PessimisticLockingFailureException e) {
@@ -90,11 +116,27 @@ public class HrEventService {
 
     /** Records a line that could not be parsed at all (batch path). */
     public IngestResult rejectUnparseable(String tenantId, FieldError error) {
-        return rejections.reject(tenantId, sourceId, null, List.of(error));
+        IngestResult result = rejections.reject(tenantId, sourceId, null, List.of(error));
+        record(result);
+        return result;
+    }
+
+    private void record(IngestResult result) {
+        metrics.event(result.outcome().name());
+        if (result.outcome() == IngestOutcome.REJECTED) {
+            result.errors().forEach(e -> metrics.rejection(e.code()));
+        }
     }
 
     private IngestResult applyLocked(String tenantId, long lockKey, HrEventRequest r) {
         String employeeId = r.employeeId();
+        // Fault point for the brief's crash test: the transaction committed, nothing published yet.
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                faults.hit("AFTER_INGEST_COMMIT");
+            }
+        });
         locks.lockTimeout3s();
         locks.tenantShared(lockKey);
         locks.employee(tenantId, sourceId, employeeId);

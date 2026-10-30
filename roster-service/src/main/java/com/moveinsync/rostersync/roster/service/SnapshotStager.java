@@ -24,6 +24,7 @@ import com.moveinsync.rostersync.roster.core.HrRecord;
 import com.moveinsync.rostersync.roster.core.RecordValidator;
 import com.moveinsync.rostersync.roster.core.Rules;
 import com.moveinsync.rostersync.roster.core.Sha256;
+import com.moveinsync.rostersync.roster.observability.RosterMetrics;
 import com.moveinsync.rostersync.roster.repository.ReconciliationRunRepository;
 import com.moveinsync.rostersync.roster.repository.RunRow;
 import com.moveinsync.rostersync.roster.repository.StagingRepository;
@@ -77,13 +78,15 @@ public class SnapshotStager {
     private final StagingRepository staging;
     private final ReconciliationRunRepository runs;
     private final OfficeCatalog offices;
+    private final RosterMetrics metrics;
 
     public SnapshotStager(@Qualifier("bulk") TenantTx bulkTx, StagingRepository staging, ReconciliationRunRepository runs,
-                          OfficeCatalog offices) {
+                          OfficeCatalog offices, RosterMetrics metrics) {
         this.bulkTx = bulkTx;
         this.staging = staging;
         this.runs = runs;
         this.offices = offices;
+        this.metrics = metrics;
     }
 
     public Result stage(RunRow run) {
@@ -170,6 +173,7 @@ public class SnapshotStager {
         runs.setStatus(run.runId(), "STAGED");
         long millis = (System.nanoTime() - started) / 1_000_000;
         runs.phase(run.runId(), "stage", millis);
+        metrics.reconciliationPhase("stage", millis);
         log.info("event=recon_staged runId={} parsed={} valid={} unidentifiable={} ms={}", run.runId(), parsed,
                 counts.valid(), unidentifiable, millis);
         return Result.STAGED;
@@ -211,6 +215,7 @@ public class SnapshotStager {
     private Result incomplete(RunRow run, String errorCode) {
         bulkTx.inTenant(run.tenantId(), s -> staging.delete(run.runId()));
         runs.finish(run.runId(), "INCOMPLETE", errorCode);
+        metrics.reconciliationRun("INCOMPLETE");
         log.warn("event=recon_incomplete runId={} code={}", run.runId(), errorCode);
         return Result.INCOMPLETE;
     }

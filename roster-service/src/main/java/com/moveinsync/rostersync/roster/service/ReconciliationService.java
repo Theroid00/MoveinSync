@@ -18,6 +18,8 @@ import com.moveinsync.rostersync.contract.ErrorCode;
 import com.moveinsync.rostersync.roster.config.ReconProperties;
 import com.moveinsync.rostersync.roster.core.FieldError;
 import com.moveinsync.rostersync.roster.core.Sha256;
+import com.moveinsync.rostersync.roster.observability.Mdc;
+import com.moveinsync.rostersync.roster.observability.RosterMetrics;
 import com.moveinsync.rostersync.roster.repository.ReconciliationRunRepository;
 import com.moveinsync.rostersync.roster.repository.ReconciliationRunRepository.ErrorRow;
 import com.moveinsync.rostersync.roster.repository.RunRow;
@@ -56,13 +58,14 @@ public class ReconciliationService {
     private final TenantTx tenantTx;
     private final TenantTx bulkTx;
     private final ThreadPoolTaskExecutor executor;
+    private final RosterMetrics metrics;
     private final Path dir;
 
     public ReconciliationService(ReconciliationRunRepository runs, TenantSourceRepository tenantSources,
                                  SnapshotStager stager, SnapshotApplier applier, StagingRepository staging,
                                  TenantTx tenantTx, @Qualifier("bulk") TenantTx bulkTx,
                                  @Qualifier("reconciliationExecutor") ThreadPoolTaskExecutor executor,
-                                 ReconProperties properties) {
+                                 RosterMetrics metrics, ReconProperties properties) {
         this.runs = runs;
         this.tenantSources = tenantSources;
         this.stager = stager;
@@ -71,6 +74,7 @@ public class ReconciliationService {
         this.tenantTx = tenantTx;
         this.bulkTx = bulkTx;
         this.executor = executor;
+        this.metrics = metrics;
         this.dir = Path.of(properties.dir());
     }
 
@@ -105,12 +109,14 @@ public class ReconciliationService {
         switch (lineage) {
             case DUPLICATE -> {
                 runs.completeAsDuplicate(runId);
+                metrics.reconciliationRun("COMPLETED");
                 deleteQuietly(path);
                 log.info("event=recon_duplicate_snapshot runId={} cutoff={}", runId, manifest.cutoffSeq());
                 return new Accepted(runId, "COMPLETED");
             }
             case CONFLICT -> {
                 runs.finish(runId, "REJECTED", "SNAPSHOT_CONFLICT");
+                metrics.reconciliationRun("REJECTED");
                 deleteQuietly(path);
                 throw new ConflictException(ErrorCode.SNAPSHOT_CONFLICT);
             }
@@ -173,6 +179,7 @@ public class ReconciliationService {
             throw new ConflictException(ErrorCode.INVALID_RUN_STATE);
         }
         bulkTx.inTenant(tenantId, s -> staging.delete(runId));
+        metrics.reconciliationRun("REJECTED");
         log.info("event=recon_rejected runId={} by={}", runId, by);
         return new Accepted(runId, "REJECTED");
     }
@@ -200,6 +207,12 @@ public class ReconciliationService {
 
     /** UPLOADING → stage → STAGED → assess/apply. STAGED (approved or recovered) goes straight to §9.3. */
     public void processRun(UUID runId) {
+        try (Mdc.Scope scope = Mdc.run(runId)) {
+            processInScope(runId);
+        }
+    }
+
+    private void processInScope(UUID runId) {
         try {
             RunRow run = runs.find(runId).orElseThrow();
             if ("UPLOADING".equals(run.status())) {
@@ -213,6 +226,7 @@ public class ReconciliationService {
         } catch (RuntimeException e) {
             log.error("event=recon_failed runId={} exception={}", runId, e.getClass().getName(), e);
             runs.finish(runId, "FAILED", "PROCESSING_ERROR");
+            metrics.reconciliationRun("FAILED");
         }
     }
 
