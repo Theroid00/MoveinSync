@@ -5,6 +5,7 @@ set -uo pipefail
 . "$(dirname "$0")/../lib.sh"
 
 EMP=EMP-010
+wait_until 240 "demo data seeded" seeded
 HR=$(token hr@acme)
 log "arming AFTER_INGEST_COMMIT (relay off) on roster"
 ROSTER_FAULT=AFTER_INGEST_COMMIT ROSTER_RELAY=false $DC up -d --force-recreate --no-deps roster >/dev/null 2>&1

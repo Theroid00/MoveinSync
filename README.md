@@ -4,9 +4,19 @@ Two Java 21 / Spring Boot services reconcile HR events and full employee exports
 
 **Demo video:** VIDEO_LINK_TODO
 
+**Start here** (Docker with Compose, `curl`, `jq`; about ten minutes):
+
+```bash
+docker compose up -d --build --wait          # first build compiles inside Docker: allow 3–5 minutes
+scripts/demo/quick.sh                        # two-minute tour of the guarantees against the running stack
+scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies after commit, recovers, cancels once
+```
+
+`make up`, `make tour`, `make crash`, `make test` and `make down` run the same steps.
+
 ## Results
 
-Measured on Nobara Linux 44, 32 logical CPUs and 31 GiB RAM, Temurin 21.0.13 and PostgreSQL 18.6. The reconciliation JVM is capped at 256 MiB. Three measured runs restore fresh baselines; there is no warm-up, per the user instruction on 2026-10-31.
+Measured on Nobara Linux 44, 32 logical CPUs and 31 GiB RAM, Temurin 21.0.13 and PostgreSQL 18.6. The reconciliation JVM is capped at 256 MiB. Each reconciliation figure comes from three measured runs that each start from a freshly restored baseline, with no separate warm-up run, so the times include JVM warm-up.
 
 | Check | Result |
 |---|---|
@@ -55,12 +65,12 @@ Detailed context, rejected alternatives and consequences are in [DEC-01–23](do
 
 ## Quick start
 
-Docker Engine with Compose is enough to build and run both services. Ports 8080/8081 must be free.
+Docker Engine with Compose is enough to build and run both services. Ports 8080/8081 must be free. The first build compiles both services inside Docker and downloads their dependencies, which takes a few minutes; later builds reuse the cache.
 
 ```bash
 git clone https://github.com/Theroid00/HR.git
 cd HR
-docker compose up -d --build
+docker compose up -d --build --wait
 ```
 
 Startup seeds `acme` and `globex`, three offices, 100 employees per tenant, trips, 300 future bookings and 20 past bookings in total. Demo users are `hr@acme`, `admin@acme`, `ops@acme`, `emp001@acme`, and their `globex` equivalents; password `demo123`. The employee account is bound to `EMP-001`. Five sample curls (jq extracts the tokens):
@@ -133,14 +143,14 @@ This preserves every requirement ID from the original coverage audit and links t
 | A2 | Load test/benchmark with throughput and p50/p99, machine stated | [Machine and measurements](docs/benchmark.md) |
 | A3 | 1–2 page design note: architecture diagram, sequence diagram (hardest flow), failure-mode table | [Design note](docs/design-note.md) |
 | A4 | One-command run incl. DB | [Compose](docker-compose.yml) |
-| I1 | Understand requirements, hard rules, scale | [Build spec](docs/spec/AGENT_BUILD_SPEC.md), this audit |
+| I1 | Understand requirements, hard rules, scale | [Design specification](docs/spec/), this audit |
 | I2 | Language choice defended | [Language choice](#language-choice) |
 | I3 | Design first: data model, components, APIs, failure modes in the design note | [Design note](docs/design-note.md) |
 | I4 | Clean layered code, core algorithm in plain classes testable without web/DB | [roster CoreIsPureTest](roster-service/src/test/java/com/moveinsync/rostersync/roster/core/CoreIsPureTest.java) |
 | I5 | Normal + edge-case tests; unit, concurrency, failure, benchmark | [Required test manifest](scripts/required-tests.txt), [faults](docs/fault-runs/SUMMARY.txt), [benchmarks](docs/benchmark.md) |
 | I6 | README: how to run, assumptions, benchmark results, trade-offs | This README and [measurements](docs/benchmark.md) |
-| I7 | Public GitHub repo, meaningful commit history | [Phase history](PROGRESS.md); public publishing is a human release action |
-| I8 | Demo video: main flows, one live failure, sample API calls (Postman/curl) | [Automated demo](scripts/demo/run-all.sh), [Postman](postman/README.md); video recording is the human handoff |
+| I7 | Public GitHub repo, meaningful commit history | [Commit history](https://github.com/Theroid00/HR/commits/main): small, reviewed steps from scaffold to release |
+| I8 | Demo video: main flows, one live failure, sample API calls (Postman/curl) | [Automated demo](scripts/demo/run-all.sh), [Postman](postman/README.md); the video is linked at the top of this README |
 
 ## Architecture
 
@@ -156,6 +166,17 @@ flowchart LR
 ```
 
 Both databases run in one PostgreSQL container. A transaction writes each employee change, history and outbox event together. The consumer commits durable dedup, projection changes, future booking cancellation and seat release together. Seats are capacity minus active reservations. Controllers handle HTTP/authorization, services own transactions, repositories hold SQL, and core policies run without Spring or JDBC. See the [design note](docs/design-note.md) for the crash sequence.
+
+### Where to look in the code
+
+| Concern | Start with |
+|---|---|
+| Version gate: stale, duplicate, conflict, tombstone | [VersionPolicy](roster-service/src/main/java/com/moveinsync/rostersync/roster/core/VersionPolicy.java), then [HrEventService](roster-service/src/main/java/com/moveinsync/rostersync/roster/service/HrEventService.java) |
+| Nightly diff, safety brake and approval | [SnapshotApplier](roster-service/src/main/java/com/moveinsync/rostersync/roster/service/SnapshotApplier.java), then the SQL in [ReconciliationApplyRepository](roster-service/src/main/java/com/moveinsync/rostersync/roster/repository/ReconciliationApplyRepository.java) |
+| Streaming the export into staging | [SnapshotStager](roster-service/src/main/java/com/moveinsync/rostersync/roster/service/SnapshotStager.java), [StagingRepository](roster-service/src/main/java/com/moveinsync/rostersync/roster/repository/StagingRepository.java) |
+| Outbox relay: leases, per-employee order, retries | [OutboxRelay](roster-service/src/main/java/com/moveinsync/rostersync/roster/outbox/OutboxRelay.java), [OutboxRelayRepository](roster-service/src/main/java/com/moveinsync/rostersync/roster/repository/OutboxRelayRepository.java) |
+| Idempotent consumer: cancellations and seats | [EmployeeEventConsumer](booking-service/src/main/java/com/moveinsync/rostersync/booking/consumer/EmployeeEventConsumer.java), [BookingService](booking-service/src/main/java/com/moveinsync/rostersync/booking/service/BookingService.java) |
+| Tenant isolation and roles | [Row-level security](roster-service/src/main/resources/db/migration/V2__rls.sql), [SecurityConfig](roster-service/src/main/java/com/moveinsync/rostersync/roster/security/SecurityConfig.java) |
 
 ## Trade-offs and scaling limits
 
