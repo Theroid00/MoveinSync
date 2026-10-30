@@ -46,6 +46,11 @@ public class ProjectionRepository {
                 .update();
     }
 
+    public long countActiveAmong(String tenantId, java.util.List<String> employeeIds) {
+        return jdbc.sql("SELECT count(*) FROM employee_projection WHERE tenant_id = :t AND active AND employee_id = ANY(:ids)")
+                .param("t", tenantId).param("ids", employeeIds.toArray(String[]::new)).query(Long.class).single();
+    }
+
     public long countActive(String tenantId) {
         return jdbc.sql("SELECT count(*) FROM employee_projection WHERE tenant_id = :t AND active")
                 .param("t", tenantId).query(Long.class).single();

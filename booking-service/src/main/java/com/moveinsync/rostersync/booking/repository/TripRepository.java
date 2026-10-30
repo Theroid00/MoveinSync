@@ -51,6 +51,11 @@ public class TripRepository {
         return jdbc.sql("SELECT count(*) FROM trip WHERE tenant_id = :t").param("t", tenantId).query(Long.class).single();
     }
 
+    public java.util.Optional<Trip> anyPastTrip(String tenantId) {
+        return jdbc.sql("SELECT trip_id, capacity, starts_at FROM trip WHERE tenant_id = :t AND starts_at <= now() ORDER BY starts_at LIMIT 1")
+                .param("t", tenantId).query(TripRepository::trip).optional();
+    }
+
     public List<Trip> futureTrips(String tenantId) {
         return jdbc.sql("SELECT trip_id, capacity, starts_at FROM trip WHERE tenant_id = :t AND starts_at > now() ORDER BY starts_at")
                 .param("t", tenantId).query(TripRepository::trip).list();

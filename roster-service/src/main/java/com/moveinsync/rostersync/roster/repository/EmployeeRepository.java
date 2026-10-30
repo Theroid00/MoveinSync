@@ -45,6 +45,11 @@ public class EmployeeRepository {
                 .query(Long.class).single() > 0;
     }
 
+    public long count(String tenantId, String sourceId) {
+        return jdbc.sql("SELECT count(*) FROM employee WHERE tenant_id = :t AND source_id = :s")
+                .param("t", tenantId).param("s", sourceId).query(Long.class).single();
+    }
+
     public Optional<Long> tombstoneSeq(String tenantId, String sourceId, String employeeId) {
         return jdbc.sql("SELECT source_seq FROM employee_tombstone WHERE " + PK)
                 .param("t", tenantId).param("s", sourceId).param("e", employeeId)

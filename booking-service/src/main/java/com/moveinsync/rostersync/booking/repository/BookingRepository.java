@@ -73,6 +73,16 @@ public class BookingRepository {
                 .param("t", tenantId).param("e", employeeId).query(BookingRepository::row).list();
     }
 
+    public long countFuture(String tenantId, String employeeId) {
+        return jdbc.sql("SELECT count(*) FROM booking WHERE tenant_id = :t AND employee_id = :e AND scheduled_start > now()")
+                .param("t", tenantId).param("e", employeeId).query(Long.class).single();
+    }
+
+    public long countPast(String tenantId, String employeeId) {
+        return jdbc.sql("SELECT count(*) FROM booking WHERE tenant_id = :t AND employee_id = :e AND scheduled_start <= now()")
+                .param("t", tenantId).param("e", employeeId).query(Long.class).single();
+    }
+
     public long countForEmployee(String tenantId, String employeeId) {
         return jdbc.sql("SELECT count(*) FROM booking WHERE tenant_id = :t AND employee_id = :e")
                 .param("t", tenantId).param("e", employeeId).query(Long.class).single();
