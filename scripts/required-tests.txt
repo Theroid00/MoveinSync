@@ -49,6 +49,7 @@ FaultInjectorTest
 NoPiiIT
 CacheIT
 MetricsIT
+RosterMetricsTest
 
 # P9 (concurrency)
 RacingVersionsIT

@@ -26,6 +26,8 @@ public class RosterMetrics {
 
     public RosterMetrics(MeterRegistry registry) {
         this.registry = registry;
+        // The failure alert needs a zero baseline before the first failed run.
+        registry.counter("reconciliation.runs", "status", "FAILED");
         this.applyTimer = Timer.builder("roster.event.apply").description("Single-event ingest latency")
                 .publishPercentileHistogram().register(registry);
         this.retries = Counter.builder("outbox.retries").description("Deliveries scheduled for retry").register(registry);
