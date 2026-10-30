@@ -136,6 +136,8 @@ public class ReconciliationApplyRepository {
                 WHERE s.run_id = :run AND s.valid AND s.bucket = ANY(:mismatched)""")
                 .param("t", tenantId).param("src", sourceId).param("run", runId).param("mismatched", mismatched)
                 .update();
+        // Temporary tables are not auto-analyzed; apply joins need the actual action distribution.
+        jdbc.sql("ANALYZE recon_plan").update();
     }
 
     public Map<String, Long> planCounts() {

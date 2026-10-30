@@ -1,0 +1,32 @@
+{
+  "measured_runs" : [ {
+    "iteration" : 1,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 4558,
+      "stage" : 1648,
+      "assess" : 98,
+      "digest" : 175
+    },
+    "total_ms" : 6594,
+    "rows_per_second" : 30330.603579011222,
+    "peak_heap_bytes" : 205949816,
+    "buckets_mismatched" : 62381,
+    "outbox_rows" : 200000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 200000,
+      "updated" : 0,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 0,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 0
+    }
+  } ],
+  "seed" : 42,
+  "warmup_runs" : 1,
+  "scenario" : "initial",
+  "heap_limit_bytes" : 268435456
+}

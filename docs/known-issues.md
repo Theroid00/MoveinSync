@@ -76,4 +76,8 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
+- **Benchmark baseline and RLS (§19):** PostgreSQL rejects `COPY FROM` directly into an RLS table for the app role. The unmeasured fixture COPYs into a temporary table, then `INSERT ... SELECT`s into `employee` under the bulk tenant transaction, retaining RLS. Only the disposable benchmark container grants `TRUNCATE` to `roster_app`; production grants are unchanged.
+
+- **P11 execution deferred to another computer (user request):** no complete local benchmark results are accepted. A local 200k-row attempt timed out in the apply UPDATE (300 s); `ANALYZE recon_plan` was added because PostgreSQL does not auto-analyze temporary tables. Normal tests pass; performance and the full runner still require the remote run. Partial results and failure evidence are in `bench/local-attempts/`, with execution instructions in `bench/README.md`. P11's gate and P12–P13 remain pending.
+
 - *(resolved in P6)* P3–P5 read the tenant from an `X-Tenant-Id` header as a build-order stand-in. Since P6 the tenant, roles and employee id come only from the validated JWT.

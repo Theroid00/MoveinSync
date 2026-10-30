@@ -1,0 +1,85 @@
+-------------------------------------------------------------------------------
+Test set: com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 326.8 s <<< FAILURE! -- in com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT
+com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT.benchmarkFreshBaselines -- Time elapsed: 322.9 s <<< ERROR!
+org.springframework.dao.QueryTimeoutException: 
+PreparedStatementCallback; SQL [WITH changed AS (
+  UPDATE employee e SET name = s.name, email = s.email, phone = s.phone, manager_id = s.manager_id,
+         office_code = s.office_code, shift_code = s.shift_code, active = true, source_seq = p.new_seq,
+         hr_hash = p.new_hash, aggregate_revision = e.aggregate_revision + 1, tombstone_reason = NULL,
+         updated_at = now()
+  FROM recon_plan p JOIN staging_employee s ON s.run_id = ? AND s.employee_id = p.employee_id
+  WHERE p.action IN ('UPDATE', 'ADVANCE', 'REACTIVATE') AND e.tenant_id = ? AND e.source_id = ?
+    AND e.employee_id = p.employee_id AND e.source_seq < p.new_seq
+  RETURNING new.employee_id, new.aggregate_revision, new.source_seq,
+            CASE p.action WHEN 'UPDATE' THEN 'EmployeeUpdated' WHEN 'ADVANCE' THEN 'EmployeeVersionAdvanced'
+                          ELSE 'EmployeeReactivated' END AS event_type,
+            new.active,
+            to_jsonb(array_remove(ARRAY[
+              CASE WHEN old.name IS DISTINCT FROM new.name THEN 'name' END,
+              CASE WHEN old.email IS DISTINCT FROM new.email THEN 'email' END,
+              CASE WHEN old.phone IS DISTINCT FROM new.phone THEN 'phone' END,
+              CASE WHEN old.manager_id IS DISTINCT FROM new.manager_id THEN 'managerId' END,
+              CASE WHEN old.office_code IS DISTINCT FROM new.office_code THEN 'officeCode' END,
+              CASE WHEN old.shift_code IS DISTINCT FROM new.shift_code THEN 'shiftCode' END,
+              CASE WHEN old.active IS DISTINCT FROM new.active THEN 'active' END,
+              CASE WHEN old.office_code IS DISTINCT FROM new.office_code AND new.pickup_point IS NOT NULL
+                   THEN 'PICKUP_REVIEW_NEEDED' END], NULL)) AS changed_fields
+), ev AS (SELECT gen_random_uuid() AS eid, c.* FROM changed c),
+hist AS (
+  INSERT INTO employee_history (tenant_id, employee_id, source_seq, aggregate_revision, change, origin, run_id)
+  SELECT CAST(? AS text), employee_id, source_seq, aggregate_revision, event_type, 'RECONCILIATION', ? FROM ev
+), ob AS (
+  INSERT INTO outbox_event (event_id, tenant_id, employee_id, aggregate_revision, event_type, payload)
+  SELECT eid, CAST(? AS text), employee_id, aggregate_revision, event_type,
+         jsonb_build_object('eventId', eid::text, 'eventType', event_type, 'tenantId', CAST(? AS text),
+                            'employeeId', employee_id, 'aggregateRevision', aggregate_revision,
+                            'active', active, 'effectiveAt', CAST(? AS text),
+                            'changedFields', changed_fields)
+  FROM ev RETURNING event_type
+)
+SELECT event_type, count(*) AS n FROM ob GROUP BY event_type]; ERROR: canceling statement due to statement timeout
+	at org.springframework.jdbc.support.SQLStateSQLExceptionTranslator.doTranslate(SQLStateSQLExceptionTranslator.java:150)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:102)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.springframework.jdbc.support.AbstractFallbackSQLExceptionTranslator.translate(AbstractFallbackSQLExceptionTranslator.java:111)
+	at org.springframework.jdbc.core.JdbcTemplate.translateException(JdbcTemplate.java:1549)
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:689)
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:732)
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:752)
+	at org.springframework.jdbc.core.JdbcTemplate.query(JdbcTemplate.java:778)
+	at org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate.query(NamedParameterJdbcTemplate.java:205)
+	at org.springframework.jdbc.core.simple.DefaultJdbcClient$DefaultStatementSpec.query(DefaultJdbcClient.java:262)
+	at com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository.eventCounts(ReconciliationApplyRepository.java:291)
+	at com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository.applyUpdates(ReconciliationApplyRepository.java:213)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:190)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:158)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:135)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:179)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:714)
+	at com.moveinsync.rostersync.roster.repository.ReconciliationApplyRepository$$SpringCGLIB$$0.applyUpdates(<generated>)
+	at com.moveinsync.rostersync.roster.service.SnapshotApplier.assessAndApplyLocked(SnapshotApplier.java:166)
+	at com.moveinsync.rostersync.roster.service.SnapshotApplier.lambda$assessAndApply$0(SnapshotApplier.java:79)
+	at com.moveinsync.rostersync.roster.repository.TenantTx.lambda$inTenant$0(TenantTx.java:31)
+	at org.springframework.transaction.support.TransactionTemplate.execute(TransactionTemplate.java:137)
+	at com.moveinsync.rostersync.roster.repository.TenantTx.inTenant(TenantTx.java:26)
+	at com.moveinsync.rostersync.roster.service.SnapshotApplier.assessAndApply(SnapshotApplier.java:74)
+	at com.moveinsync.rostersync.roster.ReconciliationBenchmarkIT.benchmarkFreshBaselines(ReconciliationBenchmarkIT.java:87)
+Caused by: org.postgresql.util.PSQLException: ERROR: canceling statement due to statement timeout
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2993)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2656)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:446)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:533)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:449)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:197)
+	at org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:140)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeQuery(ProxyPreparedStatement.java:52)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeQuery(HikariProxyPreparedStatement.java)
+	at org.springframework.jdbc.core.JdbcTemplate.lambda$query$0(JdbcTemplate.java:738)
+	at org.springframework.jdbc.core.JdbcTemplate.execute(JdbcTemplate.java:670)
+	... 23 more
+
