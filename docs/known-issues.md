@@ -89,3 +89,11 @@ Docker Desktop and Linux hosts need neither variable.
 - **P11 completed on Linux:** all six 200k scenarios, four API rates and contention passed. The earlier 300-second Mac timeout was resolved by analyzing the temporary `recon_plan`. Partial Mac artifacts remain under `bench/local-attempts/` for diagnosis; accepted measurements are under `bench/results/`. The API accepts 1,000/s on this host, but the relay accumulates a backlog at that rate; the report includes delivered-event quantiles and the pending queue separately.
 
 - *(resolved in P6)* P3–P5 read the tenant from an `X-Tenant-Id` header as a build-order stand-in. Since P6 the tenant, roles and employee id come only from the validated JWT.
+
+- **Operational retention:** delivered outbox rows are purged after seven days. Processed-message dedup and employee history currently have no scheduled purge; uploaded snapshot files require an operational retention policy. Keeping dedup indefinitely preserves replay safety but grows database storage.
+
+- **P12 visual validation:** no interactive browser was connected. A temporary official Grafana renderer v5.12.10 rendered every panel through Grafana’s image API; the capture is saved in `docs/validation/dashboard.png`. The renderer was removed afterward.
+
+- **First reconciliation-failure alert:** the FAILED run counter is registered at zero during startup so the first failure has an observable baseline for the Prometheus increase rule. `RosterMetricsTest` proves zero before and one after the first failure; the regression fails against the earlier lazy registration.
+
+- **Publication check (2026-10-31):** the unauthenticated GitHub repository API returns 404 for `Theroid00/HR`. Public visibility is not established. The owner must publish/push the completed release and confirm public access as part of the human handoff.

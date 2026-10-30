@@ -1,0 +1,48 @@
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+CLASS                                     TESTS   FAIL    ERR   SKIP  STATUS
+HealthIT                                      4      0      0      0  OK
+RlsIT                                         6      0      0      0  OK
+RecordValidatorTest                          28      0      0      0  OK
+CanonicalHasherTest                           9      0      0      0  OK
+BucketerTest                                  2      0      0      0  OK
+VersionPolicyTest                            14      0      0      0  OK
+SafetyBrakeTest                               5      0      0      0  OK
+BucketDiffTest                                4      0      0      0  OK
+OwnershipPolicyTest                           7      0      0      0  OK
+CoreIsPureTest                                1      0      0      0  OK
+OrderIndependenceTest                         2      0      0      0  OK
+ReplayIdempotenceTest                         1      0      0      0  OK
+IngestApiIT                                  11      0      0      0  OK
+BriefExampleIT                                2      0      0      0  OK
+ValidationIT                                  4      0      0      0  OK
+OwnershipIT                                   5      0      0      0  OK
+OutboxIT                                      4      0      0      0  OK
+ReplayIT                                      1      0      0      0  OK
+ErrorContractIT                              14      0      0      0  OK
+BulkPoolIT                                    1      0      0      0  OK
+SeatAllocatorTest                             3      0      0      0  OK
+ConsumerIT                                    5      0      0      0  OK
+BookingApiIT                                  4      0      0      0  OK
+RetryPolicyTest                               4      0      0      0  OK
+RelayIT                                      10      0      0      0  OK
+SecurityMatrixIT                            115      0      0      0  OK
+ReconciliationIT                             24      0      0      0  OK
+FaultInjectorTest                             6      0      0      0  OK
+NoPiiIT                                       1      0      0      0  OK
+CacheIT                                       3      0      0      0  OK
+MetricsIT                                     3      0      0      0  OK
+RosterMetricsTest                             1      0      0      0  OK
+RacingVersionsIT                              1      0      0      0  OK
+ConcurrentDuplicatesIT                        1      0      0      0  OK
+ConcurrentCreatesIT                           1      0      0      0  OK
+TransportVsHrIT                               1      0      0      0  OK
+SnapshotVsApiIT                               1      0      0      0  OK
+RelayCompetitionIT                            1      0      0      0  OK
+BookingRaceIT                                 1      0      0      0  OK
+SeatRaceIT                                    1      0      0      0  OK
+CreateVsDeactivateUnknownIT                   1      0      0      0  OK
+DbFailuresTest                                1      0      0      0  OK
+GlobalExceptionHandlerTest                    1      0      0      0  OK
+check-tests: 43 required classes, 0 with problems
+PASS: 29 endpoint requests, response script syntax, four role logins, public requests, trusted-service boundary

@@ -1,0 +1,519 @@
+{
+  "info": {
+    "name": "Roster Sync",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Role-specific demo tokens are fetched before protected requests. Read postman/README.md for ordering, files and the trusted-service endpoint."
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const role = pm.info.requestName.split(\" | \")[0];",
+          "const users = { HR: \"hr\", ADMIN: \"admin\", OPS: \"ops\", EMPLOYEE: \"emp001\" };",
+          "pm.variables.set(\"event_id\", \"postman-\" + Date.now());",
+          "pm.variables.set(\"source_seq\", Date.now() * 1000);",
+          "pm.variables.set(\"now\", new Date().toISOString());",
+          "pm.variables.set(\"starts_at\", new Date(Date.now() + 86400000).toISOString());",
+          "if (role === \"SERVICE\") {",
+          "  const token = pm.environment.get(\"service_token\");",
+          "  if (!token) throw new Error(\"Supply a trusted SERVICE token for the internal endpoint; normal demo traffic uses the relay.\");",
+          "  pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + token });",
+          "} else if (users[role]) {",
+          "  const tenant = pm.environment.get(\"tenant\") || \"acme\";",
+          "  pm.sendRequest({",
+          "    url: pm.environment.get(\"roster_url\") + \"/api/v1/auth/token\",",
+          "    method: \"POST\", header: { \"Content-Type\": \"application/json\" },",
+          "    body: { mode: \"raw\", raw: JSON.stringify({ username: users[role] + \"@\" + tenant, password: pm.environment.get(\"password\") }) }",
+          "  }, function (error, response) {",
+          "    if (error || response.code !== 200) throw new Error(\"Demo token request failed\");",
+          "    pm.request.headers.upsert({ key: \"Authorization\", value: \"Bearer \" + response.json().accessToken });",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "PUBLIC | Token",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/auth/token",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"hr@{{tenant}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"access_token\", pm.response.json().accessToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUBLIC | JWKS",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/.well-known/jwks.json",
+        "header": []
+      }
+    },
+    {
+      "name": "PUBLIC | Roster health",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/actuator/health",
+        "header": []
+      }
+    },
+    {
+      "name": "PUBLIC | Roster prometheus",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/actuator/prometheus",
+        "header": []
+      }
+    },
+    {
+      "name": "PUBLIC | Booking health",
+      "request": {
+        "method": "GET",
+        "url": "{{booking_url}}/actuator/health",
+        "header": []
+      }
+    },
+    {
+      "name": "PUBLIC | Booking prometheus",
+      "request": {
+        "method": "GET",
+        "url": "{{booking_url}}/actuator/prometheus",
+        "header": []
+      }
+    },
+    {
+      "name": "HR | Ingest event",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/hr/events",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"{{event_id}}\",\n  \"sourceSeq\": {{source_seq}},\n  \"eventType\": \"UPSERT\",\n  \"employeeId\": \"{{employee_id}}\",\n  \"effectiveAt\": \"{{now}}\",\n  \"hr\": {\n    \"name\": \"Synthetic Employee\",\n    \"email\": \"synthetic@example.test\",\n    \"phone\": \"+919000000999\",\n    \"managerId\": null,\n    \"officeCode\": \"BLR-A\",\n    \"shiftCode\": \"MORNING\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "HR | Ingest batch",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/hr/events/batch",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-ndjson"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"eventId\": \"{{event_id}}\", \"sourceSeq\": {{source_seq}}, \"eventType\": \"UPSERT\", \"employeeId\": \"{{employee_id}}\", \"effectiveAt\": \"{{now}}\", \"hr\": {\"name\": \"Synthetic Employee\", \"email\": \"synthetic@example.test\", \"phone\": \"+919000000999\", \"managerId\": null, \"officeCode\": \"BLR-A\", \"shiftCode\": \"MORNING\"}}\n"
+        }
+      }
+    },
+    {
+      "name": "ADMIN | Read employee",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/employees/{{employee_id}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"revision\", pm.response.headers.get(\"ETag\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ADMIN | Employee history",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/employees/{{employee_id}}/history",
+        "header": []
+      }
+    },
+    {
+      "name": "ADMIN | Transport fields",
+      "request": {
+        "method": "PATCH",
+        "url": "{{roster_url}}/api/v1/employees/{{employee_id}}/transport",
+        "header": [
+          {
+            "key": "If-Match",
+            "value": "{{revision}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"pickupPoint\": \"Demo stop\",\n  \"specialAssistance\": null\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"revision\", pm.response.headers.get(\"ETag\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ADMIN | Deactivate employee",
+      "request": {
+        "method": "DELETE",
+        "url": "{{roster_url}}/api/v1/employees/{{employee_id}}",
+        "header": []
+      }
+    },
+    {
+      "name": "ADMIN | Office catalog",
+      "request": {
+        "method": "PUT",
+        "url": "{{roster_url}}/api/v1/admin/offices/BLR-A",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"active\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "ADMIN | Brake configuration",
+      "request": {
+        "method": "PUT",
+        "url": "{{roster_url}}/api/v1/admin/config",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"brakeThresholdBp\": 3000\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "OPS | Outbox status",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/outbox/status",
+        "header": []
+      }
+    },
+    {
+      "name": "OPS | Replay dead event",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/outbox/{{outbox_id}}/replay",
+        "header": []
+      }
+    },
+    {
+      "name": "OPS | Upload snapshot",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/reconciliations",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": null,
+              "description": "Select your CSV export locally."
+            },
+            {
+              "key": "manifest",
+              "type": "text",
+              "contentType": "application/json",
+              "value": "{\"sourceId\":\"hr-main\",\"cutoffSeq\":600000,\"exportedAt\":\"{{now}}\",\"expectedRows\":120000}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"run_id\", pm.response.json().runId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OPS | Read reconciliation",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/reconciliations/{{run_id}}",
+        "header": []
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"assessment_hash\", pm.response.json().assessmentHash);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OPS | Reconciliation errors",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/reconciliations/{{run_id}}/errors?page=0&size=50",
+        "header": []
+      }
+    },
+    {
+      "name": "OPS | Pending approvals",
+      "request": {
+        "method": "GET",
+        "url": "{{roster_url}}/api/v1/reconciliations/pending-approval",
+        "header": []
+      }
+    },
+    {
+      "name": "ADMIN | Approve reconciliation",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/reconciliations/{{run_id}}/approve",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"assessmentHash\": \"{{assessment_hash}}\",\n  \"reason\": \"Reviewed source export\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "OPS | Reject reconciliation",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/reconciliations/{{run_id}}/reject",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Re-upload corrected export\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "OPS | Retry failed reconciliation",
+      "request": {
+        "method": "POST",
+        "url": "{{roster_url}}/api/v1/reconciliations/{{run_id}}/retry",
+        "header": []
+      }
+    },
+    {
+      "name": "ADMIN | Create trip",
+      "request": {
+        "method": "POST",
+        "url": "{{booking_url}}/api/v1/trips",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"capacity\":10,\"startsAt\":\"{{starts_at}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"trip_id\", pm.response.json().tripId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "EMPLOYEE | Trip seats",
+      "request": {
+        "method": "GET",
+        "url": "{{booking_url}}/api/v1/trips/{{trip_id}}/seats",
+        "header": []
+      }
+    },
+    {
+      "name": "EMPLOYEE | Create booking",
+      "request": {
+        "method": "POST",
+        "url": "{{booking_url}}/api/v1/bookings",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"employeeId\": \"{{employee_id}}\",\n  \"tripId\": \"{{trip_id}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) pm.environment.set(\"booking_id\", pm.response.json().bookingId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "EMPLOYEE | Read booking",
+      "request": {
+        "method": "GET",
+        "url": "{{booking_url}}/api/v1/bookings/{{booking_id}}",
+        "header": []
+      }
+    },
+    {
+      "name": "EMPLOYEE | Employee bookings",
+      "request": {
+        "method": "GET",
+        "url": "{{booking_url}}/api/v1/employees/{{employee_id}}/bookings",
+        "header": []
+      }
+    },
+    {
+      "name": "SERVICE | Consume employee event",
+      "request": {
+        "method": "POST",
+        "url": "{{booking_url}}/internal/events",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"eventId\": \"00000000-0000-4000-8000-000000000001\",\n  \"eventType\": \"EmployeeUpdated\",\n  \"tenantId\": \"{{tenant}}\",\n  \"employeeId\": \"{{employee_id}}\",\n  \"aggregateRevision\": 2,\n  \"active\": true,\n  \"effectiveAt\": \"{{now}}\",\n  \"changedFields\": [\n    \"officeCode\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

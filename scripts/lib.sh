@@ -128,7 +128,7 @@ seeded() {
 # Fresh stack: down -v, build, up, wait until both services are healthy and the demo data is seeded.
 reset_stack() {
   log "resetting stack (down -v, up --build)"
-  $DC down -v -t 5 >/dev/null 2>&1
+  $DC --profile observability --profile bench down -v -t 5 >/dev/null 2>&1
   ROSTER_FAULT= ROSTER_RELAY=true BOOKING_FAULT= $DC up -d --build >/dev/null 2>&1 || die "compose up failed"
   wait_healthy roster
   wait_healthy booking

@@ -1,0 +1,114 @@
+21:56:54  resetting stack (down -v, up --build)
+21:57:08  roster healthy
+21:57:08  booking healthy
+21:57:08  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:57:08  brief example: v7 office transfer precedes v6 shift
+21:57:08  PASS  v7 applied (= APPLIED)
+21:57:08  PASS  v6 ignored (= STALE)
+21:57:08  replay a feed without changing business state
+21:57:08  PASS  batch applied (= 3)
+21:57:09  PASS  replay duplicates (= 3)
+21:57:09  PASS  business state unchanged (= dba6e0970192791caa64c0a8be13408e
+204:204)
+21:57:09  transport ownership, validation and tenant isolation
+21:57:09  PASS  newer HR event applied (= APPLIED)
+21:57:09  PASS  HR cannot write pickup (= 422)
+21:57:09  PASS  ownership error code (= UNKNOWN_FIELD)
+21:57:09  PASS  another tenant sees 404 (= 404)
+21:57:09  booking API and derived seats
+21:57:11  ok: outbox drained before fault demonstrations (2s)
+21:57:11  arming AFTER_INGEST_COMMIT (relay off) on roster
+21:57:18  roster healthy
+21:57:18  DEACTIVATE EMP-010 (eventId kill-roster-1793397438)
+21:57:19  response status: 000 (expected: no 200, the process dies after commit)
+21:57:19  roster exited with code 137
+21:57:19  committed but unpublished: employee inactive=t, outbox=PENDING
+21:57:19  restarting roster normally
+21:57:25  roster healthy
+21:57:25  ok: outbox drained (0s)
+21:57:26  PASS  employee EMP-010 inactive (= f)
+21:57:26  PASS  outbox row delivered (= DELIVERED)
+21:57:26  PASS  future bookings cancelled (= 3)
+21:57:26  PASS  past booking untouched (= 1)
+21:57:26  PASS  seats released (= 3)
+21:57:26  PASS  processed_message rows for the event (= 1)
+21:57:26  RESULT: PASS
+21:57:26  arming AFTER_CONSUMER_COMMIT on booking
+21:57:33  booking healthy
+21:57:33  DEACTIVATE EMP-011 (eventId kill-consumer-1793397453)
+21:57:33  PASS  roster accepted the event (= 200)
+21:57:34  booking exited with code 137
+21:57:34  ok: outbox row in RETRY after the lost acknowledgement (0s)
+21:57:35  PASS  attempts before restart (= 1, >= 1)
+21:57:35  booking had committed: cancelled=3
+21:57:35  restarting booking normally
+21:57:41  booking healthy
+21:57:41  ok: event redelivered and acknowledged (0s)
+21:57:41  PASS  cancellations (3, not 6) (= 3)
+21:57:41  PASS  seats released (= 3)
+21:57:41  PASS  processed_message rows for the event (= 1)
+21:57:42  PASS  outbox state (= DELIVERED)
+21:57:42  PASS  delivery attempts (= 3, >= 2)
+21:57:42  RESULT: PASS
+21:57:42  unit, randomized and concurrency tests
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+CLASS                                     TESTS   FAIL    ERR   SKIP  STATUS
+HealthIT                                      4      0      0      0  OK
+RlsIT                                         6      0      0      0  OK
+RecordValidatorTest                          28      0      0      0  OK
+CanonicalHasherTest                           9      0      0      0  OK
+BucketerTest                                  2      0      0      0  OK
+VersionPolicyTest                            14      0      0      0  OK
+SafetyBrakeTest                               5      0      0      0  OK
+BucketDiffTest                                4      0      0      0  OK
+OwnershipPolicyTest                           7      0      0      0  OK
+CoreIsPureTest                                1      0      0      0  OK
+OrderIndependenceTest                         2      0      0      0  OK
+ReplayIdempotenceTest                         1      0      0      0  OK
+IngestApiIT                                  11      0      0      0  OK
+BriefExampleIT                                2      0      0      0  OK
+ValidationIT                                  4      0      0      0  OK
+OwnershipIT                                   5      0      0      0  OK
+OutboxIT                                      4      0      0      0  OK
+ReplayIT                                      1      0      0      0  OK
+ErrorContractIT                              14      0      0      0  OK
+BulkPoolIT                                    1      0      0      0  OK
+SeatAllocatorTest                             3      0      0      0  OK
+ConsumerIT                                    5      0      0      0  OK
+BookingApiIT                                  4      0      0      0  OK
+RetryPolicyTest                               4      0      0      0  OK
+RelayIT                                      10      0      0      0  OK
+SecurityMatrixIT                            115      0      0      0  OK
+ReconciliationIT                             24      0      0      0  OK
+FaultInjectorTest                             6      0      0      0  OK
+NoPiiIT                                       1      0      0      0  OK
+CacheIT                                       3      0      0      0  OK
+MetricsIT                                     3      0      0      0  OK
+RacingVersionsIT                              1      0      0      0  OK
+ConcurrentDuplicatesIT                        1      0      0      0  OK
+ConcurrentCreatesIT                           1      0      0      0  OK
+TransportVsHrIT                               1      0      0      0  OK
+SnapshotVsApiIT                               1      0      0      0  OK
+RelayCompetitionIT                            1      0      0      0  OK
+BookingRaceIT                                 1      0      0      0  OK
+SeatRaceIT                                    1      0      0      0  OK
+CreateVsDeactivateUnknownIT                   1      0      0      0  OK
+DbFailuresTest                                1      0      0      0  OK
+GlobalExceptionHandlerTest                    1      0      0      0  OK
+check-tests: 42 required classes, 0 with problems
+21:59:19  brief example: 120k rows out of a 200k baseline
+Exports and COPY baseline: /home/theroid/PycharmProjects/HR/HR/roster-service/target/bench
+21:59:26  ok: snapshot waiting for approval (2s)
+21:59:26  PASS  zero deactivations before approval (= 0)
+21:59:27  PASS  zero outbox mutations at the brake (= 0)
+21:59:27  PASS: 80,000 missing, 40 percent, no live mutations; rejected safely
+21:59:27  resetting stack (down -v, up --build)
+21:59:39  roster healthy
+21:59:39  booking healthy
+21:59:39  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:59:55  ok: both Prometheus targets UP (8s)
+22:00:01  ok: six alert rules healthy (6s)
+22:00:01  ok: Grafana dashboard provisioned (0s)
+22:00:01  PASS: both targets, six alert rules, Grafana datasource/dashboard, all dashboard queries
+22:00:01  RESULT: PASS

@@ -1,0 +1,4 @@
+22:13:13  ok: both Prometheus targets UP (0s)
+22:13:13  ok: six alert rules healthy (0s)
+22:13:13  ok: Grafana dashboard provisioned (0s)
+22:13:13  PASS: both targets, six alert rules, Grafana datasource/dashboard, all dashboard queries

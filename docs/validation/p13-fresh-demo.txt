@@ -1,0 +1,161 @@
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+CLASS                                     TESTS   FAIL    ERR   SKIP  STATUS
+HealthIT                                      4      0      0      0  OK
+RlsIT                                         6      0      0      0  OK
+RecordValidatorTest                          28      0      0      0  OK
+CanonicalHasherTest                           9      0      0      0  OK
+BucketerTest                                  2      0      0      0  OK
+VersionPolicyTest                            14      0      0      0  OK
+SafetyBrakeTest                               5      0      0      0  OK
+BucketDiffTest                                4      0      0      0  OK
+OwnershipPolicyTest                           7      0      0      0  OK
+CoreIsPureTest                                1      0      0      0  OK
+OrderIndependenceTest                         2      0      0      0  OK
+ReplayIdempotenceTest                         1      0      0      0  OK
+IngestApiIT                                  11      0      0      0  OK
+BriefExampleIT                                2      0      0      0  OK
+ValidationIT                                  4      0      0      0  OK
+OwnershipIT                                   5      0      0      0  OK
+OutboxIT                                      4      0      0      0  OK
+ReplayIT                                      1      0      0      0  OK
+ErrorContractIT                              14      0      0      0  OK
+BulkPoolIT                                    1      0      0      0  OK
+SeatAllocatorTest                             3      0      0      0  OK
+ConsumerIT                                    5      0      0      0  OK
+BookingApiIT                                  4      0      0      0  OK
+RetryPolicyTest                               4      0      0      0  OK
+RelayIT                                      10      0      0      0  OK
+SecurityMatrixIT                            115      0      0      0  OK
+ReconciliationIT                             24      0      0      0  OK
+FaultInjectorTest                             6      0      0      0  OK
+NoPiiIT                                       1      0      0      0  OK
+CacheIT                                       3      0      0      0  OK
+MetricsIT                                     3      0      0      0  OK
+RacingVersionsIT                              1      0      0      0  OK
+ConcurrentDuplicatesIT                        1      0      0      0  OK
+ConcurrentCreatesIT                           1      0      0      0  OK
+TransportVsHrIT                               1      0      0      0  OK
+SnapshotVsApiIT                               1      0      0      0  OK
+RelayCompetitionIT                            1      0      0      0  OK
+BookingRaceIT                                 1      0      0      0  OK
+SeatRaceIT                                    1      0      0      0  OK
+CreateVsDeactivateUnknownIT                   1      0      0      0  OK
+DbFailuresTest                                1      0      0      0  OK
+GlobalExceptionHandlerTest                    1      0      0      0  OK
+check-tests: 42 required classes, 0 with problems
+PASS: 29 endpoint requests, response script syntax, four role logins, public requests, trusted-service boundary
+22:04:50  resetting stack (down -v, up --build)
+22:05:03  roster healthy
+22:05:03  booking healthy
+22:05:03  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+22:05:04  brief example: v7 office transfer precedes v6 shift
+22:05:04  PASS  v7 applied (= APPLIED)
+22:05:04  PASS  v6 ignored (= STALE)
+22:05:04  replay a feed without changing business state
+22:05:04  PASS  batch applied (= 3)
+22:05:04  PASS  replay duplicates (= 3)
+22:05:04  PASS  business state unchanged (= 46709b96fb40c118e5ac5a02a6f37b4f
+204:204)
+22:05:04  transport ownership, validation and tenant isolation
+22:05:04  PASS  newer HR event applied (= APPLIED)
+22:05:04  PASS  HR cannot write pickup (= 422)
+22:05:04  PASS  ownership error code (= UNKNOWN_FIELD)
+22:05:04  PASS  another tenant sees 404 (= 404)
+22:05:04  booking API and derived seats
+22:05:07  ok: outbox drained before fault demonstrations (3s)
+22:05:07  arming AFTER_INGEST_COMMIT (relay off) on roster
+22:05:14  roster healthy
+22:05:14  DEACTIVATE EMP-010 (eventId kill-roster-1793397914)
+22:05:14  response status: 000 (expected: no 200, the process dies after commit)
+22:05:14  roster exited with code 137
+22:05:14  committed but unpublished: employee inactive=t, outbox=PENDING
+22:05:14  restarting roster normally
+22:05:21  roster healthy
+22:05:21  ok: outbox drained (0s)
+22:05:21  PASS  employee EMP-010 inactive (= f)
+22:05:21  PASS  outbox row delivered (= DELIVERED)
+22:05:21  PASS  future bookings cancelled (= 3)
+22:05:21  PASS  past booking untouched (= 1)
+22:05:22  PASS  seats released (= 3)
+22:05:22  PASS  processed_message rows for the event (= 1)
+22:05:22  RESULT: PASS
+22:05:22  arming AFTER_CONSUMER_COMMIT on booking
+22:05:29  booking healthy
+22:05:29  DEACTIVATE EMP-011 (eventId kill-consumer-1793397929)
+22:05:29  PASS  roster accepted the event (= 200)
+22:05:30  booking exited with code 137
+22:05:30  ok: outbox row in RETRY after the lost acknowledgement (0s)
+22:05:30  PASS  attempts before restart (= 1, >= 1)
+22:05:30  booking had committed: cancelled=3
+22:05:30  restarting booking normally
+22:05:37  booking healthy
+22:05:37  ok: event redelivered and acknowledged (0s)
+22:05:37  PASS  cancellations (3, not 6) (= 3)
+22:05:37  PASS  seats released (= 3)
+22:05:37  PASS  processed_message rows for the event (= 1)
+22:05:37  PASS  outbox state (= DELIVERED)
+22:05:37  PASS  delivery attempts (= 3, >= 2)
+22:05:37  RESULT: PASS
+22:05:37  unit, randomized and concurrency tests
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+CLASS                                     TESTS   FAIL    ERR   SKIP  STATUS
+HealthIT                                      4      0      0      0  OK
+RlsIT                                         6      0      0      0  OK
+RecordValidatorTest                          28      0      0      0  OK
+CanonicalHasherTest                           9      0      0      0  OK
+BucketerTest                                  2      0      0      0  OK
+VersionPolicyTest                            14      0      0      0  OK
+SafetyBrakeTest                               5      0      0      0  OK
+BucketDiffTest                                4      0      0      0  OK
+OwnershipPolicyTest                           7      0      0      0  OK
+CoreIsPureTest                                1      0      0      0  OK
+OrderIndependenceTest                         2      0      0      0  OK
+ReplayIdempotenceTest                         1      0      0      0  OK
+IngestApiIT                                  11      0      0      0  OK
+BriefExampleIT                                2      0      0      0  OK
+ValidationIT                                  4      0      0      0  OK
+OwnershipIT                                   5      0      0      0  OK
+OutboxIT                                      4      0      0      0  OK
+ReplayIT                                      1      0      0      0  OK
+ErrorContractIT                              14      0      0      0  OK
+BulkPoolIT                                    1      0      0      0  OK
+SeatAllocatorTest                             3      0      0      0  OK
+ConsumerIT                                    5      0      0      0  OK
+BookingApiIT                                  4      0      0      0  OK
+RetryPolicyTest                               4      0      0      0  OK
+RelayIT                                      10      0      0      0  OK
+SecurityMatrixIT                            115      0      0      0  OK
+ReconciliationIT                             24      0      0      0  OK
+FaultInjectorTest                             6      0      0      0  OK
+NoPiiIT                                       1      0      0      0  OK
+CacheIT                                       3      0      0      0  OK
+MetricsIT                                     3      0      0      0  OK
+RacingVersionsIT                              1      0      0      0  OK
+ConcurrentDuplicatesIT                        1      0      0      0  OK
+ConcurrentCreatesIT                           1      0      0      0  OK
+TransportVsHrIT                               1      0      0      0  OK
+SnapshotVsApiIT                               1      0      0      0  OK
+RelayCompetitionIT                            1      0      0      0  OK
+BookingRaceIT                                 1      0      0      0  OK
+SeatRaceIT                                    1      0      0      0  OK
+CreateVsDeactivateUnknownIT                   1      0      0      0  OK
+DbFailuresTest                                1      0      0      0  OK
+GlobalExceptionHandlerTest                    1      0      0      0  OK
+check-tests: 42 required classes, 0 with problems
+22:07:21  brief example: 120k rows out of a 200k baseline
+Exports and COPY baseline: /tmp/hr-release-check.ES55FH/roster-service/target/bench
+22:07:28  ok: snapshot waiting for approval (2s)
+22:07:28  PASS  zero deactivations before approval (= 0)
+22:07:28  PASS  zero outbox mutations at the brake (= 0)
+22:07:28  PASS: 80,000 missing, 40 percent, no live mutations; rejected safely
+22:07:28  resetting stack (down -v, up --build)
+22:07:41  roster healthy
+22:07:41  booking healthy
+22:07:41  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+22:07:56  ok: both Prometheus targets UP (8s)
+22:08:00  ok: six alert rules healthy (4s)
+22:08:00  ok: Grafana dashboard provisioned (0s)
+22:08:00  PASS: both targets, six alert rules, Grafana datasource/dashboard, all dashboard queries
+22:08:00  RESULT: PASS

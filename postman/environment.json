@@ -1,0 +1,78 @@
+{
+  "name": "Roster Sync local demo",
+  "values": [
+    {
+      "key": "roster_url",
+      "value": "http://localhost:8080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_url",
+      "value": "http://localhost:8081",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "tenant",
+      "value": "acme",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "password",
+      "value": "demo123",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "employee_id",
+      "value": "EMP-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "revision",
+      "value": "\"1\"",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "trip_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "booking_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "run_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "outbox_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "assessment_hash",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "service_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
