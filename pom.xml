@@ -61,6 +61,7 @@
                             <include>**/*Test.java</include>
                         </includes>
                         <excludedGroups>benchmark</excludedGroups>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -81,6 +82,7 @@
                         <groups>${failsafe.groups}</groups>
                         <excludedGroups>${failsafe.excludedGroups}</excludedGroups>
                         <argLine>${failsafe.argLine}</argLine>
+                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
                         <!-- test against target/classes, not the repackaged Boot jar -->
                         <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                     </configuration>
