@@ -1,0 +1,3 @@
+21:51:12  ok: real snapshot stopped by safety brake (2s)
+21:51:16  ok: SafetyBrakeTripped alert firing (4s)
+21:51:16  PASS: real safety brake reached Prometheus; validation run rejected after inspection

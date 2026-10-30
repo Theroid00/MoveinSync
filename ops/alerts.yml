@@ -1,0 +1,42 @@
+groups:
+  - name: roster-sync
+    rules:
+      - alert: SafetyBrakeTripped
+        expr: sum(increase(roster_safety_brake_trips_total[5m])) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: A reconciliation needs operator review
+          description: Inspect the pending-approval endpoint before approving any inferred absences.
+      - alert: OutboxLagHigh
+        expr: max(outbox_oldest_pending_age_seconds) > 60
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: Oldest undelivered event exceeds 60 seconds
+          description: Check booking health, relay retries and dead predecessors.
+      - alert: OutboxDeadLetters
+        expr: sum(outbox_queue_depth{state="DEAD"}) > 0
+        labels: { severity: critical }
+        annotations:
+          summary: Dead letters block later changes for affected employees
+          description: Correct the delivery failure and replay the dead event with the operator endpoint.
+      - alert: ReconciliationFailed
+        expr: sum(increase(reconciliation_runs_total{status="FAILED"}[5m])) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: A reconciliation failed
+          description: Inspect run status and error codes, then retry the retained file.
+      - alert: ValidationRejectSpike
+        expr: sum(rate(roster_events_total{outcome="REJECTED"}[5m])) / clamp_min(sum(rate(roster_events_total[5m])), 1e-9) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: More than five percent of HR events are rejected
+          description: Inspect rejection codes and correct the source data.
+      - alert: ConsumerDuplicatesSpike
+        expr: sum(rate(booking_consumer_events_total{result="duplicate"}[5m])) / clamp_min(sum(rate(booking_consumer_events_total[5m])), 1e-9) > 0.20
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: More than twenty percent of consumer deliveries are duplicates
+          description: Check lost acknowledgements, retries and lease expiry.

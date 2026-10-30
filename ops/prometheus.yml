@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 15s
+rule_files:
+  - /etc/prometheus/alerts.yml
+scrape_configs:
+  - job_name: roster
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [roster:8080]
+  - job_name: booking
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [booking:8081]

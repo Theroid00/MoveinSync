@@ -37,3 +37,5 @@ docker run --rm -v "$PWD/k6:/scripts:ro" grafana/k6:1.8.2 run /scripts/ingest-te
 The first local attempt exposed PostgreSQL's prohibition on COPY directly into an RLS table. The fixture now COPYs into a temporary table and inserts under the app role's tenant policy. The second attempt timed out in the apply UPDATE after 300 seconds during an initial-load iteration. The repository now explicitly analyzes the temporary `recon_plan` before its apply joins; the final Linux runs passed with that change. Standard tests check correctness without running the heavy benchmark.
 
 Incomplete local measurements and the timeout report are retained in `bench/local-attempts/`; they are **not final benchmark results**. No local run completed all six scenarios.
+
+`bench/results/expected-single-thread-regression.txt` is an intentional negative control: the new scheduling regression fails when forced back to one scheduler thread. `normal-gate.txt` records the passing fixed configuration.

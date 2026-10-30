@@ -1,0 +1,1 @@
+{"status":"success","data":{"alerts":[{"labels":{"alertname":"SafetyBrakeTripped","severity":"warning"},"annotations":{"description":"Inspect the pending-approval endpoint before approving any inferred absences.","summary":"A reconciliation needs operator review"},"state":"firing","activeAt":"2026-10-30T21:51:15.16912055Z","value":"1.004651282051282e+00"}]}}

@@ -4,7 +4,7 @@ Tracks execution of `docs/spec/AGENT_BUILD_SPEC.md` §16 phases. Read this file 
 
 Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 
-**Resume at P12.** P11 completed on the Linux machine with three measured runs and no warm-up (user override, 2026-10-31). Real measurements and raw outputs are in `docs/benchmark.md` and `bench/results/`. P12, P13 and `v1.0` remain pending.
+**Resume at P13.** P11 real benchmarks and P12 observability are complete. Three measured benchmark runs without warm-up follow the user override. See `docs/benchmark.md` and `docs/validation/` for evidence.
 
 | Phase | Deliverable | Status | Commit | Notes |
 |---|---|---|---|---|
@@ -19,8 +19,8 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P8 | Caching, metrics, structured logs, PII guard, faults bean, dev seeders | DONE | 5a2c1c4 | NoPiiIT, CacheIT, MetricsIT (x2), FaultInjectorTest (x2) green; compose seeding verified end to end |
 | P9 | Concurrency ITs (§17.3), run 3x consecutively | DONE | a0cb156 | 9 concurrency ITs green in 3 consecutive runs (full gate + 2 targeted runs); suite ≈ 30 s |
 | P10 | `docker-compose.faults.yml` + fault scripts (§18) | DONE | 78fa078 | All 6 scenarios PASS 3/3; 18 logs and summary in docs/fault-runs/. Fixed rollback masking DB timeouts (4f9b105); full gate 313 tests, 42 required classes green |
-| P11 | Benchmarks (§19): generator, `ReconciliationBenchmarkIT`, k6, contention run | DONE | pending phase commit | Full runner exited zero; all six scenarios × three measured runs, no warm-up, 256 MiB cap; four 60s API rates and contention passed. Normal gate 314 tests / 42 classes. Queue metrics starvation fixed in 57a766f; raw results/report committed with this phase. |
-| P12 | Observability profile: prometheus.yml, alerts.yml, grafana | TODO | | |
+| P11 | Benchmarks (§19): generator, `ReconciliationBenchmarkIT`, k6, contention run | DONE | 05d1bb5 | Full runner exited zero; all six scenarios × three measured runs, no warm-up, 256 MiB cap; four 60s API rates and contention passed. Normal gate 314 tests / 42 classes. Queue metrics starvation fixed in 57a766f; raw results/report committed with this phase. |
+| P12 | Observability profile: prometheus.yml, alerts.yml, grafana | DONE | pending phase commit | 314 tests / 42 classes green; Promtool firing and idle cases pass; both targets UP, six healthy rules, datasource and all dashboard queries pass; all 12 panels rendered via temporary official renderer. Real safety brake alert observed. |
 | P13 | Docs: README, design-note, decisions, benchmark.md, Postman, demo scripts | TODO | | |
 | — | Tag `v1.0` | TODO | | |
 
