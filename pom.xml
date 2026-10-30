@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.moveinsync.rostersync</groupId>
+    <artifactId>roster-sync</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>roster-sync</name>
+    <description>HR roster sync: idempotent, out-of-order, self-healing (MoveInSync case study 5)</description>
+
+    <modules>
+        <module>event-contract</module>
+        <module>roster-service</module>
+        <module>booking-service</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <commons-csv.version>1.14.1</commons-csv.version>
+        <!-- Test-group selection (spec §2.2). The benchmark profile flips these for Failsafe only. -->
+        <failsafe.groups></failsafe.groups>
+        <failsafe.excludedGroups>benchmark</failsafe.excludedGroups>
+        <failsafe.argLine></failsafe.argLine>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.moveinsync.rostersync</groupId>
+                <artifactId>event-contract</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-csv</artifactId>
+                <version>${commons-csv.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                        <excludedGroups>benchmark</excludedGroups>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <includes>
+                            <include>**/*IT.java</include>
+                        </includes>
+                        <groups>${failsafe.groups}</groups>
+                        <excludedGroups>${failsafe.excludedGroups}</excludedGroups>
+                        <argLine>${failsafe.argLine}</argLine>
+                        <!-- test against target/classes, not the repackaged Boot jar -->
+                        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- ./mvnw -pl roster-service verify -Pbenchmark : runs only @Tag("benchmark") ITs with a capped heap -->
+        <profile>
+            <id>benchmark</id>
+            <properties>
+                <failsafe.groups>benchmark</failsafe.groups>
+                <failsafe.excludedGroups></failsafe.excludedGroups>
+                <failsafe.argLine>-Xmx256m -XX:+UseG1GC</failsafe.argLine>
+            </properties>
+        </profile>
+    </profiles>
+</project>

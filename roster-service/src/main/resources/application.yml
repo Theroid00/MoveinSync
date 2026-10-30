@@ -1,0 +1,33 @@
+server.port: 8080
+spring:
+  application.name: roster-service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/roster?socketTimeout=10&connectTimeout=2
+    username: roster_app
+    password: roster_app_pw
+    hikari: { maximum-pool-size: 20, connection-timeout: 2000 }
+  flyway: { user: roster_owner, password: roster_owner_pw }
+  jackson.deserialization.fail-on-unknown-properties: true
+  servlet.multipart: { max-file-size: 300MB, max-request-size: 310MB }
+  cache.type: caffeine
+logging.structured.format.console: ecs
+management:
+  endpoints.web.exposure.include: health,info,prometheus
+  metrics.distribution.percentiles-histogram.roster_event_apply_seconds: true
+app:
+  tenant-source-default: hr-main
+  relay: { enabled: true, poll-ms: 200, batch: 100, lease-secs: 30, max-attempts: 10, retention-days: 7 }
+  booking.base-url: http://localhost:8081
+  recon.dir: /tmp/recon
+  jwt.key-path: /tmp/jwt/key.pem
+  auth.dev-issuer.enabled: true
+  faults.point: ""
+  dev-seed.enabled: false
+  # Second pool for reconciliation: socketTimeout must exceed the 300 s statement_timeout,
+  # otherwise the driver kills a legitimately long apply. Wired manually in BulkDbConfig.
+  bulk-datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/roster?socketTimeout=330&connectTimeout=2
+    username: roster_app
+    password: roster_app_pw
+    maximum-pool-size: 3
+    connection-timeout: 5000
