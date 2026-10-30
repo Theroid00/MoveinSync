@@ -1,0 +1,13 @@
+# Overrides used by scripts/faults/*.sh (spec §18). Defines no services of its own: it only lets a
+# script start roster/booking with a fault point armed (or the relay paused) and stops Docker from
+# restarting a container that the fault halted, so the script can observe exit code 137.
+services:
+  roster:
+    environment:
+      APP_FAULTS_POINT: "${ROSTER_FAULT:-}"
+      APP_RELAY_ENABLED: "${ROSTER_RELAY:-true}"
+    restart: "no"
+  booking:
+    environment:
+      APP_FAULTS_POINT: "${BOOKING_FAULT:-}"
+    restart: "no"
