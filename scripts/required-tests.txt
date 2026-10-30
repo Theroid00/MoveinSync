@@ -28,3 +28,8 @@ OutboxIT
 ReplayIT
 ErrorContractIT
 BulkPoolIT
+
+# P4
+SeatAllocatorTest
+ConsumerIT
+BookingApiIT
