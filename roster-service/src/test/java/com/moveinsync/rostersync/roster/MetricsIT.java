@@ -8,6 +8,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
+import java.time.Instant;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.moveinsync.rostersync.roster.StubBookingServer.Status;
 import com.moveinsync.rostersync.roster.observability.OutboxMetrics;
@@ -15,6 +18,7 @@ import com.moveinsync.rostersync.roster.outbox.OutboxRelay;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -38,6 +42,30 @@ class MetricsIT extends AbstractReconIT {
 
     @Autowired
     OutboxMetrics outboxMetrics;
+
+    @Autowired
+    TaskScheduler scheduler;
+
+    @Test
+    void queueMetricsCanPollWhileTheRelaySchedulerIsBusy() throws Exception {
+        CountDownLatch occupied = new CountDownLatch(1), release = new CountDownLatch(1), polled = new CountDownLatch(1);
+        var busy = scheduler.schedule(() -> {
+            occupied.countDown();
+            try {
+                release.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, Instant.now());
+        try {
+            assertThat(occupied.await(5, TimeUnit.SECONDS)).isTrue();
+            scheduler.schedule(() -> { outboxMetrics.poll(); polled.countDown(); }, Instant.now());
+            assertThat(polled.await(5, TimeUnit.SECONDS)).as("queue poll runs while another scheduled task is blocked").isTrue();
+        } finally {
+            release.countDown();
+            busy.get(5, TimeUnit.SECONDS);
+        }
+    }
 
     static final List<String> NAMES = List.of(
             "roster_events_total", "roster_event_apply_seconds_bucket", "roster_validation_rejections_total",

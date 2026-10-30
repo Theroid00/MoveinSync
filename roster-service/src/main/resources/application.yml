@@ -1,6 +1,8 @@
 server.port: 8080
 spring:
   application.name: roster-service
+  # A draining relay must not starve the five-second queue metrics poll.
+  task.scheduling.pool.size: 2
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/roster?socketTimeout=10&connectTimeout=2
     username: roster_app

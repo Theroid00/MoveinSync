@@ -76,6 +76,9 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
+- **High-load metrics scheduler:** the first Linux load run exposed stale outbox gauges while the relay drained continuously on the single shared scheduler thread. The roster scheduler now has two threads so the five-second metrics poll can run during draining. `MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy` guards against starvation. Performance results are being revalidated with this fix.
+
+
 - **Benchmark protocol override (2026-10-31):** the user explicitly requested no warm-up. Final P11 reconciliation measurements use three fresh-baseline measured runs, with `warmup_runs=0`, retaining the 256 MiB heap cap, exact mutation assertions and timing bounds. The first Linux run began before this instruction; its reconciliation results will be replaced by a no-warm-up run.
 
 
