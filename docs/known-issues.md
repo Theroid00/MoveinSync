@@ -17,10 +17,20 @@ Anything that deviates from `docs/spec/AGENT_BUILD_SPEC.md`, any version fallbac
 
 ## Pinned images
 
-Filled in at P0 from `docker image inspect --format '{{index .RepoDigests 0}}'`.
+Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image inspect --format '{{index .RepoDigests 0}}'`. Compose and the Dockerfiles reference these exact tags.
 
-| Image | Tag | Digest |
-|---|---|---|
+| Image | Tag | Digest | Used by |
+|---|---|---|---|
+| `postgres` | `18.6` | `sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4c830c6633947be0e4` | compose |
+| `eclipse-temurin` | `21.0.13_9-jdk-noble` | `sha256:088afe113afcf30db6e0919cca3cded8666e10b90c876c4a317ee4318f532f4b` | Dockerfile build stage |
+| `eclipse-temurin` | `21.0.13_9-jre-noble` | `sha256:03fedab2c0d7355868b5ba5330d64088b956a0bfac48f904e5c57207e261e2c9` | Dockerfile runtime stage |
+| `grafana/k6` | `1.8.2` | `sha256:00fdcebafbc86cb0137d429529b1caa401a02e09025f02fc74866fa6e2b004d8` | compose profile `bench` (P11) |
+| `prom/prometheus` | `v3.15.1` | `sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2` | compose profile `observability` (P12) |
+| `grafana/grafana` | `12.4.14` | `sha256:ae509d9ae8c1021ca32ec370a9ca975d40165eda9fccd1e1102d317ff8787cd7` | compose profile `observability` (P12) |
+
+- Testcontainers uses `postgres:18` as §17 requires. At P0 that tag resolved to the same digest as `18.6`.
+- `grafana/k6` 2.x exists; 1.8.2 is pinned to match the spec's `1.x.y` example and the k6 1.x script API.
+- `grafana/grafana` 13.0 exists; 12.4.14 (latest 12.4 patch) is pinned for dashboard-provisioning stability.
 
 ## Spec ambiguities resolved (the spec wins over the plan; these are gaps inside the spec)
 
