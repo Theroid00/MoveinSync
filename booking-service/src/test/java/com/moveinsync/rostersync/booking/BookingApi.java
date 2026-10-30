@@ -80,7 +80,8 @@ public final class BookingApi {
         try {
             MockHttpServletResponse r = mvc.perform(request).andReturn().getResponse();
             String raw = r.getContentAsString();
-            return new Response(r.getStatus(), raw, raw.isBlank() ? null : json.readTree(raw));
+            String type = r.getContentType();
+            return new Response(r.getStatus(), raw, raw.isBlank() || type == null || !type.contains("json") ? null : json.readTree(raw));
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

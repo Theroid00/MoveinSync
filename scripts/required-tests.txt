@@ -43,3 +43,9 @@ SecurityMatrixIT
 
 # P7
 ReconciliationIT
+
+# P8
+FaultInjectorTest
+NoPiiIT
+CacheIT
+MetricsIT

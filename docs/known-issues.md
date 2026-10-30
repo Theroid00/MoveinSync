@@ -57,7 +57,11 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 21. **Duplicate rows in a snapshot:** an exact duplicate is skipped. A conflicting duplicate marks the first occurrence invalid (`DUPLICATE_ROW_CONFLICT`), and the second is skipped, counted as invalid and reported. `parsed_rows` counts every data record (compared with `expectedRows`).
 22. **Reject** is allowed only from `AWAITING_APPROVAL`, so it never races an apply in progress. Anything else is 409 `INVALID_RUN_STATE`.
 23. **Startup recovery in tests:** application contexts are cached and shared across test classes, so `app.recon.recover-on-startup=false` in tests. `ReconciliationIT.startupRecoveryResumesStagedRun` invokes the recovery explicitly.
-24. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+24. **Histogram config key:** §14's `percentiles-histogram.roster_event_apply_seconds` uses the exported name, but Boot keys that property by meter name (`roster.event.apply`). Histograms for `roster_event_apply_seconds` and `outbox_delivery_lag_seconds` are published in code (`publishPercentileHistogram`), and the YAML uses meter names.
+25. **PII guard installation:** `PiiGuardFilter` (Logback `TurboFilter`) is added programmatically and idempotently once logging is configured. Boot's structured-logging setup is kept intact, and no custom `logback-spring.xml` is needed.
+26. **Booking seeder** waits until EMP-001…EMP-050 specifically are active (the employees it books for), rather than "any 50 active", so no booking attempt races the projection.
+27. **Test database connections:** each cached Spring test context keeps its own pools. Tests run Postgres with `max_connections=400` and Hikari `minimum-idle=2`. Production settings are unchanged.
+28. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 

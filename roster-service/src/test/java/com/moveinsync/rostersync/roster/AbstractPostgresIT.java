@@ -22,7 +22,9 @@ public abstract class AbstractPostgresIT {
     protected static final String DB = "roster";
     protected static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18")
             .withCopyFileToContainer(MountableFile.forHostPath(initScript()),
-                    "/docker-entrypoint-initdb.d/01-roles-and-dbs.sql");
+                    "/docker-entrypoint-initdb.d/01-roles-and-dbs.sql")
+            // Several cached application contexts share this server; each keeps its own pools.
+            .withCommand("postgres", "-c", "max_connections=400");
 
     /** Per-JVM scratch directory for the generated JWT key and reconciliation uploads. */
     protected static final Path TEMP_DIR;
@@ -41,6 +43,7 @@ public abstract class AbstractPostgresIT {
         registry.add("spring.datasource.url", () -> jdbcUrl("socketTimeout=10&connectTimeout=2"));
         registry.add("spring.datasource.username", () -> DB + "_app");
         registry.add("spring.datasource.password", () -> DB + "_app_pw");
+        registry.add("spring.datasource.hikari.minimum-idle", () -> "2");
         registry.add("spring.flyway.user", () -> DB + "_owner");
         registry.add("spring.flyway.password", () -> DB + "_owner_pw");
         registry.add("app.bulk-datasource.url", () -> jdbcUrl("socketTimeout=330&connectTimeout=2"));

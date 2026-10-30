@@ -152,7 +152,8 @@ public final class RosterApi {
         try {
             MockHttpServletResponse response = mvc.perform(request).andReturn().getResponse();
             String raw = response.getContentAsString();
-            JsonNode body = raw.isBlank() ? null : json.readTree(raw);
+            String type = response.getContentType();
+            JsonNode body = raw.isBlank() || type == null || !type.contains("json") ? null : json.readTree(raw);
             return new Response(response.getStatus(), raw, body, response);
         } catch (Exception e) {
             throw new IllegalStateException(e);
