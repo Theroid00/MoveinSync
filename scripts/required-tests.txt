@@ -6,3 +6,15 @@ HealthIT
 
 # P1
 RlsIT
+
+# P2
+RecordValidatorTest
+CanonicalHasherTest
+BucketerTest
+VersionPolicyTest
+SafetyBrakeTest
+BucketDiffTest
+OwnershipPolicyTest
+CoreIsPureTest
+OrderIndependenceTest
+ReplayIdempotenceTest

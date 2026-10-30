@@ -41,7 +41,9 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 5. **No `tenant_source` row for the tenant** at ingest → 404 `NOT_FOUND`.
 6. **Bulk pool and the role `statement_timeout`.** `ALTER ROLE roster_app SET statement_timeout = '5s'` would also apply to the bulk pool, so the bulk Hikari pool sets `statement_timeout = '300s'` per connection (`connection-init-sql`), in addition to the `SET LOCAL` in §9.3.
 7. **One `ErrorCode` catalog** lives in `event-contract` (plain Java) so both services share it. `SecurityMatrixIT` and `ErrorContractIT` exist in both modules: booking-only cells and codes (`TRIP_FULL`, `EMPLOYEE_INACTIVE`) need the booking app.
-8. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+8. **`EVENT_TYPE_REQUIRED`** is an added validation code: §7.2 has no code for a missing `eventType` (an unknown enum value is a JSON error; a missing one reaches the validator).
+9. **Validation field names** are the logical names (`eventId`, `employeeId`, `sourceSeq`, `effectiveAt`, `eventType`, `hr`, `name`, `email`, `phone`, `managerId`, `officeCode`, `shiftCode`) for both API events and snapshot rows.
+10. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 
