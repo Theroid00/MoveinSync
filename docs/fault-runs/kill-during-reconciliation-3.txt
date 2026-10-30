@@ -1,0 +1,25 @@
+# kill-during-reconciliation run 3 — 2026-10-30T20:14:52Z
+# host: Darwin arm64, docker 29.5.2
+20:14:52  resetting stack (down -v, up --build)
+20:15:08  roster healthy
+20:15:08  booking healthy
+20:15:09  ok: demo data seeded (300 future bookings, outbox drained) (1s)
+20:15:09  initial load: 20000 rows
+20:15:31  ok: initial 20k run completed (22s)
+20:15:59  ok: initial run's events delivered downstream (28s)
+20:15:59  arming DURING_RECON_APPLY on roster
+20:16:06  roster healthy
+20:16:06  night run 2bf3e455-9624-4d3a-b103-dd05f80f0a50 uploaded
+20:16:07  roster exited with code 137
+20:16:08  PASS  inactive count unchanged after the crash (no partial apply) (= 0)
+20:16:08  PASS  no outbox rows from the crashed apply (= 20100)
+20:16:08  PASS  run left STAGED (APPLYING rolled back) (= STAGED)
+20:16:08  restarting roster normally (startup recovery resumes the staged run)
+20:16:14  roster healthy
+20:16:14  ok: recovered run completed (0s)
+20:16:14  PASS  exactly 10 deactivated (= 10)
+20:16:14  PASS  run counts.deactivated (= 10)
+20:16:15  PASS  one deactivation event per absent employee (= 10)
+20:16:15  PASS  no duplicate outbox rows (event ids unique per employee revision) (= 0)
+20:16:15  RESULT: PASS
+# exit=0 duration=66s

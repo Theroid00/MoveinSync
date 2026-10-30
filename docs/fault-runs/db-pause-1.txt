@@ -1,0 +1,17 @@
+# db-pause run 1 — 2026-10-30T20:24:14Z
+# host: Darwin arm64, docker 29.5.2
+20:24:14  resetting stack (down -v, up --build)
+20:24:30  roster healthy
+20:24:30  booking healthy
+20:24:31  ok: demo data seeded (300 future bookings, outbox drained) (1s)
+20:24:33  pausing postgres for 10 s
+20:24:43  postgres resumed; waiting for the sender
+20:24:59  status summary:  200 200 APPLIED;   1 503 DB_UNAVAILABLE;
+20:24:59  PASS  503 DB_UNAVAILABLE responses observed (= 1, >= 1)
+20:24:59  PASS  every eventId has exactly one ingest_event row (= 200)
+20:24:59  PASS  no duplicate ingest_event rows (= 200)
+20:24:59  PASS  all events applied (= 200)
+20:24:59  PASS  outbox rows = applied changes (= 200)
+20:24:59  PASS  history rows = applied changes (no orphans) (= 200)
+20:24:59  RESULT: PASS
+# exit=0 duration=28s

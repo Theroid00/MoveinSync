@@ -1,0 +1,20 @@
+# consumer-down run 1 — 2026-10-30T20:19:18Z
+# host: Darwin arm64, docker 29.5.2
+20:19:18  resetting stack (down -v, up --build)
+20:19:34  roster healthy
+20:19:34  booking healthy
+20:19:34  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+20:19:34  stopping booking
+20:19:41  ok: outbox_queue_depth{state="RETRY"} > 0 (6s)
+20:19:54  queue depth RETRY=20.0, oldest pending age 5.403815s → 18.505016s
+20:19:54  PASS  oldest pending age rising
+20:19:54  booking stays down another 41s
+20:20:35  starting booking
+20:20:41  booking healthy
+20:20:56  ok: backlog drained (15s)
+20:20:56  PASS  cancellations (20 employees × 3 future bookings) (= 60)
+20:20:56  PASS  seats released (= 60)
+20:20:56  PASS  projections inactive (= 20)
+20:20:56  PASS  dead letters (= 0)
+20:20:56  RESULT: PASS
+# exit=0 duration=82s

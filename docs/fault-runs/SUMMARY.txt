@@ -1,0 +1,21 @@
+
+Fault-injection summary (2026-10-30T20:26:32Z)
+kill-roster-after-commit       run 1  PASS
+kill-roster-after-commit       run 2  PASS
+kill-roster-after-commit       run 3  PASS
+kill-consumer-after-commit     run 1  PASS
+kill-consumer-after-commit     run 2  PASS
+kill-consumer-after-commit     run 3  PASS
+kill-during-reconciliation     run 1  PASS
+kill-during-reconciliation     run 2  PASS
+kill-during-reconciliation     run 3  PASS
+kill-relay-after-claim         run 1  PASS
+kill-relay-after-claim         run 2  PASS
+kill-relay-after-claim         run 3  PASS
+consumer-down                  run 1  PASS
+consumer-down                  run 2  PASS
+consumer-down                  run 3  PASS
+db-pause                       run 1  PASS
+db-pause                       run 2  PASS
+db-pause                       run 3  PASS
+failed runs: 0

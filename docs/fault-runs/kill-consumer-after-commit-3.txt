@@ -1,0 +1,24 @@
+# kill-consumer-after-commit run 3 — 2026-10-30T20:11:41Z
+# host: Darwin arm64, docker 29.5.2
+20:11:41  resetting stack (down -v, up --build)
+20:11:57  roster healthy
+20:11:57  booking healthy
+20:11:57  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+20:11:57  arming AFTER_CONSUMER_COMMIT on booking
+20:12:04  booking healthy
+20:12:04  DEACTIVATE EMP-011 (eventId kill-consumer-1793391124)
+20:12:04  PASS  roster accepted the event (= 200)
+20:12:06  booking exited with code 137
+20:12:06  ok: outbox row in RETRY after the lost acknowledgement (0s)
+20:12:06  PASS  attempts before restart (= 1, >= 1)
+20:12:06  booking had committed: cancelled=3
+20:12:06  restarting booking normally
+20:12:12  booking healthy
+20:12:12  ok: event redelivered and acknowledged (0s)
+20:12:12  PASS  cancellations (3, not 6) (= 3)
+20:12:13  PASS  seats released (= 3)
+20:12:13  PASS  processed_message rows for the event (= 1)
+20:12:13  PASS  outbox state (= DELIVERED)
+20:12:13  PASS  delivery attempts (= 3, >= 2)
+20:12:13  RESULT: PASS
+# exit=0 duration=16s

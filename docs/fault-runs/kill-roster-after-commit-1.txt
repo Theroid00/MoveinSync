@@ -1,0 +1,23 @@
+# kill-roster-after-commit run 1 — 2026-10-30T20:09:02Z
+# host: Darwin arm64, docker 29.5.2
+20:09:02  resetting stack (down -v, up --build)
+20:09:19  roster healthy
+20:09:19  booking healthy
+20:09:19  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+20:09:19  arming AFTER_INGEST_COMMIT (relay off) on roster
+20:09:26  roster healthy
+20:09:26  DEACTIVATE EMP-010 (eventId kill-roster-1793390966)
+20:09:27  response status: 000 (expected: no 200, the process dies after commit)
+20:09:27  roster exited with code 137
+20:09:27  committed but unpublished: employee inactive=t, outbox=PENDING
+20:09:27  restarting roster normally
+20:09:33  roster healthy
+20:09:33  ok: outbox drained (0s)
+20:09:34  PASS  employee EMP-010 inactive (= f)
+20:09:34  PASS  outbox row delivered (= DELIVERED)
+20:09:34  PASS  future bookings cancelled (= 3)
+20:09:34  PASS  past booking untouched (= 1)
+20:09:34  PASS  seats released (= 3)
+20:09:34  PASS  processed_message rows for the event (= 1)
+20:09:34  RESULT: PASS
+# exit=0 duration=15s

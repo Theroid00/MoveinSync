@@ -1,0 +1,20 @@
+# kill-relay-after-claim run 2 — 2026-10-30T20:17:15Z
+# host: Darwin arm64, docker 29.5.2
+20:17:15  resetting stack (down -v, up --build)
+20:17:32  roster healthy
+20:17:32  booking healthy
+20:17:32  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+20:17:32  pausing the relay so 50 events accumulate
+20:17:39  roster healthy
+20:17:41  PASS  pending events (= 50)
+20:17:41  arming RELAY_AFTER_CLAIM with the relay enabled
+20:17:45  roster exited with code 137
+20:17:45  PASS  rows claimed under a lease when the relay died (= 50)
+20:17:45  restarting roster normally; leases expire after 30 s
+20:17:51  roster healthy
+20:18:16  ok: all events delivered (25s)
+20:18:16  PASS  delivered events from this run (= 50)
+20:18:16  PASS  attempts include the lost claim (= 2, >= 2)
+20:18:17  PASS  booking processed every event exactly once (= 50)
+20:18:17  RESULT: PASS
+# exit=0 duration=45s
