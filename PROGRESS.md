@@ -9,7 +9,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P0 | Parent + 3 modules, wrapper, Surefire/Failsafe config, `scripts/check-tests.sh`, pinned images, docker/ init SQL, Dockerfiles, compose, empty apps with health | DONE | e489494 | verify + check-tests green (HealthIT 4/4); compose healthy in 9 s |
 | P1 | Flyway V1/V2 both DBs, roles, RLS, `TenantTx`, `RlsIT` | DONE | 550f460 | RlsIT 6/6 (both DBs); bulk pool + `TenantTx` bulk variant wired (BulkPoolIT lands in P3 with the error contract) |
 | P2 | `core` (§7) + unit tests + `CoreIsPureTest` + `OrderIndependenceTest` + `ReplayIdempotenceTest` | DONE | 37023cb | 10 unit classes, 70 tests; mutation of tombstone floor caught at seed 1; `FaultInjectorTest` lands with the faults bean in P8 |
-| P3 | Ingest (§8): single, batch, transport PATCH, admin DELETE, history, outbox, error contract | TODO | | |
+| P3 | Ingest (§8): single, batch, transport PATCH, admin DELETE, history, outbox, error contract | DONE | 707b0aa | 8 IT classes / 39 tests + BulkPoolIT; tenant via `X-Tenant-Id` stand-in until P6; `BriefExampleIT.fileCutAt120k…` lands with reconciliation (P7) |
 | P4 | booking-service consumer + booking API (§11) | TODO | | |
 | P5 | Relay (§10) + `StubBookingServer` ITs | TODO | | |
 | P6 | Security (§12): issuer, JWKS, resource servers, authz matrix, tenant 404s | TODO | | |
