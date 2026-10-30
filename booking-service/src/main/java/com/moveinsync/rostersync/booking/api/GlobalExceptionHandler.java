@@ -20,6 +20,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.transaction.TransactionSystemException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 /** Same error contract as roster-service (spec §13.1): ProblemDetail + errorCode + traceId, no leaks. */
@@ -74,6 +75,10 @@ public class GlobalExceptionHandler {
 
     static boolean isDbUnavailable(Throwable t) {
         for (Throwable c = t; c != null; c = c.getCause()) {
+            // A failed rollback can replace the timeout while retaining it outside the cause chain.
+            if (c instanceof TransactionSystemException tx && isDbUnavailable(tx.getApplicationException())) {
+                return true;
+            }
             if (c instanceof DataAccessResourceFailureException || c instanceof QueryTimeoutException
                     || c instanceof TransientDataAccessResourceException || c instanceof SocketTimeoutException) {
                 return true;

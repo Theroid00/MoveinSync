@@ -60,3 +60,7 @@ RelayCompetitionIT
 BookingRaceIT
 SeatRaceIT
 CreateVsDeactivateUnknownIT
+
+# P10 (database outage regression)
+DbFailuresTest
+GlobalExceptionHandlerTest

@@ -11,13 +11,14 @@ STATS="$STATE_DIR/$RUN.statuses"
 START_TS=$(psql_roster "SELECT now()")
 
 send_all() {
-  local i attempt seq response status
+  local i attempt seq payload response status
   for i in $(seq 1 200); do
     seq=$(next_seq)
+    payload=$(upsert_json "$RUN-$i" "$seq" "$(printf 'EMP-%03d' $(( (i % 100) + 1 )))" BLR-B EVENING)
     for attempt in $(seq 1 60); do
-      response=$(post_json "$ROSTER/api/v1/hr/events" "$HR" "$(upsert_json "$RUN-$i" "$seq" "$(printf 'EMP-%03d' $(( (i % 100) + 1 )))" BLR-B EVENING)")
+      response=$(post_json "$ROSTER/api/v1/hr/events" "$HR" "$payload")
       status=${response%% *}
-      echo "$status $(echo "$response" | jq -r '.errorCode // .outcome' 2>/dev/null)" >> "$STATS"
+      echo "$status $(echo "${response#* }" | jq -r '.errorCode // .outcome' 2>/dev/null)" >> "$STATS"
       [ "$status" = 200 ] && break
       sleep 0.5
     done
