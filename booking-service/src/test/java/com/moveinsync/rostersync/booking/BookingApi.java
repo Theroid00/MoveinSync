@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.moveinsync.rostersync.booking.security.CallerContext;
 import com.moveinsync.rostersync.contract.EmployeeChangedEvent;
 import com.moveinsync.rostersync.contract.EventType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -68,14 +68,15 @@ public final class BookingApi {
         return book(tenant, "ADMIN", null, employeeId, tripId);
     }
 
+    /** tenant == null sends no token at all. */
     public Response perform(MockHttpServletRequestBuilder request, String tenant, String role, String employeeId) {
         if (tenant != null) {
-            request.header(CallerContext.TENANT_HEADER, tenant).header(CallerContext.ROLES_HEADER, role)
-                    .header(CallerContext.PRINCIPAL_HEADER, role.toLowerCase());
+            request.header(HttpHeaders.AUTHORIZATION, "Bearer " + TestTokens.forRole(tenant, role, employeeId));
         }
-        if (employeeId != null) {
-            request.header(CallerContext.EMPLOYEE_HEADER, employeeId);
-        }
+        return send(request);
+    }
+
+    public Response send(MockHttpServletRequestBuilder request) {
         try {
             MockHttpServletResponse r = mvc.perform(request).andReturn().getResponse();
             String raw = r.getContentAsString();

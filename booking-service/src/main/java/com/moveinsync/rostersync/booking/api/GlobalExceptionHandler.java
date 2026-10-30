@@ -1,5 +1,7 @@
 package com.moveinsync.rostersync.booking.api;
 
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DomainException.class)
     ResponseEntity<ProblemDetail> domain(DomainException e) {
         return ResponseEntity.status(e.code().httpStatus()).body(Problems.of(e.code(), e.errors()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ProblemDetail> forbidden(AccessDeniedException e) {
+        return respond(Problems.of(ErrorCode.FORBIDDEN, List.of()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ProblemDetail> unauthenticated(AuthenticationException e) {
+        return respond(Problems.of(ErrorCode.UNAUTHENTICATED, List.of()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

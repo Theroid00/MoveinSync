@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -23,6 +25,14 @@ public abstract class AbstractBookingApiIT extends AbstractPostgresIT {
 
     @Autowired
     protected JsonMapper json;
+
+    /** Replaces the JWKS-backed decoder with one trusting the test keypair (same validators). */
+    @TestBean
+    JwtDecoder jwtDecoder;
+
+    static JwtDecoder jwtDecoder() {
+        return TestTokens.decoder();
+    }
 
     protected BookingApi api;
     protected String tenant;

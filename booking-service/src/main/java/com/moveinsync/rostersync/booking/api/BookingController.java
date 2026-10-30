@@ -1,5 +1,6 @@
 package com.moveinsync.rostersync.booking.api;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -27,17 +28,20 @@ public class BookingController {
     }
 
     @PostMapping("/api/v1/bookings")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
     public ResponseEntity<BookingRow> create(@RequestBody CreateBookingRequest request) {
         BookingRow row = bookings.book(CallerContext.current(), request.employeeId(), request.tripId());
         return ResponseEntity.created(URI.create("/api/v1/bookings/" + row.bookingId())).body(row);
     }
 
     @GetMapping("/api/v1/bookings/{id}")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
     public BookingRow get(@PathVariable UUID id) {
         return bookings.get(CallerContext.current(), id);
     }
 
     @GetMapping("/api/v1/employees/{id}/bookings")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'ADMIN')")
     public List<BookingRow> forEmployee(@PathVariable String id) {
         return bookings.forEmployee(CallerContext.current(), id);
     }

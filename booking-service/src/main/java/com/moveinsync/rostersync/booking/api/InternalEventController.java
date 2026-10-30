@@ -1,5 +1,6 @@
 package com.moveinsync.rostersync.booking.api;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.moveinsync.rostersync.booking.consumer.EmployeeEventConsumer;
 import com.moveinsync.rostersync.booking.service.DomainException;
 import com.moveinsync.rostersync.contract.ConsumeResult;
@@ -22,6 +23,7 @@ public class InternalEventController {
     }
 
     @PostMapping(path = "/internal/events", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('SERVICE')")
     public ConsumeResult consume(@RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
                                  @RequestBody EmployeeChangedEvent event) {
         if (event.eventId() == null || event.eventType() == null || event.tenantId() == null

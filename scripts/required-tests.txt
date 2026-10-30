@@ -37,3 +37,6 @@ BookingApiIT
 # P5
 RetryPolicyTest
 RelayIT
+
+# P6
+SecurityMatrixIT
