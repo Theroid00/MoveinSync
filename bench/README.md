@@ -1,6 +1,7 @@
 # Run the heavy benchmarks on another computer
 
 P11 is prepared for a separate machine at the user's request. Full benchmark validation is pending.
+For the full remaining project work and acceptance gates after P11, see [the handoff](../docs/HANDOFF.md).
 Requirements: Java 21, Docker Engine + Compose, bash, curl, jq, Python 3, and network access for the pinned images and Maven dependencies. Run from the repository root on Linux, macOS, or WSL.
 
 ```bash
