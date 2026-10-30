@@ -29,6 +29,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <commons-csv.version>1.14.1</commons-csv.version>
+        <springdoc.version>3.2.0</springdoc.version>
         <!-- Test-group selection (spec §2.2). The benchmark profile flips these for Failsafe only. -->
         <failsafe.groups></failsafe.groups>
         <failsafe.excludedGroups>benchmark</failsafe.excludedGroups>
@@ -46,6 +47,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
                 <version>${commons-csv.version}</version>
+            </dependency>
+            <!-- Interactive API docs (Swagger UI); 3.2.x is built against Spring Boot 4.1.2 -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
