@@ -1,0 +1,23 @@
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 9.681 s <<< FAILURE! -- in com.moveinsync.rostersync.roster.MetricsIT
+[ERROR] com.moveinsync.rostersync.roster.MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy -- Time elapsed: 5.342 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: 
+[queue poll runs while another scheduled task is blocked] 
+Expecting value to be true but was false
+	at com.moveinsync.rostersync.roster.MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy(MetricsIT.java:63)
+
+[ERROR] Failures: 
+[ERROR]   MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy:63 [queue poll runs while another scheduled task is blocked] 
+Expecting value to be true but was false
+[ERROR] Tests run: 1, Failures: 1, Errors: 0, Skipped: 0
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-failsafe-plugin:3.5.6:verify (default) on project roster-service: There are test failures.
+[ERROR] 
+[ERROR] See /home/theroid/PycharmProjects/HR/HR/roster-service/target/failsafe-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

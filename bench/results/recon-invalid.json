@@ -1,0 +1,83 @@
+{
+  "warmup_runs" : 0,
+  "scenario" : "invalid",
+  "postgres_version" : "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "heap_limit_bytes" : 268435456,
+  "seed" : 42,
+  "measured_runs" : [ {
+    "iteration" : 1,
+    "status" : "PARTIAL_NO_DEACTIVATIONS",
+    "phase_ms" : {
+      "apply" : 245,
+      "stage" : 1959,
+      "assess" : 141,
+      "digest" : 332
+    },
+    "total_ms" : 2743,
+    "rows_per_second" : 72912.86912139993,
+    "peak_heap_bytes" : 186573504,
+    "buckets_mismatched" : 9316,
+    "outbox_rows" : 7000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 2000,
+      "updated" : 5000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 27055,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 53153
+    }
+  }, {
+    "iteration" : 2,
+    "status" : "PARTIAL_NO_DEACTIVATIONS",
+    "phase_ms" : {
+      "apply" : 229,
+      "stage" : 1894,
+      "assess" : 137,
+      "digest" : 331
+    },
+    "total_ms" : 2652,
+    "rows_per_second" : 75414.78129713424,
+    "peak_heap_bytes" : 212799968,
+    "buckets_mismatched" : 9316,
+    "outbox_rows" : 7000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 2000,
+      "updated" : 5000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 27055,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 53153
+    }
+  }, {
+    "iteration" : 3,
+    "status" : "PARTIAL_NO_DEACTIVATIONS",
+    "phase_ms" : {
+      "apply" : 229,
+      "stage" : 1900,
+      "assess" : 140,
+      "digest" : 321
+    },
+    "total_ms" : 2651,
+    "rows_per_second" : 75443.22897019993,
+    "peak_heap_bytes" : 214822984,
+    "buckets_mismatched" : 9316,
+    "outbox_rows" : 7000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 2000,
+      "updated" : 5000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 27055,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 53153
+    }
+  } ]
+}

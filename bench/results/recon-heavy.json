@@ -1,0 +1,83 @@
+{
+  "warmup_runs" : 0,
+  "scenario" : "heavy",
+  "postgres_version" : "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "heap_limit_bytes" : 268435456,
+  "seed" : 42,
+  "measured_runs" : [ {
+    "iteration" : 1,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 4205,
+      "stage" : 1865,
+      "assess" : 779,
+      "digest" : 339
+    },
+    "total_ms" : 7270,
+    "rows_per_second" : 27510.31636863824,
+    "peak_heap_bytes" : 260114528,
+    "buckets_mismatched" : 51269,
+    "outbox_rows" : 100000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 78437,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 11112
+    }
+  }, {
+    "iteration" : 2,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 4206,
+      "stage" : 1868,
+      "assess" : 769,
+      "digest" : 339
+    },
+    "total_ms" : 7265,
+    "rows_per_second" : 27529.24982794219,
+    "peak_heap_bytes" : 264253144,
+    "buckets_mismatched" : 51269,
+    "outbox_rows" : 100000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 78437,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 11112
+    }
+  }, {
+    "iteration" : 3,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 4140,
+      "stage" : 1834,
+      "assess" : 762,
+      "digest" : 339
+    },
+    "total_ms" : 7139,
+    "rows_per_second" : 28015.128169211373,
+    "peak_heap_bytes" : 179282624,
+    "buckets_mismatched" : 51269,
+    "outbox_rows" : 100000,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100000,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 78437,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 11112
+    }
+  } ]
+}

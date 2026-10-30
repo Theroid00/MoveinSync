@@ -1,0 +1,6 @@
+{
+  "observed_window_start_epoch": 1793396597.662769,
+  "observed_window_end_epoch": 1793396598.877499,
+  "overlapping_requests": 295,
+  "overlapping_request_p99_ms": 1109.63865528
+}

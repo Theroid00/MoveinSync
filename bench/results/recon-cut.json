@@ -1,0 +1,50 @@
+{
+  "warmup_runs" : 0,
+  "scenario" : "cut",
+  "postgres_version" : "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "heap_limit_bytes" : 268435456,
+  "seed" : 42,
+  "measured_runs" : [ {
+    "iteration" : 1,
+    "status" : "AWAITING_APPROVAL",
+    "phase_ms" : {
+      "stage" : 1152,
+      "assess" : 264,
+      "digest" : 284
+    },
+    "total_ms" : 1711,
+    "rows_per_second" : 70134.4243132671,
+    "peak_heap_bytes" : 191765504,
+    "buckets_mismatched" : 45980,
+    "outbox_rows" : 0,
+    "counts" : { }
+  }, {
+    "iteration" : 2,
+    "status" : "AWAITING_APPROVAL",
+    "phase_ms" : {
+      "stage" : 1125,
+      "assess" : 271,
+      "digest" : 280
+    },
+    "total_ms" : 1689,
+    "rows_per_second" : 71047.95737122558,
+    "peak_heap_bytes" : 190677784,
+    "buckets_mismatched" : 45980,
+    "outbox_rows" : 0,
+    "counts" : { }
+  }, {
+    "iteration" : 3,
+    "status" : "AWAITING_APPROVAL",
+    "phase_ms" : {
+      "stage" : 1139,
+      "assess" : 255,
+      "digest" : 290
+    },
+    "total_ms" : 1695,
+    "rows_per_second" : 70796.46017699115,
+    "peak_heap_bytes" : 180070864,
+    "buckets_mismatched" : 45980,
+    "outbox_rows" : 0,
+    "counts" : { }
+  } ]
+}

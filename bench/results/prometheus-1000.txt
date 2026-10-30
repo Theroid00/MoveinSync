@@ -1,0 +1,724 @@
+# HELP application_ready_time_seconds Time taken for the application to be ready to service requests
+# TYPE application_ready_time_seconds gauge
+application_ready_time_seconds{main_application_class="com.moveinsync.rostersync.roster.RosterApplication"} 2.806
+# HELP application_started_time_seconds Time taken to start the application
+# TYPE application_started_time_seconds gauge
+application_started_time_seconds{main_application_class="com.moveinsync.rostersync.roster.RosterApplication"} 2.768
+# HELP cache_eviction_weight_total The sum of weights of evicted entries. This total does not include manual invalidations.
+# TYPE cache_eviction_weight_total counter
+cache_eviction_weight_total{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog"} 0.0
+cache_eviction_weight_total{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig"} 0.0
+cache_eviction_weight_total{cache="tenantSource",cache_manager="cacheManager",name="tenantSource"} 0.0
+# HELP cache_evictions_total The number of times the cache was evicted.
+# TYPE cache_evictions_total counter
+cache_evictions_total{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog"} 0.0
+cache_evictions_total{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig"} 0.0
+cache_evictions_total{cache="tenantSource",cache_manager="cacheManager",name="tenantSource"} 0.0
+# HELP cache_gets_total The number of times cache lookup methods have returned a cached (hit) or uncached (newly loaded or null) value (miss).
+# TYPE cache_gets_total counter
+cache_gets_total{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog",result="hit"} 70000.0
+cache_gets_total{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog",result="miss"} 1.0
+cache_gets_total{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig",result="hit"} 0.0
+cache_gets_total{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig",result="miss"} 0.0
+cache_gets_total{cache="tenantSource",cache_manager="cacheManager",name="tenantSource",result="hit"} 70000.0
+cache_gets_total{cache="tenantSource",cache_manager="cacheManager",name="tenantSource",result="miss"} 1.0
+# HELP cache_puts_total The number of entries added to the cache
+# TYPE cache_puts_total counter
+cache_puts_total{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog"} 0.0
+cache_puts_total{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig"} 0.0
+cache_puts_total{cache="tenantSource",cache_manager="cacheManager",name="tenantSource"} 0.0
+# HELP cache_size The number of entries in this cache. This may be an approximation, depending on the type of cache.
+# TYPE cache_size gauge
+cache_size{cache="officeCatalog",cache_manager="cacheManager",name="officeCatalog"} 1.0
+cache_size{cache="tenantConfig",cache_manager="cacheManager",name="tenantConfig"} 0.0
+cache_size{cache="tenantSource",cache_manager="cacheManager",name="tenantSource"} 1.0
+# HELP disk_free_bytes Usable space for path
+# TYPE disk_free_bytes gauge
+disk_free_bytes{path="/app/."} 4.1915510784E10
+# HELP disk_total_bytes Total space for path
+# TYPE disk_total_bytes gauge
+disk_total_bytes{path="/app/."} 2.13630582784E11
+# HELP executor_active_threads The approximate number of threads that are actively executing tasks
+# TYPE executor_active_threads gauge
+executor_active_threads{name="reconciliationExecutor"} 0.0
+executor_active_threads{name="taskScheduler"} 1.0
+# HELP executor_completed_tasks_total The approximate total number of tasks that have completed execution
+# TYPE executor_completed_tasks_total counter
+executor_completed_tasks_total{name="reconciliationExecutor"} 0.0
+executor_completed_tasks_total{name="taskScheduler"} 49.0
+# HELP executor_pool_core_threads The core number of threads for the pool
+# TYPE executor_pool_core_threads gauge
+executor_pool_core_threads{name="reconciliationExecutor"} 2.0
+executor_pool_core_threads{name="taskScheduler"} 2.0
+# HELP executor_pool_max_threads The maximum allowed number of threads in the pool
+# TYPE executor_pool_max_threads gauge
+executor_pool_max_threads{name="reconciliationExecutor"} 2.0
+executor_pool_max_threads{name="taskScheduler"} 2.147483647E9
+# HELP executor_pool_size_threads The current number of threads in the pool
+# TYPE executor_pool_size_threads gauge
+executor_pool_size_threads{name="reconciliationExecutor"} 0.0
+executor_pool_size_threads{name="taskScheduler"} 2.0
+# HELP executor_queue_remaining_tasks The number of additional elements that this queue can ideally accept without blocking
+# TYPE executor_queue_remaining_tasks gauge
+executor_queue_remaining_tasks{name="reconciliationExecutor"} 2.147483647E9
+executor_queue_remaining_tasks{name="taskScheduler"} 2.147483647E9
+# HELP executor_queued_tasks The approximate number of tasks that are queued for execution
+# TYPE executor_queued_tasks gauge
+executor_queued_tasks{name="reconciliationExecutor"} 0.0
+executor_queued_tasks{name="taskScheduler"} 2.0
+# HELP hikaricp_connections Total connections
+# TYPE hikaricp_connections gauge
+hikaricp_connections{pool="HikariPool-1"} 20.0
+hikaricp_connections{pool="bulk"} 3.0
+# HELP hikaricp_connections_acquire_seconds Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds summary
+hikaricp_connections_acquire_seconds_count{pool="HikariPool-1"} 126144
+hikaricp_connections_acquire_seconds_sum{pool="HikariPool-1"} 0.124468847
+hikaricp_connections_acquire_seconds_count{pool="bulk"} 32
+hikaricp_connections_acquire_seconds_sum{pool="bulk"} 0.001716816
+# HELP hikaricp_connections_acquire_seconds_max Connection acquire time
+# TYPE hikaricp_connections_acquire_seconds_max gauge
+hikaricp_connections_acquire_seconds_max{pool="HikariPool-1"} 0.006519338
+hikaricp_connections_acquire_seconds_max{pool="bulk"} 3.63351E-4
+# HELP hikaricp_connections_active Active connections
+# TYPE hikaricp_connections_active gauge
+hikaricp_connections_active{pool="HikariPool-1"} 0.0
+hikaricp_connections_active{pool="bulk"} 0.0
+# HELP hikaricp_connections_creation_seconds Connection creation time
+# TYPE hikaricp_connections_creation_seconds summary
+hikaricp_connections_creation_seconds_count{pool="HikariPool-1"} 0
+hikaricp_connections_creation_seconds_sum{pool="HikariPool-1"} 0.0
+hikaricp_connections_creation_seconds_count{pool="bulk"} 0
+hikaricp_connections_creation_seconds_sum{pool="bulk"} 0.0
+# HELP hikaricp_connections_creation_seconds_max Connection creation time
+# TYPE hikaricp_connections_creation_seconds_max gauge
+hikaricp_connections_creation_seconds_max{pool="HikariPool-1"} 0.0
+hikaricp_connections_creation_seconds_max{pool="bulk"} 0.0
+# HELP hikaricp_connections_idle Idle connections
+# TYPE hikaricp_connections_idle gauge
+hikaricp_connections_idle{pool="HikariPool-1"} 20.0
+hikaricp_connections_idle{pool="bulk"} 3.0
+# HELP hikaricp_connections_max Max connections
+# TYPE hikaricp_connections_max gauge
+hikaricp_connections_max{pool="HikariPool-1"} 20.0
+hikaricp_connections_max{pool="bulk"} 3.0
+# HELP hikaricp_connections_min Min connections
+# TYPE hikaricp_connections_min gauge
+hikaricp_connections_min{pool="HikariPool-1"} 20.0
+hikaricp_connections_min{pool="bulk"} 3.0
+# HELP hikaricp_connections_pending Pending threads
+# TYPE hikaricp_connections_pending gauge
+hikaricp_connections_pending{pool="HikariPool-1"} 0.0
+hikaricp_connections_pending{pool="bulk"} 0.0
+# HELP hikaricp_connections_timeout_total Connection timeout total count
+# TYPE hikaricp_connections_timeout_total counter
+hikaricp_connections_timeout_total{pool="HikariPool-1"} 0.0
+hikaricp_connections_timeout_total{pool="bulk"} 0.0
+# HELP hikaricp_connections_usage_seconds Connection usage time
+# TYPE hikaricp_connections_usage_seconds summary
+hikaricp_connections_usage_seconds_count{pool="HikariPool-1"} 126143
+hikaricp_connections_usage_seconds_sum{pool="HikariPool-1"} 96.57
+hikaricp_connections_usage_seconds_count{pool="bulk"} 32
+hikaricp_connections_usage_seconds_sum{pool="bulk"} 0.0
+# HELP hikaricp_connections_usage_seconds_max Connection usage time
+# TYPE hikaricp_connections_usage_seconds_max gauge
+hikaricp_connections_usage_seconds_max{pool="HikariPool-1"} 0.034
+hikaricp_connections_usage_seconds_max{pool="bulk"} 0.0
+# HELP http_server_requests_active_seconds  
+# TYPE http_server_requests_active_seconds summary
+http_server_requests_active_seconds_count{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 1
+http_server_requests_active_seconds_sum{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.007078384
+http_server_requests_active_seconds_count{exception="none",method="POST",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0
+http_server_requests_active_seconds_sum{exception="none",method="POST",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.0
+# HELP http_server_requests_active_seconds_max  
+# TYPE http_server_requests_active_seconds_max gauge
+http_server_requests_active_seconds_max{exception="none",method="GET",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.007087085
+http_server_requests_active_seconds_max{exception="none",method="POST",outcome="SUCCESS",status="200",uri="UNKNOWN"} 0.0
+# HELP http_server_requests_seconds  
+# TYPE http_server_requests_seconds summary
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/health"} 16
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/health"} 0.057203082
+http_server_requests_seconds_count{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/prometheus"} 1
+http_server_requests_seconds_sum{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/prometheus"} 0.022102363
+http_server_requests_seconds_count{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/auth/token"} 1
+http_server_requests_seconds_sum{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/auth/token"} 0.079231806
+http_server_requests_seconds_count{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events"} 60001
+http_server_requests_seconds_sum{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events"} 120.272138967
+http_server_requests_seconds_count{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events/batch"} 10
+http_server_requests_seconds_sum{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events/batch"} 15.279414888
+# HELP http_server_requests_seconds_max  
+# TYPE http_server_requests_seconds_max gauge
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/health"} 0.035529231
+http_server_requests_seconds_max{error="none",exception="none",method="GET",outcome="SUCCESS",status="200",uri="/actuator/prometheus"} 0.022102363
+http_server_requests_seconds_max{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/auth/token"} 0.079231806
+http_server_requests_seconds_max{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events"} 0.026852635
+http_server_requests_seconds_max{error="none",exception="none",method="POST",outcome="SUCCESS",status="200",uri="/api/v1/hr/events/batch"} 2.009205663
+# HELP jdbc_connections_active Current number of active connections that have been allocated from the data source.
+# TYPE jdbc_connections_active gauge
+jdbc_connections_active{name="bulk"} 0.0
+jdbc_connections_active{name="dataSource"} 2.0
+# HELP jdbc_connections_idle Number of established but idle connections.
+# TYPE jdbc_connections_idle gauge
+jdbc_connections_idle{name="bulk"} 3.0
+jdbc_connections_idle{name="dataSource"} 19.0
+# HELP jdbc_connections_max Maximum number of active connections that can be allocated at the same time.
+# TYPE jdbc_connections_max gauge
+jdbc_connections_max{name="bulk"} 3.0
+jdbc_connections_max{name="dataSource"} 20.0
+# HELP jdbc_connections_min Minimum number of idle connections in the pool.
+# TYPE jdbc_connections_min gauge
+jdbc_connections_min{name="bulk"} 3.0
+jdbc_connections_min{name="dataSource"} 20.0
+# HELP jvm_info JVM version info
+# TYPE jvm_info gauge
+jvm_info{runtime="OpenJDK Runtime Environment",vendor="Eclipse Adoptium",version="21.0.13+9-LTS"} 1
+# HELP jvm_buffer_count_buffers An estimate of the number of buffers in the pool
+# TYPE jvm_buffer_count_buffers gauge
+jvm_buffer_count_buffers{id="direct"} 47.0
+jvm_buffer_count_buffers{id="mapped"} 0.0
+jvm_buffer_count_buffers{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_memory_used_bytes An estimate of the memory that the Java virtual machine is using for this buffer pool
+# TYPE jvm_buffer_memory_used_bytes gauge
+jvm_buffer_memory_used_bytes{id="direct"} 316713.0
+jvm_buffer_memory_used_bytes{id="mapped"} 0.0
+jvm_buffer_memory_used_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_buffer_total_capacity_bytes An estimate of the total capacity of the buffers in this pool
+# TYPE jvm_buffer_total_capacity_bytes gauge
+jvm_buffer_total_capacity_bytes{id="direct"} 316954.0
+jvm_buffer_total_capacity_bytes{id="mapped"} 0.0
+jvm_buffer_total_capacity_bytes{id="mapped - 'non-volatile memory'"} 0.0
+# HELP jvm_classes_loaded_classes The number of classes that are currently loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_classes gauge
+jvm_classes_loaded_classes 15164.0
+# HELP jvm_classes_loaded_count_classes_total The number of classes loaded in the Java virtual machine
+# TYPE jvm_classes_loaded_count_classes_total counter
+jvm_classes_loaded_count_classes_total 15217.0
+# HELP jvm_classes_unloaded_classes_total The number of classes unloaded in the Java virtual machine
+# TYPE jvm_classes_unloaded_classes_total counter
+jvm_classes_unloaded_classes_total 53.0
+# HELP jvm_compilation_time_ms_total The approximate accumulated elapsed time spent in compilation
+# TYPE jvm_compilation_time_ms_total counter
+jvm_compilation_time_ms_total{compiler="HotSpot 64-Bit Tiered Compilers"} 39094.0
+# HELP jvm_gc_concurrent_phase_time_seconds Time spent in concurrent phase
+# TYPE jvm_gc_concurrent_phase_time_seconds summary
+jvm_gc_concurrent_phase_time_seconds_count{action="end of concurrent GC pause",cause="No GC",gc="G1 Concurrent GC"} 2
+jvm_gc_concurrent_phase_time_seconds_sum{action="end of concurrent GC pause",cause="No GC",gc="G1 Concurrent GC"} 0.007
+# HELP jvm_gc_concurrent_phase_time_seconds_max Time spent in concurrent phase
+# TYPE jvm_gc_concurrent_phase_time_seconds_max gauge
+jvm_gc_concurrent_phase_time_seconds_max{action="end of concurrent GC pause",cause="No GC",gc="G1 Concurrent GC"} 0.007
+# HELP jvm_gc_live_data_size_bytes Size of long-lived heap memory pool after reclamation
+# TYPE jvm_gc_live_data_size_bytes gauge
+jvm_gc_live_data_size_bytes 0.0
+# HELP jvm_gc_max_data_size_bytes Max size of long-lived heap memory pool
+# TYPE jvm_gc_max_data_size_bytes gauge
+jvm_gc_max_data_size_bytes 2.4981274624E10
+# HELP jvm_gc_memory_allocated_bytes_total Incremented for an increase in the size of the (young) heap memory pool after one GC to before the next
+# TYPE jvm_gc_memory_allocated_bytes_total counter
+jvm_gc_memory_allocated_bytes_total 1.6190013432E10
+# HELP jvm_gc_memory_promoted_bytes_total Count of positive increases in the size of the old generation memory pool before GC to after GC
+# TYPE jvm_gc_memory_promoted_bytes_total counter
+jvm_gc_memory_promoted_bytes_total 1.8658056E7
+# HELP jvm_gc_overhead An approximation of the percent of CPU time used by GC activities over the last lookback period or since monitoring began, whichever is shorter, in the range [0..1]
+# TYPE jvm_gc_overhead gauge
+jvm_gc_overhead 0.002109652569926531
+# HELP jvm_gc_pause_seconds Time spent in GC pause
+# TYPE jvm_gc_pause_seconds summary
+jvm_gc_pause_seconds_count{action="end of minor GC",cause="CodeCache GC Threshold",gc="G1 Young Generation"} 1
+jvm_gc_pause_seconds_sum{action="end of minor GC",cause="CodeCache GC Threshold",gc="G1 Young Generation"} 0.001
+jvm_gc_pause_seconds_count{action="end of minor GC",cause="G1 Evacuation Pause",gc="G1 Young Generation"} 197
+jvm_gc_pause_seconds_sum{action="end of minor GC",cause="G1 Evacuation Pause",gc="G1 Young Generation"} 0.162
+# HELP jvm_gc_pause_seconds_max Time spent in GC pause
+# TYPE jvm_gc_pause_seconds_max gauge
+jvm_gc_pause_seconds_max{action="end of minor GC",cause="CodeCache GC Threshold",gc="G1 Young Generation"} 0.001
+jvm_gc_pause_seconds_max{action="end of minor GC",cause="G1 Evacuation Pause",gc="G1 Young Generation"} 0.004
+# HELP jvm_memory_committed_bytes The amount of memory in bytes that is committed for the Java virtual machine to use
+# TYPE jvm_memory_committed_bytes gauge
+jvm_memory_committed_bytes{area="heap",id="G1 Eden Space"} 1.00663296E8
+jvm_memory_committed_bytes{area="heap",id="G1 Old Gen"} 5.0331648E7
+jvm_memory_committed_bytes{area="heap",id="G1 Survivor Space"} 1.6777216E7
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 4259840.0
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 2.2347776E7
+jvm_memory_committed_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 3.4537472E7
+jvm_memory_committed_bytes{area="nonheap",id="Compressed Class Space"} 9895936.0
+jvm_memory_committed_bytes{area="nonheap",id="Metaspace"} 7.6808192E7
+# HELP jvm_memory_max_bytes The maximum amount of memory in bytes that can be used for memory management
+# TYPE jvm_memory_max_bytes gauge
+jvm_memory_max_bytes{area="heap",id="G1 Eden Space"} -1.0
+jvm_memory_max_bytes{area="heap",id="G1 Old Gen"} 2.4981274624E10
+jvm_memory_max_bytes{area="heap",id="G1 Survivor Space"} -1.0
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 8196096.0
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 1.2173312E8
+jvm_memory_max_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 1.21729024E8
+jvm_memory_max_bytes{area="nonheap",id="Compressed Class Space"} 1.073741824E9
+jvm_memory_max_bytes{area="nonheap",id="Metaspace"} -1.0
+# HELP jvm_memory_usage_after_gc The percentage of long-lived heap pool used after the last GC event, in the range [0..1]
+# TYPE jvm_memory_usage_after_gc gauge
+jvm_memory_usage_after_gc{area="heap",pool="long-lived"} 0.0016509293709288035
+# HELP jvm_memory_used_bytes The amount of used memory
+# TYPE jvm_memory_used_bytes gauge
+jvm_memory_used_bytes{area="heap",id="G1 Eden Space"} 6.7108864E7
+jvm_memory_used_bytes{area="heap",id="G1 Old Gen"} 4.124232E7
+jvm_memory_used_bytes{area="heap",id="G1 Survivor Space"} 512600.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-nmethods'"} 2378880.0
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'non-profiled nmethods'"} 2.2312832E7
+jvm_memory_used_bytes{area="nonheap",id="CodeHeap 'profiled nmethods'"} 3.4473216E7
+jvm_memory_used_bytes{area="nonheap",id="Compressed Class Space"} 9303872.0
+jvm_memory_used_bytes{area="nonheap",id="Metaspace"} 7.5604576E7
+# HELP jvm_threads_daemon_threads The current number of live daemon threads
+# TYPE jvm_threads_daemon_threads gauge
+jvm_threads_daemon_threads 67.0
+# HELP jvm_threads_live_threads The current number of live threads including both daemon and non-daemon threads
+# TYPE jvm_threads_live_threads gauge
+jvm_threads_live_threads 74.0
+# HELP jvm_threads_peak_threads The peak live thread count since the Java virtual machine started or peak was reset
+# TYPE jvm_threads_peak_threads gauge
+jvm_threads_peak_threads 78.0
+# HELP jvm_threads_started_threads_total The total number of application threads started in the JVM
+# TYPE jvm_threads_started_threads_total counter
+jvm_threads_started_threads_total 55581.0
+# HELP jvm_threads_states_threads The current number of threads
+# TYPE jvm_threads_states_threads gauge
+jvm_threads_states_threads{state="blocked"} 0.0
+jvm_threads_states_threads{state="new"} 0.0
+jvm_threads_states_threads{state="runnable"} 10.0
+jvm_threads_states_threads{state="terminated"} 0.0
+jvm_threads_states_threads{state="timed-waiting"} 49.0
+jvm_threads_states_threads{state="waiting"} 14.0
+# HELP logback_events_total Number of log events that were enabled by the effective log level
+# TYPE logback_events_total counter
+logback_events_total{level="debug"} 0.0
+logback_events_total{level="error"} 0.0
+logback_events_total{level="info"} 7.0
+logback_events_total{level="trace"} 0.0
+logback_events_total{level="warn"} 0.0
+# HELP outbox_dead_total Events moved to the dead-letter state
+# TYPE outbox_dead_total counter
+outbox_dead_total 0.0
+# HELP outbox_delivery_attempts_total  
+# TYPE outbox_delivery_attempts_total counter
+outbox_delivery_attempts_total{result="DELIVERED"} 55495.0
+# HELP outbox_delivery_lag_seconds Outbox row created → consumer acknowledged
+# TYPE outbox_delivery_lag_seconds histogram
+outbox_delivery_lag_seconds_bucket{le="0.001"} 0
+outbox_delivery_lag_seconds_bucket{le="0.001048576"} 0
+outbox_delivery_lag_seconds_bucket{le="0.001398101"} 0
+outbox_delivery_lag_seconds_bucket{le="0.001747626"} 0
+outbox_delivery_lag_seconds_bucket{le="0.002097151"} 0
+outbox_delivery_lag_seconds_bucket{le="0.002446676"} 0
+outbox_delivery_lag_seconds_bucket{le="0.002796201"} 0
+outbox_delivery_lag_seconds_bucket{le="0.003145726"} 0
+outbox_delivery_lag_seconds_bucket{le="0.003495251"} 0
+outbox_delivery_lag_seconds_bucket{le="0.003844776"} 0
+outbox_delivery_lag_seconds_bucket{le="0.004194304"} 0
+outbox_delivery_lag_seconds_bucket{le="0.005592405"} 0
+outbox_delivery_lag_seconds_bucket{le="0.006990506"} 0
+outbox_delivery_lag_seconds_bucket{le="0.008388607"} 0
+outbox_delivery_lag_seconds_bucket{le="0.009786708"} 0
+outbox_delivery_lag_seconds_bucket{le="0.011184809"} 0
+outbox_delivery_lag_seconds_bucket{le="0.01258291"} 0
+outbox_delivery_lag_seconds_bucket{le="0.013981011"} 0
+outbox_delivery_lag_seconds_bucket{le="0.015379112"} 1
+outbox_delivery_lag_seconds_bucket{le="0.016777216"} 1
+outbox_delivery_lag_seconds_bucket{le="0.022369621"} 1
+outbox_delivery_lag_seconds_bucket{le="0.027962026"} 2
+outbox_delivery_lag_seconds_bucket{le="0.033554431"} 4
+outbox_delivery_lag_seconds_bucket{le="0.039146836"} 8
+outbox_delivery_lag_seconds_bucket{le="0.044739241"} 10
+outbox_delivery_lag_seconds_bucket{le="0.050331646"} 11
+outbox_delivery_lag_seconds_bucket{le="0.055924051"} 15
+outbox_delivery_lag_seconds_bucket{le="0.061516456"} 23
+outbox_delivery_lag_seconds_bucket{le="0.067108864"} 36
+outbox_delivery_lag_seconds_bucket{le="0.089478485"} 208
+outbox_delivery_lag_seconds_bucket{le="0.111848106"} 581
+outbox_delivery_lag_seconds_bucket{le="0.134217727"} 1259
+outbox_delivery_lag_seconds_bucket{le="0.156587348"} 2066
+outbox_delivery_lag_seconds_bucket{le="0.178956969"} 3036
+outbox_delivery_lag_seconds_bucket{le="0.20132659"} 3924
+outbox_delivery_lag_seconds_bucket{le="0.223696211"} 4847
+outbox_delivery_lag_seconds_bucket{le="0.246065832"} 6025
+outbox_delivery_lag_seconds_bucket{le="0.268435456"} 7375
+outbox_delivery_lag_seconds_bucket{le="0.357913941"} 10417
+outbox_delivery_lag_seconds_bucket{le="0.447392426"} 10681
+outbox_delivery_lag_seconds_bucket{le="0.536870911"} 10890
+outbox_delivery_lag_seconds_bucket{le="0.626349396"} 11151
+outbox_delivery_lag_seconds_bucket{le="0.715827881"} 11472
+outbox_delivery_lag_seconds_bucket{le="0.805306366"} 11821
+outbox_delivery_lag_seconds_bucket{le="0.894784851"} 12115
+outbox_delivery_lag_seconds_bucket{le="0.984263336"} 12478
+outbox_delivery_lag_seconds_bucket{le="1.073741824"} 12828
+outbox_delivery_lag_seconds_bucket{le="1.431655765"} 14091
+outbox_delivery_lag_seconds_bucket{le="1.789569706"} 15203
+outbox_delivery_lag_seconds_bucket{le="2.147483647"} 16141
+outbox_delivery_lag_seconds_bucket{le="2.505397588"} 17186
+outbox_delivery_lag_seconds_bucket{le="2.863311529"} 18107
+outbox_delivery_lag_seconds_bucket{le="3.22122547"} 18994
+outbox_delivery_lag_seconds_bucket{le="3.579139411"} 19950
+outbox_delivery_lag_seconds_bucket{le="3.937053352"} 20633
+outbox_delivery_lag_seconds_bucket{le="4.294967296"} 21286
+outbox_delivery_lag_seconds_bucket{le="5.726623061"} 24015
+outbox_delivery_lag_seconds_bucket{le="7.158278826"} 26442
+outbox_delivery_lag_seconds_bucket{le="8.589934591"} 28666
+outbox_delivery_lag_seconds_bucket{le="10.021590356"} 30681
+outbox_delivery_lag_seconds_bucket{le="11.453246121"} 32546
+outbox_delivery_lag_seconds_bucket{le="12.884901886"} 34242
+outbox_delivery_lag_seconds_bucket{le="14.316557651"} 44774
+outbox_delivery_lag_seconds_bucket{le="15.748213416"} 55159
+outbox_delivery_lag_seconds_bucket{le="17.179869184"} 55494
+outbox_delivery_lag_seconds_bucket{le="22.906492245"} 55494
+outbox_delivery_lag_seconds_bucket{le="28.633115306"} 55494
+outbox_delivery_lag_seconds_bucket{le="34.359738367"} 55494
+outbox_delivery_lag_seconds_bucket{le="40.086361428"} 55494
+outbox_delivery_lag_seconds_bucket{le="45.812984489"} 55494
+outbox_delivery_lag_seconds_bucket{le="51.53960755"} 55494
+outbox_delivery_lag_seconds_bucket{le="57.266230611"} 55494
+outbox_delivery_lag_seconds_bucket{le="62.992853672"} 55494
+outbox_delivery_lag_seconds_bucket{le="68.719476736"} 55494
+outbox_delivery_lag_seconds_bucket{le="91.625968981"} 55494
+outbox_delivery_lag_seconds_bucket{le="114.532461226"} 55494
+outbox_delivery_lag_seconds_bucket{le="137.438953471"} 55494
+outbox_delivery_lag_seconds_bucket{le="160.345445716"} 55494
+outbox_delivery_lag_seconds_bucket{le="183.251937961"} 55494
+outbox_delivery_lag_seconds_bucket{le="206.158430206"} 55494
+outbox_delivery_lag_seconds_bucket{le="229.064922451"} 55494
+outbox_delivery_lag_seconds_bucket{le="251.971414696"} 55494
+outbox_delivery_lag_seconds_bucket{le="274.877906944"} 55494
+outbox_delivery_lag_seconds_bucket{le="366.503875925"} 55494
+outbox_delivery_lag_seconds_bucket{le="458.129844906"} 55494
+outbox_delivery_lag_seconds_bucket{le="549.755813887"} 55494
+outbox_delivery_lag_seconds_bucket{le="641.381782868"} 55494
+outbox_delivery_lag_seconds_bucket{le="733.007751849"} 55494
+outbox_delivery_lag_seconds_bucket{le="824.63372083"} 55494
+outbox_delivery_lag_seconds_bucket{le="916.259689811"} 55494
+outbox_delivery_lag_seconds_bucket{le="1007.885658792"} 55494
+outbox_delivery_lag_seconds_bucket{le="1099.511627776"} 55494
+outbox_delivery_lag_seconds_bucket{le="1466.015503701"} 55494
+outbox_delivery_lag_seconds_bucket{le="1832.519379626"} 55494
+outbox_delivery_lag_seconds_bucket{le="2199.023255551"} 55494
+outbox_delivery_lag_seconds_bucket{le="2565.527131476"} 55494
+outbox_delivery_lag_seconds_bucket{le="2932.031007401"} 55494
+outbox_delivery_lag_seconds_bucket{le="3298.534883326"} 55494
+outbox_delivery_lag_seconds_bucket{le="3600.0"} 55494
+outbox_delivery_lag_seconds_bucket{le="+Inf"} 55494
+outbox_delivery_lag_seconds_count 55494
+outbox_delivery_lag_seconds_sum 436562.546147535
+# HELP outbox_delivery_lag_seconds_max Outbox row created → consumer acknowledged
+# TYPE outbox_delivery_lag_seconds_max gauge
+outbox_delivery_lag_seconds_max 15.867353418
+# HELP outbox_oldest_pending_age_seconds Age of the oldest undelivered outbox row
+# TYPE outbox_oldest_pending_age_seconds gauge
+outbox_oldest_pending_age_seconds 13.51311
+# HELP outbox_queue_depth Outbox rows by state
+# TYPE outbox_queue_depth gauge
+outbox_queue_depth{state="CLAIMED"} 39.0
+outbox_queue_depth{state="DEAD"} 0.0
+outbox_queue_depth{state="DELIVERED"} 53008.0
+outbox_queue_depth{state="PENDING"} 12874.0
+outbox_queue_depth{state="RETRY"} 0.0
+# HELP outbox_retries_total Deliveries scheduled for retry
+# TYPE outbox_retries_total counter
+outbox_retries_total 0.0
+# HELP process_cpu_time_ns_total The "cpu time" used by the Java Virtual Machine process
+# TYPE process_cpu_time_ns_total counter
+process_cpu_time_ns_total 1.2324E11
+# HELP process_cpu_usage The "recent cpu usage" for the Java Virtual Machine process
+# TYPE process_cpu_usage gauge
+process_cpu_usage 0.0396420506816091
+# HELP process_files_max_files The maximum file descriptor count
+# TYPE process_files_max_files gauge
+process_files_max_files 1048576.0
+# HELP process_files_open_files The open file descriptor count
+# TYPE process_files_open_files gauge
+process_files_open_files 44.0
+# HELP process_start_time_seconds Start time of the process since unix epoch.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.793396468426E9
+# HELP process_uptime_seconds The uptime of the Java virtual machine
+# TYPE process_uptime_seconds gauge
+process_uptime_seconds 81.599
+# HELP roster_event_apply_seconds Single-event ingest latency
+# TYPE roster_event_apply_seconds histogram
+roster_event_apply_seconds_bucket{le="0.001"} 3065
+roster_event_apply_seconds_bucket{le="0.001048576"} 3925
+roster_event_apply_seconds_bucket{le="0.001398101"} 21748
+roster_event_apply_seconds_bucket{le="0.001747626"} 51710
+roster_event_apply_seconds_bucket{le="0.002097151"} 65754
+roster_event_apply_seconds_bucket{le="0.002446676"} 68350
+roster_event_apply_seconds_bucket{le="0.002796201"} 69027
+roster_event_apply_seconds_bucket{le="0.003145726"} 69291
+roster_event_apply_seconds_bucket{le="0.003495251"} 69495
+roster_event_apply_seconds_bucket{le="0.003844776"} 69619
+roster_event_apply_seconds_bucket{le="0.004194304"} 69685
+roster_event_apply_seconds_bucket{le="0.005592405"} 69776
+roster_event_apply_seconds_bucket{le="0.006990506"} 69832
+roster_event_apply_seconds_bucket{le="0.008388607"} 69871
+roster_event_apply_seconds_bucket{le="0.009786708"} 69892
+roster_event_apply_seconds_bucket{le="0.011184809"} 69910
+roster_event_apply_seconds_bucket{le="0.01258291"} 69929
+roster_event_apply_seconds_bucket{le="0.013981011"} 69949
+roster_event_apply_seconds_bucket{le="0.015379112"} 69960
+roster_event_apply_seconds_bucket{le="0.016777216"} 69969
+roster_event_apply_seconds_bucket{le="0.022369621"} 69988
+roster_event_apply_seconds_bucket{le="0.027962026"} 70001
+roster_event_apply_seconds_bucket{le="0.033554431"} 70001
+roster_event_apply_seconds_bucket{le="0.039146836"} 70001
+roster_event_apply_seconds_bucket{le="0.044739241"} 70001
+roster_event_apply_seconds_bucket{le="0.050331646"} 70001
+roster_event_apply_seconds_bucket{le="0.055924051"} 70001
+roster_event_apply_seconds_bucket{le="0.061516456"} 70001
+roster_event_apply_seconds_bucket{le="0.067108864"} 70001
+roster_event_apply_seconds_bucket{le="0.089478485"} 70001
+roster_event_apply_seconds_bucket{le="0.111848106"} 70001
+roster_event_apply_seconds_bucket{le="0.134217727"} 70001
+roster_event_apply_seconds_bucket{le="0.156587348"} 70001
+roster_event_apply_seconds_bucket{le="0.178956969"} 70001
+roster_event_apply_seconds_bucket{le="0.20132659"} 70001
+roster_event_apply_seconds_bucket{le="0.223696211"} 70001
+roster_event_apply_seconds_bucket{le="0.246065832"} 70001
+roster_event_apply_seconds_bucket{le="0.268435456"} 70001
+roster_event_apply_seconds_bucket{le="0.357913941"} 70001
+roster_event_apply_seconds_bucket{le="0.447392426"} 70001
+roster_event_apply_seconds_bucket{le="0.536870911"} 70001
+roster_event_apply_seconds_bucket{le="0.626349396"} 70001
+roster_event_apply_seconds_bucket{le="0.715827881"} 70001
+roster_event_apply_seconds_bucket{le="0.805306366"} 70001
+roster_event_apply_seconds_bucket{le="0.894784851"} 70001
+roster_event_apply_seconds_bucket{le="0.984263336"} 70001
+roster_event_apply_seconds_bucket{le="1.073741824"} 70001
+roster_event_apply_seconds_bucket{le="1.431655765"} 70001
+roster_event_apply_seconds_bucket{le="1.789569706"} 70001
+roster_event_apply_seconds_bucket{le="2.147483647"} 70001
+roster_event_apply_seconds_bucket{le="2.505397588"} 70001
+roster_event_apply_seconds_bucket{le="2.863311529"} 70001
+roster_event_apply_seconds_bucket{le="3.22122547"} 70001
+roster_event_apply_seconds_bucket{le="3.579139411"} 70001
+roster_event_apply_seconds_bucket{le="3.937053352"} 70001
+roster_event_apply_seconds_bucket{le="4.294967296"} 70001
+roster_event_apply_seconds_bucket{le="5.726623061"} 70001
+roster_event_apply_seconds_bucket{le="7.158278826"} 70001
+roster_event_apply_seconds_bucket{le="8.589934591"} 70001
+roster_event_apply_seconds_bucket{le="10.021590356"} 70001
+roster_event_apply_seconds_bucket{le="11.453246121"} 70001
+roster_event_apply_seconds_bucket{le="12.884901886"} 70001
+roster_event_apply_seconds_bucket{le="14.316557651"} 70001
+roster_event_apply_seconds_bucket{le="15.748213416"} 70001
+roster_event_apply_seconds_bucket{le="17.179869184"} 70001
+roster_event_apply_seconds_bucket{le="22.906492245"} 70001
+roster_event_apply_seconds_bucket{le="28.633115306"} 70001
+roster_event_apply_seconds_bucket{le="30.0"} 70001
+roster_event_apply_seconds_bucket{le="+Inf"} 70001
+roster_event_apply_seconds_count 70001
+roster_event_apply_seconds_sum 111.543857782
+# HELP roster_event_apply_seconds_max Single-event ingest latency
+# TYPE roster_event_apply_seconds_max gauge
+roster_event_apply_seconds_max 0.026416614
+# HELP roster_events_total  
+# TYPE roster_events_total counter
+roster_events_total{outcome="APPLIED"} 67602.0
+roster_events_total{outcome="DUPLICATE"} 1200.0
+roster_events_total{outcome="STALE"} 1199.0
+# HELP roster_reconciliation_lock_seconds Time the exclusive tenant lock was held by a reconciliation apply
+# TYPE roster_reconciliation_lock_seconds summary
+roster_reconciliation_lock_seconds_count 0
+roster_reconciliation_lock_seconds_sum 0.0
+# HELP roster_reconciliation_lock_seconds_max Time the exclusive tenant lock was held by a reconciliation apply
+# TYPE roster_reconciliation_lock_seconds_max gauge
+roster_reconciliation_lock_seconds_max 0.0
+# HELP roster_safety_brake_trips_total Snapshots stopped by the safety brake
+# TYPE roster_safety_brake_trips_total counter
+roster_safety_brake_trips_total 0.0
+# HELP spring_security_authentications_active_seconds  
+# TYPE spring_security_authentications_active_seconds summary
+spring_security_authentications_active_seconds_count{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0
+spring_security_authentications_active_seconds_sum{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0.0
+# HELP spring_security_authentications_active_seconds_max  
+# TYPE spring_security_authentications_active_seconds_max gauge
+spring_security_authentications_active_seconds_max{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="n/a"} 0.0
+# HELP spring_security_authentications_seconds  
+# TYPE spring_security_authentications_seconds summary
+spring_security_authentications_seconds_count{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 60011
+spring_security_authentications_seconds_sum{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 6.918073621
+# HELP spring_security_authentications_seconds_max  
+# TYPE spring_security_authentications_seconds_max gauge
+spring_security_authentications_seconds_max{authentication_failure_type="n/a",authentication_method="ProviderManager",authentication_request_type="BearerTokenAuthenticationToken",authentication_result_type="JwtAuthenticationToken",error="none"} 0.007593428
+# HELP spring_security_authorizations_active_seconds  
+# TYPE spring_security_authorizations_active_seconds summary
+spring_security_authorizations_active_seconds_count{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="method"} 0
+spring_security_authorizations_active_seconds_sum{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="method"} 0.0
+spring_security_authorizations_active_seconds_count{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0
+spring_security_authorizations_active_seconds_sum{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0.0
+# HELP spring_security_authorizations_active_seconds_max  
+# TYPE spring_security_authorizations_active_seconds_max gauge
+spring_security_authorizations_active_seconds_max{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="method"} 0.0
+spring_security_authorizations_active_seconds_max{spring_security_authentication_type="n/a",spring_security_authorization_decision="unknown",spring_security_object="request"} 0.0
+# HELP spring_security_authorizations_seconds  
+# TYPE spring_security_authorizations_seconds summary
+spring_security_authorizations_seconds_count{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="method"} 60011
+spring_security_authorizations_seconds_sum{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="method"} 0.813580049
+spring_security_authorizations_seconds_count{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 60011
+spring_security_authorizations_seconds_sum{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 0.490671448
+spring_security_authorizations_seconds_count{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 19
+spring_security_authorizations_seconds_sum{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 6.85796E-4
+# HELP spring_security_authorizations_seconds_max  
+# TYPE spring_security_authorizations_seconds_max gauge
+spring_security_authorizations_seconds_max{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="method"} 0.010583748
+spring_security_authorizations_seconds_max{error="none",spring_security_authentication_type="JwtAuthenticationToken",spring_security_authorization_decision="true",spring_security_object="request"} 2.18949E-4
+spring_security_authorizations_seconds_max{error="none",spring_security_authentication_type="n/a",spring_security_authorization_decision="true",spring_security_object="request"} 2.66642E-4
+# HELP spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total  
+# TYPE spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total counter
+spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total  
+# TYPE spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total counter
+spring_security_filterchains_OAuth2ProtectedResourceMetadataFilter_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_access_exceptions_after_total  
+# TYPE spring_security_filterchains_access_exceptions_after_total counter
+spring_security_filterchains_access_exceptions_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_access_exceptions_before_total  
+# TYPE spring_security_filterchains_access_exceptions_before_total counter
+spring_security_filterchains_access_exceptions_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_active_seconds  
+# TYPE spring_security_filterchains_active_seconds summary
+spring_security_filterchains_active_seconds_count{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0
+spring_security_filterchains_active_seconds_sum{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0.0
+spring_security_filterchains_active_seconds_count{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0
+spring_security_filterchains_active_seconds_sum{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0.0
+# HELP spring_security_filterchains_active_seconds_max  
+# TYPE spring_security_filterchains_active_seconds_max gauge
+spring_security_filterchains_active_seconds_max{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 0.0
+spring_security_filterchains_active_seconds_max{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 0.0
+# HELP spring_security_filterchains_authentication_anonymous_after_total  
+# TYPE spring_security_filterchains_authentication_anonymous_after_total counter
+spring_security_filterchains_authentication_anonymous_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_authentication_anonymous_before_total  
+# TYPE spring_security_filterchains_authentication_anonymous_before_total counter
+spring_security_filterchains_authentication_anonymous_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_authentication_bearer_after_total  
+# TYPE spring_security_filterchains_authentication_bearer_after_total counter
+spring_security_filterchains_authentication_bearer_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_authentication_bearer_before_total  
+# TYPE spring_security_filterchains_authentication_bearer_before_total counter
+spring_security_filterchains_authentication_bearer_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_authorization_after_total  
+# TYPE spring_security_filterchains_authorization_after_total counter
+spring_security_filterchains_authorization_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_authorization_before_total  
+# TYPE spring_security_filterchains_authorization_before_total counter
+spring_security_filterchains_authorization_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_context_async_after_total  
+# TYPE spring_security_filterchains_context_async_after_total counter
+spring_security_filterchains_context_async_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_context_async_before_total  
+# TYPE spring_security_filterchains_context_async_before_total counter
+spring_security_filterchains_context_async_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_context_holder_after_total  
+# TYPE spring_security_filterchains_context_holder_after_total counter
+spring_security_filterchains_context_holder_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_context_holder_before_total  
+# TYPE spring_security_filterchains_context_holder_before_total counter
+spring_security_filterchains_context_holder_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_context_servlet_after_total  
+# TYPE spring_security_filterchains_context_servlet_after_total counter
+spring_security_filterchains_context_servlet_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_context_servlet_before_total  
+# TYPE spring_security_filterchains_context_servlet_before_total counter
+spring_security_filterchains_context_servlet_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_header_after_total  
+# TYPE spring_security_filterchains_header_after_total counter
+spring_security_filterchains_header_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_header_before_total  
+# TYPE spring_security_filterchains_header_before_total counter
+spring_security_filterchains_header_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_logout_after_total  
+# TYPE spring_security_filterchains_logout_after_total counter
+spring_security_filterchains_logout_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_logout_before_total  
+# TYPE spring_security_filterchains_logout_before_total counter
+spring_security_filterchains_logout_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_requestcache_after_total  
+# TYPE spring_security_filterchains_requestcache_after_total counter
+spring_security_filterchains_requestcache_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_requestcache_before_total  
+# TYPE spring_security_filterchains_requestcache_before_total counter
+spring_security_filterchains_requestcache_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_seconds  
+# TYPE spring_security_filterchains_seconds summary
+spring_security_filterchains_seconds_count{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 60030
+spring_security_filterchains_seconds_sum{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 11.270411757
+spring_security_filterchains_seconds_count{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 60029
+spring_security_filterchains_seconds_sum{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 1.031682296
+# HELP spring_security_filterchains_seconds_max  
+# TYPE spring_security_filterchains_seconds_max gauge
+spring_security_filterchains_seconds_max{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="AuthorizationFilter",spring_security_reached_filter_section="before"} 0.008042138
+spring_security_filterchains_seconds_max{error="none",spring_security_filterchain_position="13",spring_security_filterchain_size="13",spring_security_reached_filter_name="DisableEncodeUrlFilter",spring_security_reached_filter_section="after"} 0.001669039
+# HELP spring_security_filterchains_session_management_after_total  
+# TYPE spring_security_filterchains_session_management_after_total counter
+spring_security_filterchains_session_management_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_session_management_before_total  
+# TYPE spring_security_filterchains_session_management_before_total counter
+spring_security_filterchains_session_management_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_filterchains_session_urlencoding_after_total  
+# TYPE spring_security_filterchains_session_urlencoding_after_total counter
+spring_security_filterchains_session_urlencoding_after_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="after"} 60029.0
+# HELP spring_security_filterchains_session_urlencoding_before_total  
+# TYPE spring_security_filterchains_session_urlencoding_before_total counter
+spring_security_filterchains_session_urlencoding_before_total{spring_security_filterchain_position="0",spring_security_filterchain_size="0",spring_security_reached_filter_name="none",spring_security_reached_filter_section="before"} 60030.0
+# HELP spring_security_http_secured_requests_active_seconds  
+# TYPE spring_security_http_secured_requests_active_seconds summary
+spring_security_http_secured_requests_active_seconds_count 1
+spring_security_http_secured_requests_active_seconds_sum 0.007065721
+# HELP spring_security_http_secured_requests_active_seconds_max  
+# TYPE spring_security_http_secured_requests_active_seconds_max gauge
+spring_security_http_secured_requests_active_seconds_max 0.007067768
+# HELP spring_security_http_secured_requests_seconds  
+# TYPE spring_security_http_secured_requests_seconds summary
+spring_security_http_secured_requests_seconds_count{error="none"} 60029
+spring_security_http_secured_requests_seconds_sum{error="none"} 121.462441138
+# HELP spring_security_http_secured_requests_seconds_max  
+# TYPE spring_security_http_secured_requests_seconds_max gauge
+spring_security_http_secured_requests_seconds_max{error="none"} 2.001918322
+# HELP system_cpu_count The number of processors available to the Java virtual machine
+# TYPE system_cpu_count gauge
+system_cpu_count 32.0
+# HELP system_cpu_usage The "recent cpu usage" of the system the application is running in
+# TYPE system_cpu_usage gauge
+system_cpu_usage 0.13440116313777858
+# HELP system_load_average_1m The sum of the number of runnable entities queued to available processors and the number of runnable entities running on the available processors averaged over a period of time
+# TYPE system_load_average_1m gauge
+system_load_average_1m 5.4677734375
+# HELP tasks_scheduled_execution_active_seconds  
+# TYPE tasks_scheduled_execution_active_seconds summary
+tasks_scheduled_execution_active_seconds_count{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",exception="none",outcome="UNKNOWN"} 0
+tasks_scheduled_execution_active_seconds_sum{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",exception="none",outcome="UNKNOWN"} 0.0
+tasks_scheduled_execution_active_seconds_count{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",exception="none",outcome="UNKNOWN"} 1
+tasks_scheduled_execution_active_seconds_sum{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",exception="none",outcome="UNKNOWN"} 61.491769055
+# HELP tasks_scheduled_execution_active_seconds_max  
+# TYPE tasks_scheduled_execution_active_seconds_max gauge
+tasks_scheduled_execution_active_seconds_max{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",exception="none",outcome="UNKNOWN"} 0.0
+tasks_scheduled_execution_active_seconds_max{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",exception="none",outcome="UNKNOWN"} 61.491775796
+# HELP tasks_scheduled_execution_seconds  
+# TYPE tasks_scheduled_execution_seconds summary
+tasks_scheduled_execution_seconds_count{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",error="none",exception="none",outcome="SUCCESS"} 16
+tasks_scheduled_execution_seconds_sum{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",error="none",exception="none",outcome="SUCCESS"} 0.169849358
+tasks_scheduled_execution_seconds_count{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",error="none",exception="none",outcome="SUCCESS"} 33
+tasks_scheduled_execution_seconds_sum{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",error="none",exception="none",outcome="SUCCESS"} 10.501461944
+# HELP tasks_scheduled_execution_seconds_max  
+# TYPE tasks_scheduled_execution_seconds_max gauge
+tasks_scheduled_execution_seconds_max{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.observability.OutboxMetrics",error="none",exception="none",outcome="SUCCESS"} 0.023200278
+tasks_scheduled_execution_seconds_max{code_function="poll",code_namespace="com.moveinsync.rostersync.roster.outbox.OutboxRelayScheduler",error="none",exception="none",outcome="SUCCESS"} 1.126749115
+# HELP tomcat_sessions_active_current_sessions  
+# TYPE tomcat_sessions_active_current_sessions gauge
+tomcat_sessions_active_current_sessions 0.0
+# HELP tomcat_sessions_active_max_sessions  
+# TYPE tomcat_sessions_active_max_sessions gauge
+tomcat_sessions_active_max_sessions 0.0
+# HELP tomcat_sessions_alive_max_seconds  
+# TYPE tomcat_sessions_alive_max_seconds gauge
+tomcat_sessions_alive_max_seconds 0.0
+# HELP tomcat_sessions_created_sessions_total  
+# TYPE tomcat_sessions_created_sessions_total counter
+tomcat_sessions_created_sessions_total 0.0
+# HELP tomcat_sessions_expired_sessions_total  
+# TYPE tomcat_sessions_expired_sessions_total counter
+tomcat_sessions_expired_sessions_total 0.0
+# HELP tomcat_sessions_rejected_sessions_total  
+# TYPE tomcat_sessions_rejected_sessions_total counter
+tomcat_sessions_rejected_sessions_total 0.0

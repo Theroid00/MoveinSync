@@ -1,0 +1,83 @@
+{
+  "warmup_runs" : 0,
+  "scenario" : "quiet",
+  "postgres_version" : "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "heap_limit_bytes" : 268435456,
+  "seed" : 42,
+  "measured_runs" : [ {
+    "iteration" : 1,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 71,
+      "stage" : 1791,
+      "assess" : 2271,
+      "digest" : 325
+    },
+    "total_ms" : 4520,
+    "rows_per_second" : 44247.78761061947,
+    "peak_heap_bytes" : 210321568,
+    "buckets_mismatched" : 99,
+    "outbox_rows" : 100,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 348,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 62282
+    }
+  }, {
+    "iteration" : 2,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 70,
+      "stage" : 1779,
+      "assess" : 2269,
+      "digest" : 330
+    },
+    "total_ms" : 4511,
+    "rows_per_second" : 44336.067390822434,
+    "peak_heap_bytes" : 205709160,
+    "buckets_mismatched" : 99,
+    "outbox_rows" : 100,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 348,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 62282
+    }
+  }, {
+    "iteration" : 3,
+    "status" : "COMPLETED",
+    "phase_ms" : {
+      "apply" : 9,
+      "stage" : 1843,
+      "assess" : 19,
+      "digest" : 323
+    },
+    "total_ms" : 2279,
+    "rows_per_second" : 87757.78850372971,
+    "peak_heap_bytes" : 212860928,
+    "buckets_mismatched" : 99,
+    "outbox_rows" : 100,
+    "counts" : {
+      "stale" : 0,
+      "created" : 0,
+      "updated" : 100,
+      "advanced" : 0,
+      "conflict" : 0,
+      "duplicate" : 348,
+      "deactivated" : 0,
+      "reactivated" : 0,
+      "unchangedBuckets" : 62282
+    }
+  } ]
+}

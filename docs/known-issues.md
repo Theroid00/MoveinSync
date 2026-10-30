@@ -4,8 +4,10 @@ Anything that deviates from `docs/spec/AGENT_BUILD_SPEC.md`, any version fallbac
 
 ## Environment
 
-- **Build host:** Apple Silicon MacBook Air (10 cores, 16 GB), macOS 27.0.1. The host had no JDK and no Docker at the start of P0. Installed with Homebrew (no sudo): `openjdk@21`, `colima`, `docker`, `docker-compose`, `docker-buildx`. Docker runs inside a Colima VM. See "Colima + Testcontainers" below for the required environment variables.
+- **Original build host:** Apple Silicon MacBook Air (10 cores, 16 GB), macOS 27.0.1. The host had no JDK and no Docker at the start of P0. Installed with Homebrew (no sudo): `openjdk@21`, `colima`, `docker`, `docker-compose`, `docker-buildx`. Docker runs inside a Colima VM. See "Colima + Testcontainers" below for the required environment variables.
 - **Java:** Homebrew `openjdk@21`, not Temurin as §1 suggests. It is the same OpenJDK 21 codebase; the Docker images use `eclipse-temurin` as the spec intends.
+
+Validation host (2026-10-31): Nobara Linux 44, x86_64, 32 logical CPUs, 31 GiB RAM, Docker Engine 29.9.2. Temurin JDK 21.0.13 is installed at `/home/theroid/.local/share/jdks/temurin-21.0.13`; select it with `JAVA_HOME` and put its `bin` on `PATH`. The system default is a Java 25 runtime without a compiler. This shell uses `sg docker` because its login group list predates the account’s Docker membership.
 
 ## Version resolution (spec §0.11)
 
@@ -76,14 +78,14 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
-- **High-load metrics scheduler:** the first Linux load run exposed stale outbox gauges while the relay drained continuously on the single shared scheduler thread. The roster scheduler now has two threads so the five-second metrics poll can run during draining. `MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy` guards against starvation. Performance results are being revalidated with this fix.
+- **High-load metrics scheduler:** the first Linux load run exposed stale outbox gauges while the relay drained continuously on the single shared scheduler thread. The roster scheduler now has two threads so the five-second metrics poll can run during draining. `MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy` guards against starvation. The regression passes with two threads and fails with the original single-thread setting. The final full benchmark runner passed with the fix; high-load scrapes now expose the backlog.
 
 
-- **Benchmark protocol override (2026-10-31):** the user explicitly requested no warm-up. Final P11 reconciliation measurements use three fresh-baseline measured runs, with `warmup_runs=0`, retaining the 256 MiB heap cap, exact mutation assertions and timing bounds. The first Linux run began before this instruction; its reconciliation results will be replaced by a no-warm-up run.
+- **Benchmark protocol override (2026-10-31):** the user explicitly requested no warm-up. Final P11 reconciliation measurements use three fresh-baseline measured runs, with `warmup_runs=0`, retaining the 256 MiB heap cap, exact mutation assertions and timing bounds. The initial Linux run began before this instruction; final results replace it with measured runs without warm-up.
 
 
 - **Benchmark baseline and RLS (§19):** PostgreSQL rejects `COPY FROM` directly into an RLS table for the app role. The unmeasured fixture COPYs into a temporary table, then `INSERT ... SELECT`s into `employee` under the bulk tenant transaction, retaining RLS. Only the disposable benchmark container grants `TRUNCATE` to `roster_app`; production grants are unchanged.
 
-- **P11 execution deferred to another computer (user request):** no complete local benchmark results are accepted. A local 200k-row attempt timed out in the apply UPDATE (300 s); `ANALYZE recon_plan` was added because PostgreSQL does not auto-analyze temporary tables. Normal tests pass; performance and the full runner still require the remote run. Partial results and failure evidence are in `bench/local-attempts/`, with execution instructions in `bench/README.md`. P11's gate and P12–P13 remain pending.
+- **P11 completed on Linux:** all six 200k scenarios, four API rates and contention passed. The earlier 300-second Mac timeout was resolved by analyzing the temporary `recon_plan`. Partial Mac artifacts remain under `bench/local-attempts/` for diagnosis; accepted measurements are under `bench/results/`. The API accepts 1,000/s on this host, but the relay accumulates a backlog at that rate; the report includes delivered-event quantiles and the pending queue separately.
 
 - *(resolved in P6)* P3–P5 read the tenant from an `X-Tenant-Id` header as a build-order stand-in. Since P6 the tenant, roles and employee id come only from the validated JWT.

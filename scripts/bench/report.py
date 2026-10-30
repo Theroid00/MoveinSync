@@ -131,15 +131,21 @@ def main():
               "`contention-run.json` records the completed run, counts and phase timings. "
               "`prometheus-contention.txt` records `roster_reconciliation_lock_seconds`.", "",
               "## Delivery lag", "", "Histogram-interpolated quantiles after each API load run:", "",
-              "| API target /s | Delivery p50 s | Delivery p99 s |", "|---:|---:|---:|"]
+              "| API target /s | Delivery p50 s | Delivery p99 s | Pending | Claimed | Oldest pending s |", "|---:|---:|---:|---:|---:|---:|"]
     for rate in (100, 250, 500, 1000):
         text = (RESULTS / f"prometheus-{rate}.txt").read_text()
         quantiles = [histogram_quantile(text, q) for q in (.5, .99)]
         assert all(q is not None for q in quantiles)
-        lines.append(f"| {rate} | {quantiles[0]:.3f} | {quantiles[1]:.3f} |")
+        gauges = {line.split()[0]: float(line.split()[1]) for line in text.splitlines()
+                  if line.startswith(("outbox_queue_depth{", "outbox_oldest_pending_age_seconds "))}
+        pending = gauges['outbox_queue_depth{state="PENDING"}']
+        claimed = gauges['outbox_queue_depth{state="CLAIMED"}']
+        oldest = gauges['outbox_oldest_pending_age_seconds']
+        lines.append(f"| {rate} | {quantiles[0]:.3f} | {quantiles[1]:.3f} | {pending:.0f} | {claimed:.0f} | {oldest:.3f} |")
     lines += ["", "Delivery lag describes events acknowledged by scrape time, including setup events. "
               "A remaining backlog is not represented by delivered-event quantiles; queue depth and oldest pending age "
-              "are retained in the same scrapes. Raw inputs are under `bench/results/`.", ""]
+              "are polled every five seconds and retained in the same scrapes. At 1,000/s the relay builds a backlog even while HTTP ingest stays fast. "
+              "Raw inputs are under `bench/results/`.", ""]
     (ROOT / "docs/benchmark.md").write_text("\n".join(lines))
 
 

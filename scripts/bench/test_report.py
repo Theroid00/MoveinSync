@@ -28,7 +28,10 @@ class ReportTest(unittest.TestCase):
                                                                                "postgres_version": "TEST FIXTURE DATABASE"}))
             histogram = ('outbox_delivery_lag_seconds_bucket{le="1"} 5\n'
                          'outbox_delivery_lag_seconds_bucket{le="2"} 10\n'
-                         'outbox_delivery_lag_seconds_bucket{le="+Inf"} 10\n')
+                         'outbox_delivery_lag_seconds_bucket{le="+Inf"} 10\n'
+                         'outbox_queue_depth{state="PENDING"} 12\n'
+                         'outbox_queue_depth{state="CLAIMED"} 2\n'
+                         'outbox_oldest_pending_age_seconds 3\n')
             for rate in (100, 250, 500, 1000):
                 summary = {"metrics": {"ingest_ms": {p: rate for p in ("p(50)", "p(95)", "p(99)", "p(99.9)")},
                                        "iterations": {"count": 6000, "rate": 80}, "checks": {"passes": 6000, "fails": 0}}}
@@ -43,6 +46,7 @@ class ReportTest(unittest.TestCase):
             self.assertIn("**100.00 ms**", first)
             self.assertIn("| 100 | 100.0 |", first)
             self.assertIn("no warm-up", first)
+            self.assertIn("| 12 | 2 | 3.000 |", first)
             (raw_dir / "contention.jsonl").unlink()
             report.main()
             self.assertEqual(first, (root / "docs/benchmark.md").read_text())

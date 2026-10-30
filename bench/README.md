@@ -1,6 +1,6 @@
-# Run the heavy benchmarks on another computer
+# Run the benchmarks
 
-P11 is prepared for a separate machine at the user's request. Full benchmark validation is pending.
+P11 completed on the Linux validation machine. Accepted raw outputs are in `bench/results/` and the generated report is in `docs/benchmark.md`.
 For the full remaining project work and acceptance gates after P11, see [the handoff](../docs/HANDOFF.md).
 Requirements: Java 21, Docker Engine + Compose, bash, curl, jq, Python 3, and network access for the pinned images and Maven dependencies. Run from the repository root on Linux, macOS, or WSL.
 
@@ -34,6 +34,6 @@ docker run --rm -v "$PWD/k6:/scripts:ro" grafana/k6:1.8.2 run /scripts/ingest-te
 
 ## Local attempts
 
-The first local attempt exposed PostgreSQL's prohibition on COPY directly into an RLS table. The fixture now COPYs into a temporary table and inserts under the app role's tenant policy. The second attempt timed out in the apply UPDATE after 300 seconds during an initial-load iteration. The repository now explicitly analyzes the temporary `recon_plan` before its apply joins; its performance effect still requires the remote run. Standard tests check correctness without running the heavy benchmark.
+The first local attempt exposed PostgreSQL's prohibition on COPY directly into an RLS table. The fixture now COPYs into a temporary table and inserts under the app role's tenant policy. The second attempt timed out in the apply UPDATE after 300 seconds during an initial-load iteration. The repository now explicitly analyzes the temporary `recon_plan` before its apply joins; the final Linux runs passed with that change. Standard tests check correctness without running the heavy benchmark.
 
 Incomplete local measurements and the timeout report are retained in `bench/local-attempts/`; they are **not final benchmark results**. No local run completed all six scenarios.

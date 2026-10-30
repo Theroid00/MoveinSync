@@ -1,0 +1,87 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+ Container roster-sync-k6-run-5534bcfef328 Creating 
+ Container roster-sync-k6-run-5534bcfef328 Created 
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: /scripts/ingest-test.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 1 max VUs, 10m30s max duration (incl. graceful stop):
+              * default: 1 iterations shared among 1 VUs (maxDuration: 10m0s, gracefulStop: 30s)
+
+
+
+  █ THRESHOLDS 
+
+    checks
+    ✓ 'rate==1' rate=100.00%
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 7       4751.412867/s
+    checks_succeeded...: 100.00% 7 out of 7
+    checks_failed......: 0.00%   0 out of 7
+
+    ✓ 50 new employees per block
+    ✓ 46 distinct updates per block
+    ✓ duplicate 96 exactly replays 94
+    ✓ duplicate 97 exactly replays 95
+    ✓ out-of-order 98 targets 94 with a lower version
+    ✓ out-of-order 99 targets 95 with a lower version
+    ✓ update IDs stay inside the seeded 10k
+
+    EXECUTION
+    iteration_duration...: avg=1.42ms min=1.42ms med=1.42ms max=1.42ms p(90)=1.42ms p(95)=1.42ms
+    iterations...........: 1   678.773267/s
+
+    NETWORK
+    data_received........: 0 B 0 B/s
+    data_sent............: 0 B 0 B/s
+
+
+
+
+running (00m00.0s), 0/1 VUs, 1 complete and 0 interrupted iterations
+default ✓ [ 100% ] 1 VUs  00m00.0s/10m0s  1/1 shared iters
+21:34:12  running capped-heap reconciliation benchmarks
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+Exports and COPY baseline: /home/theroid/PycharmProjects/HR/HR/roster-service/target/bench
+21:36:08  resetting stack (down -v, up --build)
+21:36:21  roster healthy
+21:36:21  booking healthy
+21:36:21  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:36:21  k6 rate=100/s, 60 seconds
+21:37:43  resetting stack (down -v, up --build)
+21:37:55  roster healthy
+21:37:56  booking healthy
+21:37:56  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:37:56  k6 rate=250/s, 60 seconds
+21:39:18  resetting stack (down -v, up --build)
+21:39:31  roster healthy
+21:39:31  booking healthy
+21:39:31  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:39:31  k6 rate=500/s, 60 seconds
+21:40:53  resetting stack (down -v, up --build)
+21:41:06  roster healthy
+21:41:07  booking healthy
+21:41:07  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:41:07  k6 rate=1000/s, 60 seconds
+21:42:30  resetting stack (down -v, up --build)
+21:42:47  roster healthy
+21:42:47  booking healthy
+21:42:47  ok: demo data seeded (300 future bookings, outbox drained) (0s)
+21:42:47  restoring 200k baseline for contention
+21:43:15  ok: contention load started (26s)
+21:44:13  benchmarks complete: bench/results/ and docs/benchmark.md
