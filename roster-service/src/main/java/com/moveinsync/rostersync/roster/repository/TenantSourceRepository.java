@@ -28,6 +28,12 @@ public class TenantSourceRepository {
                 .query(Long.class).single();
     }
 
+    public Optional<Long> acceptedSnapshotCutoff(String tenantId, String sourceId) {
+        return jdbc.sql("SELECT accepted_snapshot_cutoff FROM tenant_source WHERE tenant_id = :t AND source_id = :s")
+                .param("t", tenantId).param("s", sourceId)
+                .query(Long.class).optional();
+    }
+
     public void ensure(String tenantId, String sourceId, long lockKey) {
         jdbc.sql("""
                 INSERT INTO tenant_source (tenant_id, source_id, lock_key) VALUES (:t, :s, :k)
