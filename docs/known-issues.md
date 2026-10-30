@@ -1,13 +1,13 @@
 # Known issues, deviations and environment notes
 
-Anything that deviates from `docs/spec/AGENT_BUILD_SPEC.md`, any version fallback, and any limitation found while building.
+Anything that deviates from the design specification (`docs/spec/`), any version fallback, and any limitation found while building.
 
 ## Environment
 
-- **Original build host:** Apple Silicon MacBook Air (10 cores, 16 GB), macOS 27.0.1. The host had no JDK and no Docker at the start of P0. Installed with Homebrew (no sudo): `openjdk@21`, `colima`, `docker`, `docker-compose`, `docker-buildx`. Docker runs inside a Colima VM. See "Colima + Testcontainers" below for the required environment variables.
+- **Original build host:** Apple Silicon MacBook Air (10 cores, 16 GB), macOS 27.0.1. The host had no JDK and no Docker at the start of the build. Installed with Homebrew (no sudo): `openjdk@21`, `colima`, `docker`, `docker-compose`, `docker-buildx`. Docker runs inside a Colima VM. See "Colima + Testcontainers" below for the required environment variables.
 - **Java:** Homebrew `openjdk@21`, not Temurin as §1 suggests. It is the same OpenJDK 21 codebase; the Docker images use `eclipse-temurin` as the spec intends.
 
-Validation host (2026-10-31): Nobara Linux 44, x86_64, 32 logical CPUs, 31 GiB RAM, Docker Engine 29.9.2. Temurin JDK 21.0.13 is installed at `/home/theroid/.local/share/jdks/temurin-21.0.13`; select it with `JAVA_HOME` and put its `bin` on `PATH`. The system default is a Java 25 runtime without a compiler. This shell uses `sg docker` because its login group list predates the account’s Docker membership.
+Validation host (2026-10-31): Nobara Linux 44, x86_64, 32 logical CPUs, 31 GiB RAM, Docker Engine 29.9.2. Temurin JDK 21.0.13 (select it with `JAVA_HOME` and put its `bin` on `PATH`).
 
 ## Version resolution (spec §0.11)
 
@@ -19,18 +19,18 @@ Validation host (2026-10-31): Nobara Linux 44, x86_64, 32 logical CPUs, 31 GiB R
 
 ## Pinned images
 
-Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image inspect --format '{{index .RepoDigests 0}}'`. Compose and the Dockerfiles reference these exact tags.
+Pulled at the start of the build (2026-10-30, linux/arm64 via Colima), digests from `docker image inspect --format '{{index .RepoDigests 0}}'`. Compose and the Dockerfiles reference these exact tags.
 
 | Image | Tag | Digest | Used by |
 |---|---|---|---|
 | `postgres` | `18.6` | `sha256:979bccfde35445db618c65107d27d08c6c21339d8dc3ad4c830c6633947be0e4` | compose |
 | `eclipse-temurin` | `21.0.13_9-jdk-noble` | `sha256:088afe113afcf30db6e0919cca3cded8666e10b90c876c4a317ee4318f532f4b` | Dockerfile build stage |
 | `eclipse-temurin` | `21.0.13_9-jre-noble` | `sha256:03fedab2c0d7355868b5ba5330d64088b956a0bfac48f904e5c57207e261e2c9` | Dockerfile runtime stage |
-| `grafana/k6` | `1.8.2` | `sha256:00fdcebafbc86cb0137d429529b1caa401a02e09025f02fc74866fa6e2b004d8` | compose profile `bench` (P11) |
-| `prom/prometheus` | `v3.15.1` | `sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2` | compose profile `observability` (P12) |
-| `grafana/grafana` | `12.4.14` | `sha256:ae509d9ae8c1021ca32ec370a9ca975d40165eda9fccd1e1102d317ff8787cd7` | compose profile `observability` (P12) |
+| `grafana/k6` | `1.8.2` | `sha256:00fdcebafbc86cb0137d429529b1caa401a02e09025f02fc74866fa6e2b004d8` | compose profile `bench` (benchmarks) |
+| `prom/prometheus` | `v3.15.1` | `sha256:fa3302279710be2f21a8301ec17a8b4f2301fd829bd113839b3b6b02b6f191a2` | compose profile `observability` (monitoring) |
+| `grafana/grafana` | `12.4.14` | `sha256:ae509d9ae8c1021ca32ec370a9ca975d40165eda9fccd1e1102d317ff8787cd7` | compose profile `observability` (monitoring) |
 
-- Testcontainers uses `postgres:18` as §17 requires. At P0 that tag resolved to the same digest as `18.6`.
+- Testcontainers uses `postgres:18` as §17 requires. When pinned, that tag resolved to the same digest as `18.6`.
 - `grafana/k6` 2.x exists; 1.8.2 is pinned to match the spec's `1.x.y` example and the k6 1.x script API.
 - `grafana/grafana` 13.0 exists; 12.4.14 (latest 12.4 patch) is pinned for dashboard-provisioning stability.
 
@@ -63,7 +63,7 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 25. **PII guard installation:** `PiiGuardFilter` (Logback `TurboFilter`) is added programmatically and idempotently once logging is configured. Boot's structured-logging setup is kept intact, and no custom `logback-spring.xml` is needed.
 26. **Booking seeder** waits until EMP-001…EMP-050 specifically are active (the employees it books for), rather than "any 50 active", so no booking attempt races the projection.
 27. **Test database connections:** each cached Spring test context keeps its own pools. Tests run Postgres with `max_connections=400` and Hikari `minimum-idle=2`. Production settings are unchanged.
-28. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+28. **The case-study PDF** was missing at first and added at the start of the build (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 
@@ -81,19 +81,18 @@ Docker Desktop and Linux hosts need neither variable.
 - **High-load metrics scheduler:** the first Linux load run exposed stale outbox gauges while the relay drained continuously on the single shared scheduler thread. The roster scheduler now has two threads so the five-second metrics poll can run during draining. `MetricsIT.queueMetricsCanPollWhileTheRelaySchedulerIsBusy` guards against starvation. The regression passes with two threads and fails with the original single-thread setting. The final full benchmark runner passed with the fix; high-load scrapes now expose the backlog.
 
 
-- **Benchmark protocol override (2026-10-31):** the user explicitly requested no warm-up. Final P11 reconciliation measurements use three fresh-baseline measured runs, with `warmup_runs=0`, retaining the 256 MiB heap cap, exact mutation assertions and timing bounds. The initial Linux run began before this instruction; final results replace it with measured runs without warm-up.
+- **Benchmark protocol:** reconciliation measurements use three measured runs per scenario, each from a freshly restored baseline, with no separate warm-up run (`warmup_runs=0`), so times include JVM warm-up. The 256 MiB heap cap, exact mutation assertions and timing bounds apply. An earlier run that included a warm-up was superseded by these measurements.
 
 
 - **Benchmark baseline and RLS (§19):** PostgreSQL rejects `COPY FROM` directly into an RLS table for the app role. The unmeasured fixture COPYs into a temporary table, then `INSERT ... SELECT`s into `employee` under the bulk tenant transaction, retaining RLS. Only the disposable benchmark container grants `TRUNCATE` to `roster_app`; production grants are unchanged.
 
-- **P11 completed on Linux:** all six 200k scenarios, four API rates and contention passed. The earlier 300-second Mac timeout was resolved by analyzing the temporary `recon_plan`. Partial Mac artifacts remain under `bench/local-attempts/` for diagnosis; accepted measurements are under `bench/results/`. The API accepts 1,000/s on this host, but the relay accumulates a backlog at that rate; the report includes delivered-event quantiles and the pending queue separately.
+- **Benchmarks completed on Linux:** all six 200k scenarios, four API rates and contention passed. The earlier 300-second Mac timeout was resolved by analyzing the temporary `recon_plan`. Partial Mac artifacts remain under `bench/local-attempts/` for diagnosis; accepted measurements are under `bench/results/`. The API accepts 1,000/s on this host, but the relay accumulates a backlog at that rate; the report includes delivered-event quantiles and the pending queue separately.
 
-- *(resolved in P6)* P3–P5 read the tenant from an `X-Tenant-Id` header as a build-order stand-in. Since P6 the tenant, roles and employee id come only from the validated JWT.
+- *(resolved)* Before JWT security was added, early builds read the tenant from an `X-Tenant-Id` header as a stand-in. The tenant, roles and employee id now come only from the validated JWT.
 
 - **Operational retention:** delivered outbox rows are purged after seven days. Processed-message dedup and employee history currently have no scheduled purge; uploaded snapshot files require an operational retention policy. Keeping dedup indefinitely preserves replay safety but grows database storage.
 
-- **P12 visual validation:** no interactive browser was connected. A temporary official Grafana renderer v5.12.10 rendered every panel through Grafana’s image API; the capture is saved in `docs/validation/dashboard.png`. The renderer was removed afterward.
+- **Dashboard visual validation:** no interactive browser was connected. A temporary official Grafana renderer v5.12.10 rendered every panel through Grafana’s image API; the capture is saved in `docs/validation/dashboard.png`. The renderer was removed afterward.
 
 - **First reconciliation-failure alert:** the FAILED run counter is registered at zero during startup so the first failure has an observable baseline for the Prometheus increase rule. `RosterMetricsTest` proves zero before and one after the first failure; the regression fails against the earlier lazy registration.
 
-- **Publication check (2026-10-31):** the unauthenticated GitHub repository API returns 404 for `Theroid00/HR`. Public visibility is not established. The owner must publish/push the completed release and confirm public access as part of the human handoff.

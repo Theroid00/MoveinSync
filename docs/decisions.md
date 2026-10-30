@@ -1,6 +1,6 @@
 # Decisions
 
-These decisions describe the implemented services. The executable build spec takes precedence over older plan examples.
+These decisions describe the implemented services. Each records the context, the decision, the rejected alternative and the consequence.
 
 ## DEC-01 — Full HR state
 

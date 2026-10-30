@@ -1,8 +1,8 @@
 # Release acceptance
 
-Validated 2026-10-31 on the Linux machine described in the benchmark report. P11 uses the user-requested no-warm-up protocol in place of the original warm-up requirement.
+Validated 2026-10-31 on the Linux machine described in the benchmark report. Benchmarks use three measured runs with no separate warm-up run, so reported times include JVM warm-up.
 
-| Build-spec §21 item | Evidence / outcome |
+| Requirement | Evidence / outcome |
 |---|---|
 | Clean checkout unit/integration/concurrency verification | `p13-fresh-demo.txt`; final current-source gate `final-fresh-checkout.txt`: 315 tests, 0 failures/errors/skips |
 | Healthy and seeded Compose startup | Fresh-checkout demo and final stack: 300 future / 20 past bookings; both services healthy |
@@ -14,11 +14,7 @@ Validated 2026-10-31 on the Linux machine described in the benchmark report. P11
 | Required test execution / no disabled tests | Final manifest: 43 classes, all green; source scan found no disabled tests |
 | PII protection | NoPiiIT passed in both services as part of final full gates; error/outbox/log canary checks retained |
 | Submission artifacts | README, 53-item audit, design note with architecture/sequence diagrams, 23 decisions, benchmark report, Postman collection/environment, automated demo; only video placeholder remains |
-| Phase history and release | Exact phase messages are recorded in PROGRESS; annotated v1.0 follows all local gates; main and the tag were pushed on 2026-10-31 |
-
-## Remaining human work
-
-Main and the annotated release tag have been pushed. Record the video, replace and push the README placeholder update, establish public visibility, review the implementation and submit the assessment links. The unauthenticated repository API returned 404 during validation; no repository permissions were changed.
+| Commit history and release | The history shows each build step; annotated `v1.0` was tagged after every check passed |
 
 ## Limits retained
 

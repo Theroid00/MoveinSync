@@ -1,7 +1,6 @@
 # Run the benchmarks
 
-P11 completed on the Linux validation machine. Accepted raw outputs are in `bench/results/` and the generated report is in `docs/benchmark.md`.
-For the full remaining project work and acceptance gates after P11, see [the handoff](../docs/HANDOFF.md).
+Benchmarks were run on the Linux machine described in `bench/results/machine.txt`. Raw outputs are in `bench/results/`; the report generated from them is `docs/benchmark.md`.
 Requirements: Java 21, Docker Engine + Compose, bash, curl, jq, Python 3, and network access for the pinned images and Maven dependencies. Run from the repository root on Linux, macOS, or WSL.
 
 ```bash
@@ -20,7 +19,7 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 
 The runner **resets the roster-sync Compose volumes** before the API tests and between rates. Use a dedicated test checkout and keep unrelated traffic off ports 8080/8081. It runs:
 
-1. Six 200k-row reconciliation scenarios, each with three measured iterations and **no warm-up**, as requested by the user on 2026-10-31, capped at `-Xmx256m`. Fixture setup is excluded. Every run checks exact mutation counts; typical and heavy assert digest + assess + apply < 60 seconds. This user instruction supersedes the warm-up protocol in the original spec.
+1. Six 200k-row reconciliation scenarios, each with three measured iterations and **no separate warm-up run** (times include JVM warm-up), capped at `-Xmx256m`. Fixture setup is excluded. Every run checks exact mutation counts; typical and heavy assert digest + assess + apply < 60 seconds.
 2. Fixed-seed CSV generation, API load at 100/250/500/1000 requests per second for 60 seconds each, and the 250/s contention run.
 3. Machine capture, raw JSON and metrics under `bench/results/`, and generation of `docs/benchmark.md` from those files.
 

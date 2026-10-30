@@ -17,4 +17,4 @@ docker run --rm --entrypoint /bin/promtool -v "$PWD/ops:/etc/prometheus:ro" prom
 
 Configuration follows the [Prometheus reference](https://prometheus.io/docs/prometheus/latest/configuration/configuration/) and [Grafana provisioning reference](https://grafana.com/docs/grafana/latest/administration/provisioning/).
 
-[Dashboard capture](../docs/validation/dashboard.png) and [validation logs](../docs/validation/) record the P12 check. An ephemeral official Grafana renderer v5.12.10 produced the capture because no interactive browser was connected; the renderer is not a runtime dependency.
+[Dashboard capture](../docs/validation/dashboard.png) and [validation logs](../docs/validation/) record the monitoring verification. An ephemeral official Grafana renderer v5.12.10 produced the capture because no interactive browser was connected; the renderer is not a runtime dependency.
