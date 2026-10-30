@@ -3,3 +3,6 @@
 
 # P0: scaffold smoke (not in §17; proves Testcontainers postgres:18 + app-role wiring)
 HealthIT
+
+# P1
+RlsIT
