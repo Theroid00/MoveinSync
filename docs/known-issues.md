@@ -43,7 +43,12 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 7. **One `ErrorCode` catalog** lives in `event-contract` (plain Java) so both services share it. `SecurityMatrixIT` and `ErrorContractIT` exist in both modules: booking-only cells and codes (`TRIP_FULL`, `EMPLOYEE_INACTIVE`) need the booking app.
 8. **`EVENT_TYPE_REQUIRED`** is an added validation code: §7.2 has no code for a missing `eventType` (an unknown enum value is a JSON error; a missing one reaches the validator).
 9. **Validation field names** are the logical names (`eventId`, `employeeId`, `sourceSeq`, `effectiveAt`, `eventType`, `hr`, `name`, `email`, `phone`, `managerId`, `officeCode`, `shiftCode`) for both API events and snapshot rows.
-10. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+10. **Single-event 409/422 bodies** are ProblemDetails that also carry the §8 result fields (`eventId`, `employeeId`, `outcome`, `rejectionId`, `errors`), satisfying both §8 and the §13.1 error contract.
+11. **Transport PATCH replaces both transport fields** (the spec's SQL sets both columns); `null` clears a value. `If-Match` accepts `5`, `"5"` or `W/"5"`; missing → 422 `IF_MATCH_REQUIRED`.
+12. **JSON shape errors** (wrong type, unknown enum) are 400 `MALFORMED_JSON` with the property path; unknown properties are 422 `UNKNOWN_FIELD` with the dotted path (e.g. `hr.pickupPoint`). Field names only, never values.
+13. **Batch and `RECONCILIATION_IN_PROGRESS`:** a lock timeout during a batch line propagates as 503 for the whole request. Lines already processed are committed, and a retry is absorbed by event identity.
+14. **JDBC exception translation:** Spring 6+ defaults `JdbcTemplate` to the SQLSTATE-subclass translator, which leaves PostgreSQL `55P03` (lock_timeout) uncategorised. Our `JdbcClient`s use `SQLErrorCodeSQLExceptionTranslator`, so it becomes `CannotAcquireLockException` → 503.
+15. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 
@@ -58,4 +63,4 @@ Docker Desktop and Linux hosts need neither variable.
 
 ## Open limitations
 
-(none yet)
+- **P3–P5 tenant resolution:** until JWT security lands in P6, `TenantContext` reads the tenant from an `X-Tenant-Id` header. This is a build-order stand-in, replaced in P6.

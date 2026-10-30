@@ -2,6 +2,8 @@ package com.moveinsync.rostersync.roster;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -43,6 +45,28 @@ public abstract class AbstractPostgresIT {
     /** Superuser connection for test fixtures and cross-tenant assertions only (bypasses RLS). */
     protected static JdbcClient superuserJdbc() {
         return JdbcClient.create(new DriverManagerDataSource(jdbcUrl(""), POSTGRES.getUsername(), POSTGRES.getPassword()));
+    }
+
+    /**
+     * A fresh tenant with source {@code hr-main}, default brake config and offices BLR-A, BLR-B, GGN-A.
+     * Random ids keep test classes that share the container independent.
+     */
+    protected static String newTenant() {
+        String tenant = "t-" + UUID.randomUUID().toString().substring(0, 12);
+        JdbcClient su = superuserJdbc();
+        su.sql("INSERT INTO tenant_source (tenant_id, source_id, lock_key) VALUES (?, 'hr-main', ?)")
+                .params(tenant, ThreadLocalRandom.current().nextLong(1, Long.MAX_VALUE)).update();
+        su.sql("INSERT INTO tenant_config (tenant_id) VALUES (?)").param(tenant).update();
+        for (String office : new String[] {"BLR-A", "BLR-B", "GGN-A"}) {
+            su.sql("INSERT INTO office (tenant_id, office_code) VALUES (?, ?)").params(tenant, office).update();
+        }
+        return tenant;
+    }
+
+    /** Row count of a tenant table, read as superuser (RLS bypassed for assertions only). */
+    protected static long count(String table, String tenant) {
+        return superuserJdbc().sql("SELECT count(*) FROM " + table + " WHERE tenant_id = ?").param(tenant)
+                .query(Long.class).single();
     }
 
     private static Path initScript() {

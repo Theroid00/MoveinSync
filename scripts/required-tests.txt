@@ -18,3 +18,13 @@ OwnershipPolicyTest
 CoreIsPureTest
 OrderIndependenceTest
 ReplayIdempotenceTest
+
+# P3
+IngestApiIT
+BriefExampleIT
+ValidationIT
+OwnershipIT
+OutboxIT
+ReplayIT
+ErrorContractIT
+BulkPoolIT
