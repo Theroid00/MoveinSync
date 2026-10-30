@@ -15,7 +15,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P6 | Security (§12): issuer, JWKS, resource servers, authz matrix, tenant 404s | DONE | 4be40a3 | SecurityMatrixIT 80 tests (roster 51, booking 29); reconciliation rows join the matrix in P7 |
 | P7 | Reconciliation (§9) incl. approval, startup recovery | DONE | 57751f7 | ReconciliationIT 24/24, BriefExampleIT 2/2, matrix 115 cells; lineage checked against COMPLETED runs (known-issues #18) |
 | P8 | Caching, metrics, structured logs, PII guard, faults bean, dev seeders | DONE | 5a2c1c4 | NoPiiIT, CacheIT, MetricsIT (x2), FaultInjectorTest (x2) green; compose seeding verified end to end |
-| P9 | Concurrency ITs (§17.3), run 3x consecutively | TODO | | |
+| P9 | Concurrency ITs (§17.3), run 3x consecutively | DONE | a0cb156 | 9 concurrency ITs green in 3 consecutive runs (full gate + 2 targeted runs); suite ≈ 30 s |
 | P10 | `docker-compose.faults.yml` + fault scripts (§18) | TODO | | |
 | P11 | Benchmarks (§19): generator, `ReconciliationBenchmarkIT`, k6, contention run | TODO | | |
 | P12 | Observability profile: prometheus.yml, alerts.yml, grafana | TODO | | |
