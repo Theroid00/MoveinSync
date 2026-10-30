@@ -20,6 +20,10 @@ public class TenantConfigRepository {
                 .param("t", tenantId).query(Integer.class).optional();
     }
 
+    public void ensureDefault(String tenantId) {
+        jdbc.sql("INSERT INTO tenant_config (tenant_id) VALUES (:t) ON CONFLICT (tenant_id) DO NOTHING").param("t", tenantId).update();
+    }
+
     public void upsert(String tenantId, int thresholdBp) {
         jdbc.sql("""
                 INSERT INTO tenant_config (tenant_id, brake_threshold_bp) VALUES (:t, :bp)
