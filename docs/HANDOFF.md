@@ -1,6 +1,6 @@
 # Release handoff
 
-Updated 2026-10-31. P0–P13 are complete. [PROGRESS.md](../PROGRESS.md) records the phase commits; [release checks](validation/release-checklist.md) link the evidence.
+Updated 2026-10-31. P0–P13 are complete. Main and annotated tag `v1.0` have been pushed to origin. [PROGRESS.md](../PROGRESS.md) records the phase commits; [release checks](validation/release-checklist.md) link the evidence.
 
 ## Completed
 
@@ -12,11 +12,11 @@ Updated 2026-10-31. P0–P13 are complete. [PROGRESS.md](../PROGRESS.md) records
 ## Human actions
 
 1. Record the demo video and replace `VIDEO_LINK_TODO` in README.
-2. Publish the intended repository and push the commits and annotated `v1.0` tag. Unauthenticated GitHub API access currently returns 404, so public visibility is not established. Confirm visibility while logged out.
+2. Confirm the intended repository is publicly visible while logged out. Main and annotated `v1.0` were pushed on 2026-10-31; the earlier unauthenticated API check returned 404, so public visibility remains unverified. Push the README video-link update after recording.
 3. Review the source-version gate and snapshot apply logic and rehearse the ownership questions in the plan.
 4. Submit repository and video links through the assessment channel.
 
-No publication, permission change or assessment message is sent automatically.
+Commits and tag were pushed following the user’s explicit instruction. No repository permission change or assessment message was sent.
 
 ## Run again
 

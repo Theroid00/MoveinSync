@@ -4,7 +4,7 @@ Tracks execution of `docs/spec/AGENT_BUILD_SPEC.md` §16 phases. Read this file 
 
 Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 
-**P0–P13 are complete.** Final gates: 315 tests, 43 required classes, real benchmarks without warm-up, fresh-checkout demo, live alert verification and rendered dashboard. The annotated local release is `v1.0`; publication, video and assessment submission are the human handoff.
+**P0–P13 are complete.** Final gates: 315 tests, 43 required classes, real benchmarks without warm-up, fresh-checkout demo, live alert verification and rendered dashboard. `main` and annotated tag `v1.0` were pushed to origin on 2026-10-31. Public visibility, video and assessment submission remain the human handoff.
 
 | Phase | Deliverable | Status | Commit | Notes |
 |---|---|---|---|---|
@@ -22,7 +22,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P11 | Benchmarks (§19): generator, `ReconciliationBenchmarkIT`, k6, contention run | DONE | 05d1bb5 | Full runner exited zero; all six scenarios × three measured runs, no warm-up, 256 MiB cap; four 60s API rates and contention passed. Normal gate 314 tests / 42 classes. Queue metrics starvation fixed in 57a766f; raw results/report committed with this phase. |
 | P12 | Observability profile: prometheus.yml, alerts.yml, grafana | DONE | 50a1607 | 314 tests / 42 classes green; Promtool firing and idle cases pass; both targets UP, six healthy rules, datasource and all dashboard queries pass; all 12 panels rendered via temporary official renderer. Real safety brake alert observed. |
 | P13 | Docs: README, design-note, decisions, benchmark.md, Postman, demo scripts | DONE | a6d2e32 | 315 tests / 43 required classes green in main and isolated checkout. Full demo passed in fresh checkout, including both commit crashes and the exact 200k/120k/80k brake. 29 endpoint requests and client auth self-check pass. |
-| — | Tag `v1.0` | DONE | v1.0 | Annotated local release after all technical gates passed. Publication and video are human actions. |
+| — | Tag `v1.0` | DONE | v1.0 | Annotated release pushed to origin with main on 2026-10-31 after all technical gates passed. Public visibility and video remain human actions. |
 
 ## Open issues
 
