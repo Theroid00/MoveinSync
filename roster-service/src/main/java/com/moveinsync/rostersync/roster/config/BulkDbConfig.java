@@ -11,7 +11,9 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.JdbcTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -53,7 +55,7 @@ public class BulkDbConfig {
     @Bean
     @Primary
     JdbcClient jdbcClient(DataSource dataSource) {
-        return JdbcClient.create(dataSource);
+        return translatingClient(dataSource);
     }
 
     @Bean
@@ -91,7 +93,17 @@ public class BulkDbConfig {
     @Bean(defaultCandidate = false)
     @Qualifier(BULK)
     JdbcClient bulkJdbcClient(@Qualifier(BULK) DataSource bulkDataSource) {
-        return JdbcClient.create(bulkDataSource);
+        return translatingClient(bulkDataSource);
+    }
+
+    /**
+     * JdbcClient whose JdbcTemplate uses the vendor error-code translator, so PostgreSQL's lock_timeout
+     * (55P03) surfaces as CannotAcquireLockException instead of an uncategorised SQL error.
+     */
+    static JdbcClient translatingClient(DataSource dataSource) {
+        JdbcTemplate template = new JdbcTemplate(dataSource);
+        template.setExceptionTranslator(new SQLErrorCodeSQLExceptionTranslator(dataSource));
+        return JdbcClient.create(template);
     }
 
     @Bean(defaultCandidate = false)
