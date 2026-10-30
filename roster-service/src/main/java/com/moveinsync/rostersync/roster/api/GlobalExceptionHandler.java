@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
         return respond(jsonProblem(e.getCause()));
     }
 
+    /** JSON parsed outside message conversion (e.g. the reconciliation manifest part). */
+    @ExceptionHandler(JacksonException.class)
+    ResponseEntity<ProblemDetail> json(JacksonException e) {
+        return respond(jsonProblem(e));
+    }
+
     @ExceptionHandler({MissingRequestHeaderException.class, MethodArgumentTypeMismatchException.class})
     ResponseEntity<ProblemDetail> badParameter(Exception e) {
         String field = e instanceof MissingRequestHeaderException m ? m.getHeaderName()

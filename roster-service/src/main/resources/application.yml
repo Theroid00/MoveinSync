@@ -18,7 +18,7 @@ app:
   tenant-source-default: hr-main
   relay: { enabled: true, poll-ms: 200, batch: 100, lease-secs: 30, max-attempts: 10, retention-days: 7 }
   booking.base-url: http://localhost:8081
-  recon.dir: /tmp/recon
+  recon: { dir: /tmp/recon, recover-on-startup: true }
   jwt.key-path: /tmp/jwt/key.pem
   auth:
     dev-issuer.enabled: true
