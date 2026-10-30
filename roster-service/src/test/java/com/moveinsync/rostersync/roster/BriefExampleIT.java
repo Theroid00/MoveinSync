@@ -8,7 +8,7 @@ import com.moveinsync.rostersync.roster.RosterApi.Response;
 import org.junit.jupiter.api.Test;
 
 /** The two worked examples from the case-study brief. */
-class BriefExampleIT extends AbstractApiIT {
+class BriefExampleIT extends AbstractReconIT {
 
     @Test
     void transferV7BeforeShiftV6() {
@@ -28,5 +28,21 @@ class BriefExampleIT extends AbstractApiIT {
 
         Response history = api.history(tenant, "EMP-42");
         assertThat(history.body().get("events").findValuesAsString("outcome")).containsExactly("APPLIED", "APPLIED", "STALE");
+    }
+
+    @Test
+    void fileCutAt120kBlocksAndShowsMissingCount() {
+        // Scaled 1:100: 2,000 active employees; tonight's file stops after 1,200 rows.
+        initial(2000, 2000);
+        tools.jackson.databind.JsonNode run = run(Snapshot.rows(1, 1200), 3000);
+
+        assertThat(run.get("status").asString()).isEqualTo("AWAITING_APPROVAL");
+        assertThat(run.get("baseline").asInt()).isEqualTo(2000);
+        assertThat(run.get("missing").asInt()).isEqualTo(800);            // what the operator sees
+        assertThat(run.get("ratioBp").asInt()).isEqualTo(4000);
+        assertThat(run.get("flags").toString()).contains("MISSING_RATIO_EXCEEDED");
+        assertThat(activeEmployees()).isEqualTo(2000);                     // nobody deactivated
+        assertThat(count("outbox_event", tenant)).isEqualTo(2000);         // no events beyond the initial load
+        assertThat(api.pendingApproval(tenant).body().get(0).get("missing").asInt()).isEqualTo(800);
     }
 }

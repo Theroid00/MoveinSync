@@ -36,7 +36,7 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 
 1. **`BucketerTest` range.** §17.1 says "range 0..1023", which contradicts §7.3 and DEC-21 (65,536 buckets). The test asserts 0..65535.
 2. **Same-cutoff lineage timing (§9.1).** The file's SHA-256 is known once the upload has been streamed to disk, which happens before the 202 response. The duplicate/conflict rule is therefore checked synchronously at upload (409 `SNAPSHOT_CONFLICT` as `sameCutoffDifferentFileConflicts` expects), again at the end of staging, and again under the lock in §9.3.
-3. **`assessment_hash` encoding (§9.3 step 4)** is not byte-specified. It is defined in `ReconciliationRepository` and documented there; SQL and Java use the same encoding.
+3. **`assessment_hash` encoding (§9.3 step 4)** is not byte-specified. Defined as `SHA-256("S|baseline|missing|" + hex(sha256(missing ids joined by ',' in id order)))`. The inner hash is computed in SQL, the outer in Java (`SnapshotApplier.assessmentHash`).
 4. **Approving a run whose re-entry to `STAGED` collides with another active run** (`one_active_run` index) → 409 `RUN_IN_PROGRESS`.
 5. **No `tenant_source` row for the tenant** at ingest → 404 `NOT_FOUND`.
 6. **Bulk pool and the role `statement_timeout`.** `ALTER ROLE roster_app SET statement_timeout = '5s'` would also apply to the bulk pool, so the bulk Hikari pool sets `statement_timeout = '300s'` per connection (`connection-init-sql`), in addition to the `SET LOCAL` in §9.3.
@@ -51,7 +51,13 @@ Pulled at P0 (2026-10-30, linux/arm64 via Colima), digests from `docker image in
 15. **SERVICE column of the roster matrix:** the relay's real service token has `aud = ["booking"]` (§10), so roster rejects it with 401 before any role check. The matrix's 403 cells are exercised with a SERVICE-role token carrying both audiences. `SecurityMatrixIT.wrongAudienceIs401` also proves the real service token cannot call roster.
 16. **EMPLOYEE "self only"** on `GET /employees/{id}`: another employee's id in the same tenant is 403. Another tenant's employee is 404, as is any other tenant's resource. In booking, another employee's booking is 404 (no existence leak), and booking for someone else is 403.
 17. **Booking test decoder:** §17's "test JwtDecoder bean" is a Spring Framework `@TestBean` that replaces the JWKS-backed decoder with one trusting a test keypair. It applies the same production validators (`SecurityConfig.validator()`).
-18. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
+18. **Same-cutoff lineage is checked against COMPLETED runs.** Spec §9.1 says "latest finished run with the same cutoff". Read literally, an upload rejected *for* `SNAPSHOT_CONFLICT` becomes the latest finished run, and a second upload of the same conflicting file would then be allowed. The rule is therefore implemented as: if any COMPLETED run exists for the cutoff, the same SHA is a no-op duplicate and a different SHA is a conflict; otherwise (none, or only partial/failed/rejected/incomplete runs) the upload is allowed. For every non-adversarial sequence this gives the same result. `sameCutoffDifferentFileConflicts` re-uploads the conflicting file to prove the gap is closed.
+19. **`V3__staging_maintenance.sql`** grants `MAINTAIN` on `staging_employee` to `roster_app`. The app role is deliberately not the owner (RLS), and without MAINTAIN, `ANALYZE staging_employee` (§9.2) is skipped with a warning.
+20. **Reconciliation `changedFields` (DEC-19)** are computed exactly, in SQL, using PostgreSQL 18's `RETURNING old.*/new.*`: the names of the HR fields that changed, `active` when it flips, and `PICKUP_REVIEW_NEEDED` on office change with a pickup point. The `["hr"]` fallback is not needed.
+21. **Duplicate rows in a snapshot:** an exact duplicate is skipped. A conflicting duplicate marks the first occurrence invalid (`DUPLICATE_ROW_CONFLICT`), and the second is skipped, counted as invalid and reported. `parsed_rows` counts every data record (compared with `expectedRows`).
+22. **Reject** is allowed only from `AWAITING_APPROVAL`, so it never races an apply in progress. Anything else is 409 `INVALID_RUN_STATE`.
+23. **Startup recovery in tests:** application contexts are cached and shared across test classes, so `app.recon.recover-on-startup=false` in tests. `ReconciliationIT.startupRecoveryResumesStagedRun` invokes the recovery explicitly.
+24. **The case-study PDF** was missing at first and added during P0 (moved to `docs/spec/case-study-5.pdf`).
 
 ## Colima + Testcontainers
 

@@ -48,6 +48,8 @@ public abstract class AbstractPostgresIT {
         registry.add("app.relay.enabled", () -> "false");
         registry.add("app.jwt.key-path", () -> TEMP_DIR.resolve("jwt/key.pem").toString());
         registry.add("app.recon.dir", () -> TEMP_DIR.resolve("recon").toString());
+        // Recovery is invoked explicitly by the test that covers it (contexts are cached and shared).
+        registry.add("app.recon.recover-on-startup", () -> "false");
     }
 
     protected static String jdbcUrl(String params) {

@@ -9,6 +9,7 @@ import static com.moveinsync.rostersync.roster.RosterApi.Role.SERVICE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -42,6 +44,8 @@ import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.request.AbstractMockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
@@ -52,7 +56,7 @@ class SecurityMatrixIT extends AbstractApiIT {
 
     enum Expect { ALLOW, DENY }
 
-    record Endpoint(String name, Supplier<MockHttpServletRequestBuilder> request) {
+    record Endpoint(String name, Supplier<AbstractMockHttpServletRequestBuilder<?>> request) {
         @Override
         public String toString() {
             return name;
@@ -63,11 +67,11 @@ class SecurityMatrixIT extends AbstractApiIT {
             + "\"effectiveAt\":\"2026-10-30T08:00:00Z\",\"hr\":{\"name\":\"N\",\"email\":\"n@example.test\","
             + "\"phone\":\"+919000000009\",\"managerId\":null,\"officeCode\":\"BLR-A\",\"shiftCode\":\"NIGHT\"}}";
 
-    static Endpoint ep(String name, Supplier<MockHttpServletRequestBuilder> request) {
+    static Endpoint ep(String name, Supplier<AbstractMockHttpServletRequestBuilder<?>> request) {
         return new Endpoint(name, request);
     }
 
-    /** Rows of §12.3 (roster endpoints). Order of expectations: EMPLOYEE, OPERATOR, ADMIN, HR_INTEGRATION, SERVICE. */
+    /** Rows of §12.3 (roster endpoints, incl. reconciliation). Order of expectations: EMPLOYEE, OPERATOR, ADMIN, HR_INTEGRATION, SERVICE. */
     static final Map<Endpoint, List<Expect>> MATRIX = new java.util.LinkedHashMap<>();
 
     static {
@@ -86,6 +90,20 @@ class SecurityMatrixIT extends AbstractApiIT {
         MATRIX.put(ep("DELETE /employees/{id}", () -> delete("/api/v1/employees/EMP-001")), List.of(D, D, A, D, D));
         MATRIX.put(ep("GET /outbox/status", () -> get("/api/v1/outbox/status")), List.of(D, A, D, D, D));
         MATRIX.put(ep("POST /outbox/{id}/replay", () -> post("/api/v1/outbox/999999999/replay")), List.of(D, A, D, D, D));
+        String run = "/api/v1/reconciliations/" + UUID.randomUUID();
+        MATRIX.put(ep("POST /reconciliations", () -> multipart("/api/v1/reconciliations")
+                .file(new MockMultipartFile("file", "s.csv", "text/csv", Snapshot.csv(Snapshot.rows(1, 2)).getBytes()))
+                .file(new MockMultipartFile("manifest", "", "application/json",
+                        "{\"sourceId\":\"hr-main\",\"cutoffSeq\":10,\"exportedAt\":\"2026-10-30T02:00:00Z\"}".getBytes()))),
+                List.of(D, A, D, A, D));
+        MATRIX.put(ep("GET /reconciliations/{id}", () -> get(run)), List.of(D, A, A, D, D));
+        MATRIX.put(ep("GET /reconciliations/{id}/errors", () -> get(run + "/errors")), List.of(D, A, A, D, D));
+        MATRIX.put(ep("GET /reconciliations/pending-approval", () -> get("/api/v1/reconciliations/pending-approval")),
+                List.of(D, A, A, D, D));
+        MATRIX.put(ep("POST /reconciliations/{id}/approve", () -> post(run + "/approve").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"assessmentHash\":\"00\",\"reason\":\"ok\"}")), List.of(D, D, A, D, D));
+        MATRIX.put(ep("POST /reconciliations/{id}/reject", () -> post(run + "/reject")), List.of(D, A, A, D, D));
+        MATRIX.put(ep("POST /reconciliations/{id}/retry", () -> post(run + "/retry")), List.of(D, A, D, D, D));
     }
 
     static final Role[] COLUMNS = {EMPLOYEE, OPERATOR, ADMIN, HR_INTEGRATION, SERVICE};

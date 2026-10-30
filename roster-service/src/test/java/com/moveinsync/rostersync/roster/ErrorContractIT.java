@@ -152,6 +152,43 @@ class ErrorContractIT extends AbstractApiIT {
         assertThat(r.raw()).doesNotContain("internal detail", "Zyxw");
     }
 
+    /** A reconciliation run row inserted directly, so no asynchronous processing is involved. */
+    java.util.UUID fixtureRun(String status, long cutoff, String[] flags, byte[] assessmentHash, byte[] fileSha) {
+        java.util.UUID id = java.util.UUID.randomUUID();
+        db.sql("""
+                INSERT INTO reconciliation_run (run_id, tenant_id, source_id, cutoff_seq, exported_at, file_path, status,
+                                                flags, assessment_hash, file_sha256)
+                VALUES (?, ?, 'hr-main', ?, now(), '/none.csv', ?, ?, ?, ?)""")
+                .params(id, tenant, cutoff, status, flags, assessmentHash, fileSha).update();
+        return id;
+    }
+
+    Response upload(long cutoff) {
+        return api.uploadSnapshot(tenant, Role.OPERATOR, Snapshot.csv(Snapshot.rows(1, 3)), Snapshot.manifest(cutoff));
+    }
+
+    @Test
+    void reconciliationRunErrors() {
+        fixtureRun("COMPLETED", 300, new String[0], null, new byte[32]);
+        assertProblem(upload(300), 409, "SNAPSHOT_CONFLICT");
+
+        db.sql("UPDATE tenant_source SET accepted_snapshot_cutoff = 500 WHERE tenant_id = ?").param(tenant).update();
+        assertProblem(upload(100), 409, "STALE_SNAPSHOT");
+
+        java.util.UUID active = fixtureRun("STAGING", 600, new String[0], null, null);
+        assertProblem(upload(600), 409, "RUN_IN_PROGRESS");
+        db.sql("UPDATE reconciliation_run SET status = 'FAILED' WHERE run_id = ?").param(active).update();
+
+        java.util.UUID truncated = fixtureRun("AWAITING_APPROVAL", 700, new String[] {"ROW_COUNT_MISMATCH"}, new byte[32], null);
+        assertProblem(api.approveRun(tenant, truncated.toString(), "00".repeat(32)), 409, "RUN_NOT_APPROVABLE");
+
+        java.util.UUID blocked = fixtureRun("AWAITING_APPROVAL", 800, new String[] {"MISSING_RATIO_EXCEEDED"}, new byte[32], null);
+        assertProblem(api.approveRun(tenant, blocked.toString(), "ff".repeat(32)), 409, "APPROVAL_STALE");
+
+        java.util.UUID completed = fixtureRun("COMPLETED", 900, new String[0], null, null);
+        assertProblem(api.rejectRun(tenant, completed.toString()), 409, "INVALID_RUN_STATE");
+    }
+
     @Test
     void traceIdEchoesRequestId() {
         Response r = api.perform(get("/api/v1/employees/EMP-404").header("X-Request-Id", "req-abc-123"), tenant, Role.ADMIN);

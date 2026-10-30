@@ -2,9 +2,11 @@ package com.moveinsync.rostersync.roster;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 
@@ -13,7 +15,9 @@ import com.moveinsync.rostersync.roster.security.TokenService.TokenSpec;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.AbstractMockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -98,19 +102,53 @@ public final class RosterApi {
         return perform(post("/api/v1/outbox/{id}/replay", outboxId), tenant, Role.OPERATOR);
     }
 
-    public Response perform(MockHttpServletRequestBuilder request, String tenant, Role role) {
+    public Response uploadSnapshot(String tenant, Role role, String csv, Object manifest) {
+        return perform(multipart("/api/v1/reconciliations")
+                .file(new MockMultipartFile("file", "snapshot.csv", "text/csv", csv.getBytes(StandardCharsets.UTF_8)))
+                .file(new MockMultipartFile("manifest", "", MediaType.APPLICATION_JSON_VALUE,
+                        toJson(manifest).getBytes(StandardCharsets.UTF_8))), tenant, role);
+    }
+
+    public Response getRun(String tenant, String runId) {
+        return perform(get("/api/v1/reconciliations/{id}", runId), tenant, Role.OPERATOR);
+    }
+
+    public Response runErrors(String tenant, String runId) {
+        return perform(get("/api/v1/reconciliations/{id}/errors", runId), tenant, Role.OPERATOR);
+    }
+
+    public Response pendingApproval(String tenant) {
+        return perform(get("/api/v1/reconciliations/pending-approval"), tenant, Role.OPERATOR);
+    }
+
+    public Response approveRun(String tenant, String runId, String assessmentHash) {
+        return perform(post("/api/v1/reconciliations/{id}/approve", runId).contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(java.util.Map.of("assessmentHash", assessmentHash, "reason", "verified with HR"))),
+                tenant, Role.ADMIN);
+    }
+
+    public Response rejectRun(String tenant, String runId) {
+        return perform(post("/api/v1/reconciliations/{id}/reject", runId).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"reason\":\"broken export\"}"), tenant, Role.OPERATOR);
+    }
+
+    public Response retryRun(String tenant, String runId) {
+        return perform(post("/api/v1/reconciliations/{id}/retry", runId), tenant, Role.OPERATOR);
+    }
+
+    public Response perform(AbstractMockHttpServletRequestBuilder<?> request, String tenant, Role role) {
         return perform(request, tenant, role, SELF);
     }
 
     /** tenant == null sends no token at all. */
-    public Response perform(MockHttpServletRequestBuilder request, String tenant, Role role, String employeeId) {
+    public Response perform(AbstractMockHttpServletRequestBuilder<?> request, String tenant, Role role, String employeeId) {
         if (tenant != null) {
             request.header(HttpHeaders.AUTHORIZATION, "Bearer " + token(tenant, role, employeeId));
         }
         return send(request);
     }
 
-    public Response send(MockHttpServletRequestBuilder request) {
+    public Response send(AbstractMockHttpServletRequestBuilder<?> request) {
         try {
             MockHttpServletResponse response = mvc.perform(request).andReturn().getResponse();
             String raw = response.getContentAsString();
