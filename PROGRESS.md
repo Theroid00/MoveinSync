@@ -16,7 +16,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 | P7 | Reconciliation (§9) incl. approval, startup recovery | DONE | 57751f7 | ReconciliationIT 24/24, BriefExampleIT 2/2, matrix 115 cells; lineage checked against COMPLETED runs (known-issues #18) |
 | P8 | Caching, metrics, structured logs, PII guard, faults bean, dev seeders | DONE | 5a2c1c4 | NoPiiIT, CacheIT, MetricsIT (x2), FaultInjectorTest (x2) green; compose seeding verified end to end |
 | P9 | Concurrency ITs (§17.3), run 3x consecutively | DONE | a0cb156 | 9 concurrency ITs green in 3 consecutive runs (full gate + 2 targeted runs); suite ≈ 30 s |
-| P10 | `docker-compose.faults.yml` + fault scripts (§18) | TODO | | |
+| P10 | `docker-compose.faults.yml` + fault scripts (§18) | IN PROGRESS | | Scripts written and committed; dry runs PASS for kill-roster-after-commit and kill-consumer-after-commit. NEXT: dry-run the other 4, then `scripts/faults/run-all.sh` (3x each, outputs to docs/fault-runs/), then commit with the exact P10 message |
 | P11 | Benchmarks (§19): generator, `ReconciliationBenchmarkIT`, k6, contention run | TODO | | |
 | P12 | Observability profile: prometheus.yml, alerts.yml, grafana | TODO | | |
 | P13 | Docs: README, design-note, decisions, benchmark.md, Postman, demo scripts | TODO | | |
