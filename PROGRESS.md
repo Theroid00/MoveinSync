@@ -6,7 +6,7 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 
 | Phase | Deliverable | Status | Commit | Notes |
 |---|---|---|---|---|
-| P0 | Parent + 3 modules, wrapper, Surefire/Failsafe config, `scripts/check-tests.sh`, pinned images, docker/ init SQL, Dockerfiles, compose, empty apps with health | TODO | | |
+| P0 | Parent + 3 modules, wrapper, Surefire/Failsafe config, `scripts/check-tests.sh`, pinned images, docker/ init SQL, Dockerfiles, compose, empty apps with health | DONE | e489494 | verify + check-tests green (HealthIT 4/4); compose healthy in 9 s |
 | P1 | Flyway V1/V2 both DBs, roles, RLS, `TenantTx`, `RlsIT` | TODO | | |
 | P2 | `core` (§7) + unit tests + `CoreIsPureTest` + `OrderIndependenceTest` + `ReplayIdempotenceTest` | TODO | | |
 | P3 | Ingest (§8): single, batch, transport PATCH, admin DELETE, history, outbox, error contract | TODO | | |
@@ -28,6 +28,12 @@ Gate command (default): `./mvnw -q verify && scripts/check-tests.sh`
 
 ## Pre-flight notes (step 2, before any code)
 
-- `docs/spec/case-study-5.pdf` is absent from the repo; proceeded on `AGENT_BUILD_SPEC.md` (wins on conflict) + `case5_hr_roster_sync_plan.md` only. Logged in `docs/known-issues.md`.
+- `docs/spec/case-study-5.pdf` was added by the user during P0; it matches the plan's §1 audit.
 - Resolved spec/plan contradictions in favor of the spec: bucket digest includes `int8send(seq)`; "missing" query is bucket-scoped not full-table; reconciliation status machine uses spec's exact states (incl. `STAGING`); `HrEventRequest`/`HrEventKind` unified record (not plan's sealed `HrEvent` hierarchy); richer `reconciliation_run` schema; exactly 3 Caffeine caches (no JWKS cache).
-- Version pins (Boot 4.1.2, Jackson 3, Testcontainers 2.x non-generic `PostgreSQLContainer`) not yet verified against Maven Central — will verify in P0 and apply spec §0.11 fallback (nearest same-minor patch) if needed.
+- Versions verified in P0: Boot 4.1.2, commons-csv 1.14.1, Testcontainers 2.0.5 all resolve; no fallback needed.
+
+## Environment (this machine)
+
+- JDK: Homebrew `openjdk@21`; Docker: Colima VM (4 CPU / 8 GB). Testcontainers needs
+  `DOCKER_HOST=unix://$HOME/.colima/default/docker.sock` and `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`.
+- Commits: several logical, green commits per phase; the last one in each phase carries the exact §16 message.
