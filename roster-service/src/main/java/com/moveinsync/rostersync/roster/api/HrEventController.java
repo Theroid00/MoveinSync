@@ -1,5 +1,6 @@
 package com.moveinsync.rostersync.roster.api;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -37,6 +38,7 @@ public class HrEventController {
 
     /** APPLIED/TOMBSTONED/DUPLICATE/STALE → 200; CONFLICT → 409; REJECTED → 422 (ProblemDetail + result fields). */
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('HR_INTEGRATION')")
     public ResponseEntity<?> ingest(@RequestBody HrEventRequest request) {
         IngestResult r = events.ingest(TenantContext.current(), request);
         return switch (r.outcome()) {
@@ -47,6 +49,7 @@ public class HrEventController {
     }
 
     @PostMapping(path = "/batch", consumes = NDJSON)
+    @PreAuthorize("hasRole('HR_INTEGRATION')")
     public BatchResult ingestBatch(HttpServletRequest request) throws IOException {
         return batch.ingest(TenantContext.current(), new InputStreamReader(request.getInputStream(), StandardCharsets.UTF_8));
     }

@@ -1,5 +1,7 @@
 package com.moveinsync.rostersync.roster.api;
 
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 
 import com.moveinsync.rostersync.contract.ErrorCode;
@@ -51,6 +53,16 @@ public class GlobalExceptionHandler {
         String field = e instanceof MissingRequestHeaderException m ? m.getHeaderName()
                 : ((MethodArgumentTypeMismatchException) e).getName();
         return respond(Problems.of(ErrorCode.VALIDATION_FAILED, List.of(new FieldError(field, "INVALID_PARAMETER"))));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    ResponseEntity<ProblemDetail> forbidden(AccessDeniedException e) {
+        return respond(Problems.of(ErrorCode.FORBIDDEN));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    ResponseEntity<ProblemDetail> unauthenticated(AuthenticationException e) {
+        return respond(Problems.of(ErrorCode.UNAUTHENTICATED));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)

@@ -1,5 +1,6 @@
 package com.moveinsync.rostersync.roster;
 
+import com.moveinsync.rostersync.roster.security.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,13 +20,16 @@ public abstract class AbstractApiIT extends AbstractPostgresIT {
     @Autowired
     protected JsonMapper json;
 
+    @Autowired
+    protected TokenService tokens;
+
     protected RosterApi api;
     protected String tenant;
     protected JdbcClient db;
 
     @BeforeEach
     void apiAndTenant() {
-        api = new RosterApi(mvc, json);
+        api = new RosterApi(mvc, json, tokens);
         tenant = newTenant();
         db = superuserJdbc();
     }

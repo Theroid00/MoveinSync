@@ -118,6 +118,11 @@ class ErrorContractIT extends AbstractApiIT {
     }
 
     @Test
+    void forbidden() {
+        assertProblem(api.perform(get("/api/v1/employees/EMP-1"), tenant, Role.HR_INTEGRATION), 403, "FORBIDDEN");
+    }
+
+    @Test
     void reconciliationInProgressWhileTenantLockHeldExclusively() throws Exception {
         long lockKey = db.sql("SELECT lock_key FROM tenant_source WHERE tenant_id = ?").param(tenant).query(Long.class).single();
         try (Connection holder = DriverManager.getConnection(jdbcUrl(""), POSTGRES.getUsername(), POSTGRES.getPassword())) {

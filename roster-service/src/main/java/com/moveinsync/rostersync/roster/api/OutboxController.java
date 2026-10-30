@@ -1,5 +1,6 @@
 package com.moveinsync.rostersync.roster.api;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import com.moveinsync.rostersync.roster.security.TenantContext;
 import com.moveinsync.rostersync.roster.service.OutboxAdminService;
 import com.moveinsync.rostersync.roster.service.OutboxAdminService.OutboxStatus;
@@ -21,11 +22,13 @@ public class OutboxController {
     }
 
     @GetMapping("/status")
+    @PreAuthorize("hasRole('OPERATOR')")
     public OutboxStatus status() {
         return outbox.status(TenantContext.current());
     }
 
     @PostMapping("/{id}/replay")
+    @PreAuthorize("hasRole('OPERATOR')")
     public ResponseEntity<Void> replay(@PathVariable long id) {
         outbox.replay(TenantContext.current(), id);
         return ResponseEntity.accepted().build();

@@ -24,8 +24,16 @@ public abstract class AbstractPostgresIT {
             .withCopyFileToContainer(MountableFile.forHostPath(initScript()),
                     "/docker-entrypoint-initdb.d/01-roles-and-dbs.sql");
 
+    /** Per-JVM scratch directory for the generated JWT key and reconciliation uploads. */
+    protected static final Path TEMP_DIR;
+
     static {
         POSTGRES.start();
+        try {
+            TEMP_DIR = Files.createTempDirectory("roster-it-");
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @DynamicPropertySource
@@ -38,6 +46,8 @@ public abstract class AbstractPostgresIT {
         registry.add("app.bulk-datasource.url", () -> jdbcUrl("socketTimeout=330&connectTimeout=2"));
         // Tests drive the relay explicitly (OutboxRelay.runOnce) instead of the scheduler.
         registry.add("app.relay.enabled", () -> "false");
+        registry.add("app.jwt.key-path", () -> TEMP_DIR.resolve("jwt/key.pem").toString());
+        registry.add("app.recon.dir", () -> TEMP_DIR.resolve("recon").toString());
     }
 
     protected static String jdbcUrl(String params) {

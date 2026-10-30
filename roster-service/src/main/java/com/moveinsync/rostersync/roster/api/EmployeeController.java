@@ -1,5 +1,7 @@
 package com.moveinsync.rostersync.roster.api;
 
+import com.moveinsync.rostersync.roster.service.ForbiddenException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 import com.moveinsync.rostersync.roster.core.FieldError;
@@ -29,13 +31,20 @@ public class EmployeeController {
         this.employees = employees;
     }
 
+    /** ADMIN and OPERATOR read any employee of their tenant; an EMPLOYEE only their own record. */
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'OPERATOR', 'EMPLOYEE')")
     public ResponseEntity<EmployeeView> get(@PathVariable String id) {
+        List<String> roles = TenantContext.roles();
+        if (!roles.contains("ADMIN") && !roles.contains("OPERATOR") && !id.equals(TenantContext.employeeId())) {
+            throw new ForbiddenException();
+        }
         EmployeeView view = EmployeeView.from(employees.get(TenantContext.current(), id));
         return ResponseEntity.ok().eTag(Long.toString(view.aggregateRevision())).body(view);
     }
 
     @GetMapping("/{id}/history")
+    @PreAuthorize("hasRole('ADMIN')")
     public EmployeeHistory history(@PathVariable String id) {
         return employees.history(TenantContext.current(), id);
     }
@@ -44,6 +53,7 @@ public class EmployeeController {
     }
 
     @PatchMapping(path = "/{id}/transport", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<TransportResponse> updateTransport(@PathVariable String id,
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
             @RequestBody TransportPatchRequest body) {
@@ -53,6 +63,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deactivate(@PathVariable String id) {
         long revision = employees.deactivate(TenantContext.current(), id);
         return ResponseEntity.noContent().eTag(Long.toString(revision)).build();

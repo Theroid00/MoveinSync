@@ -20,7 +20,18 @@ app:
   booking.base-url: http://localhost:8081
   recon.dir: /tmp/recon
   jwt.key-path: /tmp/jwt/key.pem
-  auth.dev-issuer.enabled: true
+  auth:
+    dev-issuer.enabled: true
+    # Demo users (spec §12.2). Plain passwords here are BCrypt-hashed at startup.
+    users:
+      - { username: hr@acme, password: demo123, tenant: acme, roles: [HR_INTEGRATION] }
+      - { username: admin@acme, password: demo123, tenant: acme, roles: [ADMIN] }
+      - { username: ops@acme, password: demo123, tenant: acme, roles: [OPERATOR] }
+      - { username: emp001@acme, password: demo123, tenant: acme, roles: [EMPLOYEE], employeeId: EMP-001 }
+      - { username: hr@globex, password: demo123, tenant: globex, roles: [HR_INTEGRATION] }
+      - { username: admin@globex, password: demo123, tenant: globex, roles: [ADMIN] }
+      - { username: ops@globex, password: demo123, tenant: globex, roles: [OPERATOR] }
+      - { username: emp001@globex, password: demo123, tenant: globex, roles: [EMPLOYEE], employeeId: EMP-001 }
   faults.point: ""
   dev-seed.enabled: false
   # Second pool for reconciliation: socketTimeout must exceed the 300 s statement_timeout,

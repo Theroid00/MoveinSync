@@ -5,7 +5,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import com.moveinsync.rostersync.roster.security.TenantContext;
+import java.time.Instant;
+import java.util.List;
+
+import com.moveinsync.rostersync.roster.security.TokenService;
+import com.moveinsync.rostersync.roster.security.TokenService.TokenSpec;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -34,12 +38,25 @@ public final class RosterApi {
         }
     }
 
+    /** Employee id carried by EMPLOYEE tokens unless a call says otherwise. */
+    public static final String SELF = "EMP-001";
+
     private final MockMvc mvc;
     private final JsonMapper json;
+    private final TokenService tokens;
 
-    public RosterApi(MockMvc mvc, JsonMapper json) {
+    public RosterApi(MockMvc mvc, JsonMapper json, TokenService tokens) {
         this.mvc = mvc;
         this.json = json;
+        this.tokens = tokens;
+    }
+
+    /** A valid 15-minute token for both audiences; SERVICE tokens carry tenant "*". */
+    public String token(String tenant, Role role, String employeeId) {
+        Instant now = Instant.now();
+        return tokens.issue(new TokenSpec(role.name().toLowerCase() + "@" + tenant, role == Role.SERVICE ? "*" : tenant,
+                List.of(role.name()), role == Role.EMPLOYEE ? employeeId : null,
+                List.of(TokenService.AUD_ROSTER, TokenService.AUD_BOOKING), now, now.plusSeconds(900)));
     }
 
     public Response postEvent(String tenant, Object event) {
@@ -82,9 +99,18 @@ public final class RosterApi {
     }
 
     public Response perform(MockHttpServletRequestBuilder request, String tenant, Role role) {
+        return perform(request, tenant, role, SELF);
+    }
+
+    /** tenant == null sends no token at all. */
+    public Response perform(MockHttpServletRequestBuilder request, String tenant, Role role, String employeeId) {
         if (tenant != null) {
-            request.header(TenantContext.TENANT_HEADER, tenant).header(TenantContext.PRINCIPAL_HEADER, role.name().toLowerCase());
+            request.header(HttpHeaders.AUTHORIZATION, "Bearer " + token(tenant, role, employeeId));
         }
+        return send(request);
+    }
+
+    public Response send(MockHttpServletRequestBuilder request) {
         try {
             MockHttpServletResponse response = mvc.perform(request).andReturn().getResponse();
             String raw = response.getContentAsString();
