@@ -49,3 +49,14 @@ FaultInjectorTest
 NoPiiIT
 CacheIT
 MetricsIT
+
+# P9 (concurrency)
+RacingVersionsIT
+ConcurrentDuplicatesIT
+ConcurrentCreatesIT
+TransportVsHrIT
+SnapshotVsApiIT
+RelayCompetitionIT
+BookingRaceIT
+SeatRaceIT
+CreateVsDeactivateUnknownIT
