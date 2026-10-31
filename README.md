@@ -2,7 +2,7 @@
 
 > ## ▶ [Watch the demo video (4 min 47 s)](docs/demo/demo.mp4)
 >
-> The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. [Open the video](docs/demo/demo.mp4) · [download it (MP4, 77 MB)](https://github.com/Theroid00/HR/raw/main/docs/demo/demo.mp4)
+> The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. [Open the video](docs/demo/demo.mp4) · [download it (MP4, 77 MB)](https://github.com/Theroid00/MoveinSync/raw/main/docs/demo/demo.mp4)
 
 ## Run it
 
@@ -131,7 +131,7 @@ Two Java 21 / Spring Boot services reconcile HR events and full employee exports
 **1. Prerequisites.** Running the system needs only Docker with Compose, `curl` and `jq`; JDK 21 is only for the test suite and Python 3 only for the benchmarks. `scripts/setup.sh` checks all of them and the ports 8080/8081; `--install` adds what is missing (see the table above for Windows).
 
 ```bash
-git clone https://github.com/Theroid00/HR.git && cd HR
+git clone https://github.com/Theroid00/MoveinSync.git && cd MoveinSync
 scripts/setup.sh --install
 ```
 
@@ -274,7 +274,7 @@ This preserves every requirement ID from the original coverage audit and links t
 | I4 | Clean layered code, core algorithm in plain classes testable without web/DB | [roster CoreIsPureTest](roster-service/src/test/java/com/moveinsync/rostersync/roster/core/CoreIsPureTest.java) |
 | I5 | Normal + edge-case tests; unit, concurrency, failure, benchmark | [Required test manifest](scripts/required-tests.txt), [faults](docs/fault-runs/SUMMARY.txt), [benchmarks](docs/benchmark.md) |
 | I6 | README: how to run, assumptions, benchmark results, trade-offs | [Run it](#run-it), [assumptions](#assumptions), [results](#results), [trade-offs](#consistency-vs-availability-vs-latency) |
-| I7 | Public GitHub repo, meaningful commit history | [Commit history](https://github.com/Theroid00/HR/commits/main): small, reviewed steps from scaffold to release |
+| I7 | Public GitHub repo, meaningful commit history | [Commit history](https://github.com/Theroid00/MoveinSync/commits/main): small, reviewed steps from scaffold to release |
 | I8 | Demo video: main flows, one live failure, sample API calls (Postman/curl) | [Automated demo](scripts/demo/run-all.sh), [Postman](postman/README.md); the video is linked at the top of this README |
 
 ## Architecture
