@@ -1,8 +1,8 @@
 # HR Roster Sync
 
-> ## ▶ [Watch the demo video (4 min 47 s)](docs/demo/demo.mp4)
+> ## ▶ [Watch the demo video on YouTube (4 min 47 s)](https://youtu.be/ZCJpOCKDvB0)
 >
-> The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. [Open the video](docs/demo/demo.mp4) · [download it (MP4, 77 MB)](https://github.com/Theroid00/MoveinSync/raw/main/docs/demo/demo.mp4)
+> The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. A copy is also in this repository: [docs/demo/demo.mp4](docs/demo/demo.mp4).
 
 ## Run it
 
@@ -124,7 +124,7 @@ Expect `RESULT: PASS`, then `BUILD SUCCESS` and `check-tests: 43 required classe
 
 Two Java 21 / Spring Boot services reconcile HR events and full employee exports into a versioned roster, then cancel future bookings and release seats through a transactional outbox. PostgreSQL row-level security supplements JWT tenant and role checks.
 
-**Demo video:** [▶ Watch it here (4 min 47 s)](docs/demo/demo.mp4)
+**Demo video:** [▶ Watch it on YouTube (4 min 47 s)](https://youtu.be/ZCJpOCKDvB0)
 
 ## Step by step
 
