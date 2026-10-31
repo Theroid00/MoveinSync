@@ -1,5 +1,9 @@
 # HR Roster Sync
 
+> ## ▶ [Watch the demo video (4 min 47 s)](docs/demo/demo.mp4)
+>
+> The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. [Open the video](docs/demo/demo.mp4) · [download it (MP4, 77 MB)](https://github.com/Theroid00/HR/raw/main/docs/demo/demo.mp4)
+
 ## Run it
 
 One command starts everything: PostgreSQL, both services and the demo data (first build 3–5 minutes, later starts seconds).
@@ -120,7 +124,7 @@ Expect `RESULT: PASS`, then `BUILD SUCCESS` and `check-tests: 43 required classe
 
 Two Java 21 / Spring Boot services reconcile HR events and full employee exports into a versioned roster, then cancel future bookings and release seats through a transactional outbox. PostgreSQL row-level security supplements JWT tenant and role checks.
 
-**Demo video:** VIDEO_LINK_TODO
+**Demo video:** [▶ Watch it here (4 min 47 s)](docs/demo/demo.mp4)
 
 ## Step by step
 
