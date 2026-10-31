@@ -9,11 +9,6 @@ spring:
   flyway: { user: booking_owner, password: booking_owner_pw }
   jackson.deserialization.fail-on-unknown-properties: true
 logging.structured.format.console: ecs
-# Interactive docs are on deliberately for this demo; production sets SPRINGDOC_API_DOCS_ENABLED=false
-# and SPRINGDOC_SWAGGER_UI_ENABLED=false.
-springdoc:
-  api-docs.enabled: true
-  swagger-ui: { enabled: true, persist-authorization: true, operations-sorter: alpha, tags-sorter: alpha }
 management:
   endpoints.web.exposure.include: health,info,prometheus
 app:

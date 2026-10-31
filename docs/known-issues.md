@@ -65,10 +65,6 @@ Pulled at the start of the build (2026-10-30, linux/arm64 via Colima), digests f
 27. **Test database connections:** each cached Spring test context keeps its own pools. Tests run Postgres with `max_connections=400` and Hikari `minimum-idle=2`. Production settings are unchanged.
 28. **The case-study PDF** was missing at first and added at the start of the build (moved to `docs/spec/case-study-5.pdf`).
 
-## Interactive API docs
-
-- Swagger UI (`/swagger-ui.html`) and the OpenAPI description (`/v3/api-docs`) are public on both services so reviewers can try the API with a demo token. They expose endpoint shapes, never data. Production would set `SPRINGDOC_API_DOCS_ENABLED=false` and `SPRINGDOC_SWAGGER_UI_ENABLED=false`. springdoc 3.2.0 is built against Spring Boot 4.1.2.
-
 ## Colima + Testcontainers
 
 Testcontainers needs to find the Colima socket:

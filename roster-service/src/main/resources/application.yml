@@ -13,11 +13,6 @@ spring:
   servlet.multipart: { max-file-size: 300MB, max-request-size: 310MB }
   cache.type: caffeine
 logging.structured.format.console: ecs
-# Interactive docs are on deliberately for this demo; production sets SPRINGDOC_API_DOCS_ENABLED=false
-# and SPRINGDOC_SWAGGER_UI_ENABLED=false.
-springdoc:
-  api-docs.enabled: true
-  swagger-ui: { enabled: true, persist-authorization: true, operations-sorter: alpha, tags-sorter: alpha }
 management:
   endpoints.web.exposure.include: health,info,prometheus
   # Histograms for roster_event_apply_seconds and outbox_delivery_lag_seconds are published in code

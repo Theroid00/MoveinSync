@@ -51,8 +51,6 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
-                        // interactive API docs: the OpenAPI description and Swagger UI assets carry no data
-                        .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers("/internal/**").hasRole("SERVICE")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(rs -> rs

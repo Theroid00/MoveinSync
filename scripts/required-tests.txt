@@ -65,6 +65,3 @@ CreateVsDeactivateUnknownIT
 # P10 (database outage regression)
 DbFailuresTest
 GlobalExceptionHandlerTest
-
-# Interactive API docs (Swagger UI)
-OpenApiIT

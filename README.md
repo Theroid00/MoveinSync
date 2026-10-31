@@ -14,8 +14,6 @@ scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies afte
 
 `make up`, `make tour`, `make crash`, `make test` and `make down` run the same steps.
 
-**Try the API in the browser:** Swagger UI at <http://localhost:8080/swagger-ui.html> (roster) and <http://localhost:8081/swagger-ui.html> (booking). Call `POST /api/v1/auth/token` with `{"username":"admin@acme","password":"demo123"}`, click **Authorize**, paste the `accessToken`, and every endpoint is one click away.
-
 ## Results
 
 Measured on Nobara Linux 44, 32 logical CPUs and 31 GiB RAM, Temurin 21.0.13 and PostgreSQL 18.6. The reconciliation JVM is capped at 256 MiB. Each reconciliation figure comes from three measured runs that each start from a freshly restored baseline, with no separate warm-up run, so the times include JVM warm-up.
@@ -85,7 +83,7 @@ curl -fsS http://localhost:8080/api/v1/employees/README-001 -H "Authorization: B
 curl -fsS -X PATCH http://localhost:8080/api/v1/employees/README-001/transport -H "Authorization: Bearer $ADMIN" -H 'If-Match: "1"' -H 'Content-Type: application/json' -d '{"pickupPoint":"Demo stop","specialAssistance":null}'
 ```
 
-Explore every endpoint interactively in Swagger UI (`/swagger-ui.html` on either port; the token persists across reloads), or import the [Postman collection and environment](postman/README.md) for all 29 endpoint requests. Read the employee again before another transport edit to obtain its current ETag. A repeat of the create is a no-op; the PATCH example assumes the first revision.
+Import the [Postman collection and environment](postman/README.md) for all 29 endpoint requests. Read the employee again before another transport edit to obtain its current ETag. A repeat of the create is a no-op; the PATCH example assumes the first revision.
 
 ```bash
 docker compose --profile observability up -d
@@ -188,7 +186,7 @@ Both databases run in one PostgreSQL container. A transaction writes each employ
 - Digest work scans both sides. Staging uses O(M) database space, 5,000-row chunks and a seen-ID set; Java digest maps use O(B) entries for B=65,536. Quiet changes touched 99 buckets; heavy nights touch most useful buckets.
 - API writes use indexed employee lookup/locking, roughly O(log N); snapshot classification and apply operate on mismatched buckets. A single database primary, tenant lock duration and the HTTP relay bound scale. Chunked/resumable apply, tenant partitioning and CDC/broker delivery would require a new design and measurements.
 - Delivered outbox retention is seven days. Consumer dedup is currently retained indefinitely; a 30-day purge is not implemented. Snapshot uploads and operator history also require an operational retention policy.
-- The development issuer, demo credentials, public actuator metrics, public interactive API docs and unencrypted demo database credentials are for this local assessment setup. Production needs managed identity/secrets, network access controls, backup/retention and PII encryption/erasure policies.
+- The development issuer, demo credentials, public actuator metrics and unencrypted demo database credentials are for this local assessment setup. Production needs managed identity/secrets, network access controls, backup/retention and PII encryption/erasure policies.
 
 No broker, patch-event protocol, multi-source resolution, multi-region system or frontend application is included. Prometheus rules are available locally; external notification routing requires Alertmanager configuration.
 
