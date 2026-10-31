@@ -1,41 +1,139 @@
 # HR Roster Sync
 
+## Run it
+
+One command starts everything: PostgreSQL, both services and the demo data (first build 3–5 minutes, later starts seconds).
+
+```bash
+docker compose up -d --build --wait
+```
+
+Then see it work:
+
+```bash
+scripts/demo/quick.sh                        # two-minute demo: ordering, duplicates, field ownership, bad data, tenants, bookings, safety brake
+scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies between commit and publish, recovers, cancels exactly once
+```
+
+All three in one line: `make up tour crash`. Stop and delete everything: `make down`.
+
+Needs Docker with Compose, `curl` and `jq`:
+
+| OS | Install the prerequisites |
+|---|---|
+| macOS | `scripts/setup.sh --install` (Homebrew; adds Colima if there is no Docker) |
+| Linux | `scripts/setup.sh --install` (apt or dnf; prints the official Docker Engine steps if Docker is missing) |
+| Windows | In PowerShell: `winget install -e --id Docker.DockerDesktop` and `wsl --install`. Enable WSL integration in Docker Desktop, open the **Ubuntu** terminal, clone the repository there and use the commands above (`scripts/setup.sh --install` adds `curl` and `jq`). |
+
+`scripts/setup.sh` without `--install` only checks and prints what is missing.
+
+## Test it yourself
+
+Paste these into a terminal while the stack runs. Each check is a requirement from the case study, followed by what you should see. Start from a fresh stack (`make down && make up`) so the numbers match exactly.
+
+**Setup:** two helpers and three demo logins (password `demo123`).
+
+```bash
+token() { curl -s localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d "{\"username\":\"$1\",\"password\":\"demo123\"}" | jq -r .accessToken; }
+HR=$(token hr@acme); ADMIN=$(token admin@acme); OPS=$(token ops@acme)
+event() { curl -s localhost:8080/api/v1/hr/events -H "Authorization: Bearer $HR" -H 'Content-Type: application/json' -d "$1" | jq -c '{outcome} + (if .errorCode then {errorCode, errors} else {} end)'; }
+```
+
+**1. Out of order: the v7 office transfer arrives before the v6 shift change.**
+
+```bash
+event '{"eventId":"t-v7","sourceSeq":1007,"eventType":"UPSERT","employeeId":"T-1","effectiveAt":"2026-10-31T09:00:00Z","hr":{"name":"Test One","email":"t1@example.test","phone":"+919000099001","managerId":null,"officeCode":"GGN-A","shiftCode":"NIGHT"}}'
+event '{"eventId":"t-v6","sourceSeq":1006,"eventType":"UPSERT","employeeId":"T-1","effectiveAt":"2026-10-31T08:00:00Z","hr":{"name":"Test One","email":"t1@example.test","phone":"+919000099001","managerId":null,"officeCode":"BLR-A","shiftCode":"MORNING"}}'
+curl -s localhost:8080/api/v1/employees/T-1 -H "Authorization: Bearer $ADMIN" | jq -c '{officeCode, shiftCode, sourceSeq}'
+```
+
+Expect `APPLIED`, then `STALE`, then `{"officeCode":"GGN-A","shiftCode":"NIGHT","sourceSeq":1007}`.
+
+**2. A duplicate is a no-op.** Run the first `event` line from check 1 again. Expect `{"outcome":"DUPLICATE"}`.
+
+**3. Bad records are rejected one by one; the rest of the batch still applies.**
+
+```bash
+curl -s localhost:8080/api/v1/hr/events/batch -H "Authorization: Bearer $HR" -H 'Content-Type: application/x-ndjson' --data-binary @samples/batch-one-bad.ndjson | jq -c '.summary, (.results[] | {line, outcome, errors})'
+```
+
+Expect 2 `APPLIED` and 2 `REJECTED`: line 2 `PHONE_E164`, line 3 `OFFICE_UNKNOWN`. The rejected values never appear in the response.
+
+**4. Field ownership: an HR update never overwrites the transport admin's pickup point.**
+
+```bash
+curl -s -X PATCH localhost:8080/api/v1/employees/T-1/transport -H "Authorization: Bearer $ADMIN" -H 'If-Match: "1"' -H 'Content-Type: application/json' -d '{"pickupPoint":"Gate 4","specialAssistance":null}' | jq -c .
+event '{"eventId":"t-v8","sourceSeq":1008,"eventType":"UPSERT","employeeId":"T-1","effectiveAt":"2026-10-31T10:00:00Z","hr":{"name":"Test One","email":"t1@example.test","phone":"+919000099001","managerId":null,"officeCode":"BLR-B","shiftCode":"NIGHT"}}'
+curl -s localhost:8080/api/v1/employees/T-1 -H "Authorization: Bearer $ADMIN" | jq -c '{officeCode, pickupPoint}'
+event '{"eventId":"t-v9","sourceSeq":1009,"eventType":"UPSERT","employeeId":"T-1","effectiveAt":"2026-10-31T11:00:00Z","hr":{"name":"Test One","email":"t1@example.test","phone":"+919000099001","managerId":null,"officeCode":"BLR-B","shiftCode":"NIGHT","pickupPoint":"Gate 9"}}'
+```
+
+Expect revision 2 from the PATCH, `APPLIED` for the HR update, `{"officeCode":"BLR-B","pickupPoint":"Gate 4"}`, and `UNKNOWN_FIELD` when an HR payload tries to set the pickup point.
+
+**5. A leaver's future bookings are cancelled and their seats freed.**
+
+```bash
+curl -s localhost:8081/api/v1/employees/EMP-020/bookings -H "Authorization: Bearer $ADMIN" | jq -c '[.[] | {status, seatState}]'
+event '{"eventId":"t-leave","sourceSeq":1010,"eventType":"DEACTIVATE","employeeId":"EMP-020","effectiveAt":"2026-10-31T09:00:00Z"}'
+sleep 2; curl -s localhost:8081/api/v1/employees/EMP-020/bookings -H "Authorization: Bearer $ADMIN" | jq -c '[.[] | {status, seatState}]'
+```
+
+Expect three `RESERVED`/`ACTIVE` bookings before, and the same three as `CANCELLED`/`RELEASED` after.
+
+**6. Nightly export: only the differences are applied.** [`samples/nightly.csv`](samples/nightly.csv) moves EMP-005 to another office, drops EMP-100 and adds EMP-101.
+
+```bash
+RUN=$(curl -s localhost:8080/api/v1/reconciliations -H "Authorization: Bearer $OPS" -F file=@samples/nightly.csv -F 'manifest={"sourceId":"hr-main","cutoffSeq":200,"exportedAt":"2026-10-31T02:00:00Z"};type=application/json' | jq -r .runId)
+sleep 3; curl -s localhost:8080/api/v1/reconciliations/$RUN -H "Authorization: Bearer $OPS" | jq -c '{status, counts: (.counts | {created, updated, deactivated}), bucketsMismatched}'
+```
+
+Expect `COMPLETED` with `created 1`, `updated 1`, `deactivated 1`, and only a handful of mismatched buckets out of 65,536.
+
+**7. Safety brake: a file cut short stops, deactivates nobody and shows how many look missing.** [`samples/nightly-cut.csv`](samples/nightly-cut.csv) has only the first 60 employees.
+
+```bash
+RUN=$(curl -s localhost:8080/api/v1/reconciliations -H "Authorization: Bearer $OPS" -F file=@samples/nightly-cut.csv -F 'manifest={"sourceId":"hr-main","cutoffSeq":300,"exportedAt":"2026-10-31T02:00:00Z"};type=application/json' | jq -r .runId)
+sleep 3; curl -s localhost:8080/api/v1/reconciliations/$RUN -H "Authorization: Bearer $OPS" | jq -c '{status, baseline, missing, ratioBp}'
+curl -s localhost:8080/api/v1/employees/EMP-090 -H "Authorization: Bearer $ADMIN" | jq -c '{active}'
+curl -s -X POST localhost:8080/api/v1/reconciliations/$RUN/reject -H "Authorization: Bearer $OPS" | jq -c '{status}'
+```
+
+Expect `AWAITING_APPROVAL` with about 40 of 99 active employees missing (`ratioBp` about 4000, i.e. 40%), EMP-090 still `{"active":true}`, then `REJECTED` once the operator rejects it.
+
+**8. Tenant isolation: another client cannot see this employee.**
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' localhost:8080/api/v1/employees/T-1 -H "Authorization: Bearer $(token admin@globex)"
+```
+
+Expect `404`.
+
+**9. Crash between the database write and the event publish, plus the automated suites.**
+
+```bash
+scripts/faults/kill-roster-after-commit.sh   # ~15 s: kills roster right after commit, restarts it, checks exactly-once effects
+make test                                    # ~10 min, needs JDK 21: 315 unit, integration and concurrency tests
+scripts/faults/run-all.sh                    # ~45 min: all six failure scenarios, three runs each
+```
+
+Expect `RESULT: PASS`, then `BUILD SUCCESS` and `check-tests: 43 required classes, 0 with problems`, then a summary with every run `PASS`.
+
 Two Java 21 / Spring Boot services reconcile HR events and full employee exports into a versioned roster, then cancel future bookings and release seats through a transactional outbox. PostgreSQL row-level security supplements JWT tenant and role checks.
 
 **Demo video:** VIDEO_LINK_TODO
 
-## Quick start
+## Step by step
 
-**1. Check and install the prerequisites** (once). Running the system needs only Docker with Compose, `curl` and `jq`. JDK 21 is needed only for the test suite and Python 3 only for the benchmarks.
+**1. Prerequisites.** Running the system needs only Docker with Compose, `curl` and `jq`; JDK 21 is only for the test suite and Python 3 only for the benchmarks. `scripts/setup.sh` checks all of them and the ports 8080/8081; `--install` adds what is missing (see the table above for Windows).
 
 ```bash
 git clone https://github.com/Theroid00/HR.git && cd HR
-scripts/setup.sh             # checks everything; prints the exact install command for anything missing
-scripts/setup.sh --install   # installs what is missing: Homebrew on macOS (Colima if there is no Docker), apt or dnf on Linux
+scripts/setup.sh --install
 ```
 
-**2. Start the system.** The first build compiles both services inside Docker and takes 3–5 minutes; later starts take seconds. Ports 8080 and 8081 must be free.
+**2. Start:** `docker compose up -d --build --wait` (or `docker compose up --build` to watch the logs). **3. Demo:** `scripts/demo/quick.sh`, then `scripts/faults/kill-roster-after-commit.sh`.
 
-```bash
-docker compose up -d --build --wait     # postgres + roster-service (8080) + booking-service (8081), seeded with demo data
-```
-
-**3. Watch it work.**
-
-```bash
-scripts/demo/quick.sh                        # two-minute tour: ordering, duplicates, ownership, bad data, tenants, bookings, safety brake
-scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies between commit and publish, recovers, cancels exactly once
-```
-
-**4. Try it yourself.** Startup seeds `acme` and `globex`, three offices, 100 employees per tenant, trips, 300 future bookings and 20 past bookings in total. Demo users are `hr@acme`, `admin@acme`, `ops@acme`, `emp001@acme`, and their `globex` equivalents; password `demo123`. The employee account is bound to `EMP-001`. Five sample curls (jq extracts the tokens):
-
-```bash
-HR=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"hr@acme","password":"demo123"}' | jq -r .accessToken)
-ADMIN=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"admin@acme","password":"demo123"}' | jq -r .accessToken)
-curl -fsS http://localhost:8080/api/v1/hr/events -H "Authorization: Bearer $HR" -H 'Content-Type: application/json' -d '{"eventId":"readme-create","sourceSeq":1001,"eventType":"UPSERT","employeeId":"README-001","effectiveAt":"2026-10-31T00:00:00Z","hr":{"name":"Synthetic Employee","email":"synthetic@example.test","phone":"+919000000999","managerId":null,"officeCode":"BLR-A","shiftCode":"MORNING"}}'
-curl -fsS http://localhost:8080/api/v1/employees/README-001 -H "Authorization: Bearer $ADMIN"
-curl -fsS -X PATCH http://localhost:8080/api/v1/employees/README-001/transport -H "Authorization: Bearer $ADMIN" -H 'If-Match: "1"' -H 'Content-Type: application/json' -d '{"pickupPoint":"Demo stop","specialAssistance":null}'
-```
+**4. Try it yourself.** Startup seeds `acme` and `globex`, three offices, 100 employees per tenant, trips, 300 future bookings and 20 past bookings in total. Demo users are `hr@acme`, `admin@acme`, `ops@acme`, `emp001@acme`, and their `globex` equivalents; password `demo123`. The employee account is bound to `EMP-001`. The checks in [Test it yourself](#test-it-yourself) exercise every requirement.
 
 Import the [Postman collection and environment](postman/README.md) for all 29 endpoint requests. Read the employee again before another transport edit to obtain its current ETag. A repeat of the create is a no-op; the PATCH example assumes the first revision.
 

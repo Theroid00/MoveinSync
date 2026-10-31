@@ -11,6 +11,16 @@ cd "$(dirname "$0")/.."
 INSTALL=0
 [ "${1:-}" = "--install" ] && INSTALL=1
 OS=$(uname -s)
+case "$OS" in
+  MINGW*|MSYS*|CYGWIN*)
+    echo "This looks like a Windows shell (Git Bash/MSYS). Use WSL instead:"
+    echo "  1. In PowerShell: winget install -e --id Docker.DockerDesktop   and   wsl --install"
+    echo "  2. In Docker Desktop: Settings > Resources > WSL integration > enable Ubuntu"
+    echo "  3. Open the Ubuntu terminal, clone the repository there and run: scripts/setup.sh --install"
+    exit 1 ;;
+esac
+WSL=0
+grep -qi microsoft /proc/version 2>/dev/null && WSL=1
 PM=none
 if [ "$OS" = Darwin ]; then
   command -v brew >/dev/null 2>&1 && PM=brew
@@ -91,7 +101,11 @@ check_docker() {
     if [ "$OS" = Darwin ]; then
       note "install Docker Desktop (https://www.docker.com/products/docker-desktop/) or run: scripts/setup.sh --install (installs Colima)"
     else
-      note "install Docker Engine: https://docs.docker.com/engine/install/ then: sudo usermod -aG docker \$USER (log in again)"
+      if [ "$WSL" = 1 ]; then
+        note "install Docker Desktop on Windows (winget install -e --id Docker.DockerDesktop) and enable WSL integration for this distribution"
+      else
+        note "install Docker Engine: https://docs.docker.com/engine/install/ then: sudo usermod -aG docker \$USER (log in again)"
+      fi
     fi
     MISSING_REQUIRED=$((MISSING_REQUIRED + 1))
     return
@@ -104,7 +118,9 @@ check_docker() {
     ok docker "$(docker version --format '{{.Server.Version}}' 2>/dev/null) (daemon running)"
   else
     bad docker "installed, but the daemon is not running"
-    if command -v colima >/dev/null 2>&1; then note "colima start --cpu 4 --memory 8"; else note "start Docker Desktop (or: sudo systemctl start docker)"; fi
+    if command -v colima >/dev/null 2>&1; then note "colima start --cpu 4 --memory 8"
+    elif [ "$WSL" = 1 ]; then note "start Docker Desktop on Windows and enable WSL integration for this distribution"
+    else note "start Docker Desktop (or: sudo systemctl start docker)"; fi
     MISSING_REQUIRED=$((MISSING_REQUIRED + 1))
     return
   fi
@@ -155,9 +171,10 @@ else
   check_port 8081
 fi
 echo
-echo "Needed only for tests and benchmarks:"
+echo "Optional (tests, benchmarks, make shortcuts):"
 check_java
 check_tool python3 0 "benchmark report" "python3 --version"
+check_tool make 0 "only for the shortcuts: make up / tour / crash" "make --version | head -1"
 echo
 if [ "$MISSING_REQUIRED" -eq 0 ]; then
   echo "Ready. Next: docker compose up -d --build --wait   (or: make up)"

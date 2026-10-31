@@ -68,7 +68,7 @@ Pulled at the start of the build (2026-10-30, linux/arm64 via Colima), digests f
 ## README layout and prerequisites
 
 - **README order:** spec §20 lists Results and Judgement calls before Quick start. Quick start comes right after the introduction, at the owner's request, so a reader can run the system before reading the evidence; every required section is still present.
-- **Prerequisites:** `scripts/setup.sh` checks the tools and prints exact install commands; `--install` uses Homebrew (installing Colima when no Docker runtime exists), apt or dnf. Docker Engine on Linux is not installed automatically (it needs root and a re-login), so the script prints the official instructions. `scripts/test.sh` (`make test`) selects a JDK 21 and sets the Colima socket variables below automatically. Verified on macOS (Homebrew, Colima) and in bare Ubuntu 24.04 and Fedora 42 containers.
+- **Prerequisites:** `scripts/setup.sh` checks the tools and prints exact install commands; `--install` uses Homebrew (installing Colima when no Docker runtime exists), apt or dnf. Docker Engine on Linux is not installed automatically (it needs root and a re-login), so the script prints the official instructions. `scripts/test.sh` (`make test`) selects a JDK 21 and sets the Colima socket variables below automatically. Verified on macOS (Homebrew, Colima) and in bare Ubuntu 24.04 and Fedora 42 containers. **Windows** is supported through WSL (Docker Desktop with WSL integration plus the Ubuntu terminal), where the Linux commands apply unchanged; `setup.sh` detects Git Bash/MSYS and WSL and prints the matching steps. The Windows path is documented but was not run on a Windows machine.
 
 ## Colima + Testcontainers
 
