@@ -2,6 +2,8 @@
 
 > ## ▶ [Watch the demo video on YouTube (4 min 47 s)](https://youtu.be/ZCJpOCKDvB0)
 >
+> [![Still from the demo video: the safety brake stopping a cut file, client isolation, role checks and metrics. Click to play on YouTube.](docs/demo/preview.png)](https://youtu.be/ZCJpOCKDvB0)
+>
 > The system running end to end: the one-command start, the main flows, sample API calls and a live crash between the database write and the event publish. A copy is also in this repository: [docs/demo/demo.mp4](docs/demo/demo.mp4).
 
 ## Run it
