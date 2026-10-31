@@ -4,15 +4,51 @@ Two Java 21 / Spring Boot services reconcile HR events and full employee exports
 
 **Demo video:** VIDEO_LINK_TODO
 
-**Start here** (Docker with Compose, `curl`, `jq`; about ten minutes):
+## Quick start
+
+**1. Check and install the prerequisites** (once). Running the system needs only Docker with Compose, `curl` and `jq`. JDK 21 is needed only for the test suite and Python 3 only for the benchmarks.
 
 ```bash
-docker compose up -d --build --wait          # first build compiles inside Docker: allow 3–5 minutes
-scripts/demo/quick.sh                        # two-minute tour of the guarantees against the running stack
-scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies after commit, recovers, cancels once
+git clone https://github.com/Theroid00/HR.git && cd HR
+scripts/setup.sh             # checks everything; prints the exact install command for anything missing
+scripts/setup.sh --install   # installs what is missing: Homebrew on macOS (Colima if there is no Docker), apt or dnf on Linux
 ```
 
-`make up`, `make tour`, `make crash`, `make test` and `make down` run the same steps.
+**2. Start the system.** The first build compiles both services inside Docker and takes 3–5 minutes; later starts take seconds. Ports 8080 and 8081 must be free.
+
+```bash
+docker compose up -d --build --wait     # postgres + roster-service (8080) + booking-service (8081), seeded with demo data
+```
+
+**3. Watch it work.**
+
+```bash
+scripts/demo/quick.sh                        # two-minute tour: ordering, duplicates, ownership, bad data, tenants, bookings, safety brake
+scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies between commit and publish, recovers, cancels exactly once
+```
+
+**4. Try it yourself.** Startup seeds `acme` and `globex`, three offices, 100 employees per tenant, trips, 300 future bookings and 20 past bookings in total. Demo users are `hr@acme`, `admin@acme`, `ops@acme`, `emp001@acme`, and their `globex` equivalents; password `demo123`. The employee account is bound to `EMP-001`. Five sample curls (jq extracts the tokens):
+
+```bash
+HR=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"hr@acme","password":"demo123"}' | jq -r .accessToken)
+ADMIN=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"admin@acme","password":"demo123"}' | jq -r .accessToken)
+curl -fsS http://localhost:8080/api/v1/hr/events -H "Authorization: Bearer $HR" -H 'Content-Type: application/json' -d '{"eventId":"readme-create","sourceSeq":1001,"eventType":"UPSERT","employeeId":"README-001","effectiveAt":"2026-10-31T00:00:00Z","hr":{"name":"Synthetic Employee","email":"synthetic@example.test","phone":"+919000000999","managerId":null,"officeCode":"BLR-A","shiftCode":"MORNING"}}'
+curl -fsS http://localhost:8080/api/v1/employees/README-001 -H "Authorization: Bearer $ADMIN"
+curl -fsS -X PATCH http://localhost:8080/api/v1/employees/README-001/transport -H "Authorization: Bearer $ADMIN" -H 'If-Match: "1"' -H 'Content-Type: application/json' -d '{"pickupPoint":"Demo stop","specialAssistance":null}'
+```
+
+Import the [Postman collection and environment](postman/README.md) for all 29 endpoint requests. Read the employee again before another transport edit to obtain its current ETag. A repeat of the create is a no-op; the PATCH example assumes the first revision.
+
+**5. Monitoring (optional).**
+
+```bash
+docker compose --profile observability up -d
+scripts/check-observability.sh
+```
+
+Grafana: <http://localhost:3000/d/roster-sync/roster-sync> (`admin` / `demo123`). Prometheus: <http://localhost:9090>. [Dashboard capture](docs/validation/dashboard.png).
+
+`make setup`, `make install`, `make up`, `make tour`, `make crash`, `make test` and `make down` are shortcuts for the same commands; `make down` stops everything and deletes the demo data.
 
 ## Results
 
@@ -62,35 +98,6 @@ Detailed context, rejected alternatives and consequences are in [DEC-01–23](do
 | DEC-21: Bucket and version digest | Use 65,536 SHA-256 buckets; include employee ID, canonical hash and sequence in each digest. |
 | DEC-22: Bulk connection pool | Use separate pools with 10s/330s socket timeouts and 5s/300s statement timeouts. |
 | DEC-23: Same-cutoff lineage | Compare against COMPLETED runs: equal checksum is a no-op, different checksum conflicts; allow resend after partial/failed runs if no completed truth exists. |
-
-## Quick start
-
-Docker Engine with Compose is enough to build and run both services. Ports 8080/8081 must be free. The first build compiles both services inside Docker and downloads their dependencies, which takes a few minutes; later builds reuse the cache.
-
-```bash
-git clone https://github.com/Theroid00/HR.git
-cd HR
-docker compose up -d --build --wait
-```
-
-Startup seeds `acme` and `globex`, three offices, 100 employees per tenant, trips, 300 future bookings and 20 past bookings in total. Demo users are `hr@acme`, `admin@acme`, `ops@acme`, `emp001@acme`, and their `globex` equivalents; password `demo123`. The employee account is bound to `EMP-001`. Five sample curls (jq extracts the tokens):
-
-```bash
-HR=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"hr@acme","password":"demo123"}' | jq -r .accessToken)
-ADMIN=$(curl -fsS http://localhost:8080/api/v1/auth/token -H 'Content-Type: application/json' -d '{"username":"admin@acme","password":"demo123"}' | jq -r .accessToken)
-curl -fsS http://localhost:8080/api/v1/hr/events -H "Authorization: Bearer $HR" -H 'Content-Type: application/json' -d '{"eventId":"readme-create","sourceSeq":1001,"eventType":"UPSERT","employeeId":"README-001","effectiveAt":"2026-10-31T00:00:00Z","hr":{"name":"Synthetic Employee","email":"synthetic@example.test","phone":"+919000000999","managerId":null,"officeCode":"BLR-A","shiftCode":"MORNING"}}'
-curl -fsS http://localhost:8080/api/v1/employees/README-001 -H "Authorization: Bearer $ADMIN"
-curl -fsS -X PATCH http://localhost:8080/api/v1/employees/README-001/transport -H "Authorization: Bearer $ADMIN" -H 'If-Match: "1"' -H 'Content-Type: application/json' -d '{"pickupPoint":"Demo stop","specialAssistance":null}'
-```
-
-Import the [Postman collection and environment](postman/README.md) for all 29 endpoint requests. Read the employee again before another transport edit to obtain its current ETag. A repeat of the create is a no-op; the PATCH example assumes the first revision.
-
-```bash
-docker compose --profile observability up -d
-scripts/check-observability.sh
-```
-
-Grafana: <http://localhost:3000/d/roster-sync/roster-sync> (`admin` / `demo123`). Prometheus: <http://localhost:9090>. [Dashboard capture](docs/validation/dashboard.png).
 
 ## Coverage audit
 
@@ -200,15 +207,14 @@ No broker, patch-event protocol, multi-source resolution, multi-region system or
 
 ## Run tests, faults, benchmarks and demo
 
-Full validation needs JDK 21 **including javac**, Docker/Compose, bash, curl, jq and Python 3. Select the JDK using `JAVA_HOME` and put its `bin` on `PATH`; see [host notes](docs/known-issues.md). Node is used only for the offline Postman self-check, without npm packages.
+`scripts/setup.sh` checks the extra tools these need (JDK 21, Python 3) and `--install` adds them. `make test` (`scripts/test.sh`) selects a JDK 21 automatically, even when it is not on `PATH`, and points Testcontainers at Colima's Docker socket when Colima is in use. Node is used only for the offline Postman self-check, without npm packages.
 
 ```bash
-java -version && javac -version
-./mvnw verify && scripts/check-tests.sh
+make test                     # ./mvnw verify && scripts/check-tests.sh: unit, integration and concurrency tests (~10 min)
 node postman/check.mjs
-scripts/faults/run-all.sh
-scripts/bench/run-all.sh
-scripts/demo/run-all.sh
+scripts/faults/run-all.sh     # every failure scenario, three runs each
+scripts/bench/run-all.sh      # 200k reconciliation and k6 load benchmarks
+scripts/demo/run-all.sh       # full scripted demo, including the 200k / 120k safety brake
 ```
 
 The fault, benchmark and demo runners delete and recreate this Compose project’s volumes. Use an isolated checkout. The demo runs tests and real process crashes, verifies 80,000 missing out of 200,000 with zero mutations, then restores the seeded stack and observability. Benchmarks use real PostgreSQL, exact outcome assertions, the 256 MiB heap cap and three measured runs without warm-up; no benchmark results are estimated. [Protocol and commands](bench/README.md).

@@ -65,6 +65,11 @@ Pulled at the start of the build (2026-10-30, linux/arm64 via Colima), digests f
 27. **Test database connections:** each cached Spring test context keeps its own pools. Tests run Postgres with `max_connections=400` and Hikari `minimum-idle=2`. Production settings are unchanged.
 28. **The case-study PDF** was missing at first and added at the start of the build (moved to `docs/spec/case-study-5.pdf`).
 
+## README layout and prerequisites
+
+- **README order:** spec §20 lists Results and Judgement calls before Quick start. Quick start comes right after the introduction, at the owner's request, so a reader can run the system before reading the evidence; every required section is still present.
+- **Prerequisites:** `scripts/setup.sh` checks the tools and prints exact install commands; `--install` uses Homebrew (installing Colima when no Docker runtime exists), apt or dnf. Docker Engine on Linux is not installed automatically (it needs root and a re-login), so the script prints the official instructions. `scripts/test.sh` (`make test`) selects a JDK 21 and sets the Colima socket variables below automatically. Verified on macOS (Homebrew, Colima) and in bare Ubuntu 24.04 and Fedora 42 containers.
+
 ## Colima + Testcontainers
 
 Testcontainers needs to find the Colima socket:
