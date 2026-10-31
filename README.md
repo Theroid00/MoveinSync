@@ -17,15 +17,15 @@ scripts/faults/kill-roster-after-commit.sh   # the brief's crash test: dies betw
 
 All three in one line: `make up tour crash`. Stop and delete everything: `make down`.
 
-Needs Docker with Compose, `curl` and `jq`:
+The one command needs only Docker with Compose v2. Java, Maven and PostgreSQL all run inside containers, every image is published for both Intel and ARM (Apple Silicon), and line endings are pinned so a Windows checkout builds the same images. The demo scripts and the checks below are bash scripts and also need `curl` and `jq`:
 
 | OS | Install the prerequisites |
 |---|---|
 | macOS | `scripts/setup.sh --install` (Homebrew; adds Colima if there is no Docker) |
 | Linux | `scripts/setup.sh --install` (apt or dnf; prints the official Docker Engine steps if Docker is missing) |
-| Windows | In PowerShell: `winget install -e --id Docker.DockerDesktop` and `wsl --install`. Enable WSL integration in Docker Desktop, open the **Ubuntu** terminal, clone the repository there and use the commands above (`scripts/setup.sh --install` adds `curl` and `jq`). |
+| Windows | In PowerShell: `winget install -e --id Docker.DockerDesktop`. The one command then works from PowerShell. For the bash scripts, run `wsl --install`, enable WSL integration in Docker Desktop, open the **Ubuntu** terminal, clone the repository there and use the commands above (`scripts/setup.sh --install` adds `curl` and `jq`). |
 
-`scripts/setup.sh` without `--install` only checks and prints what is missing.
+`scripts/setup.sh` without `--install` only checks and prints what is missing. Verified on macOS (Apple Silicon, Colima) and Linux (x86_64); the Windows steps are documented but have not been run on a Windows machine.
 
 ## Test it yourself
 
@@ -167,6 +167,22 @@ Measured on Nobara Linux 44, 32 logical CPUs and 31 GiB RAM, Temurin 21.0.13 and
 
 At 1,000/s, delivered-event p99 lag was about 15.7 seconds and the sampled queue still had 12,874 pending events. HTTP acceptance does not complete downstream work. [Full results](docs/benchmark.md), [machine and raw measurements](bench/results/), [fault summary](docs/fault-runs/SUMMARY.txt), and [validation evidence](docs/validation/README.md) retain the measurements and limitations.
 
+## Assumptions
+
+The brief leaves these open; each is enforced in code and most are expanded in [decisions](docs/decisions.md).
+
+- **Every HR event carries the employee's full HR record**, not a patch, so a late event can be ignored without losing a field (DEC-01).
+- **The HR system stamps every change with a version, `sourceSeq`, that only increases within a tenant.** The version decides order, not a timestamp: clocks tie and drift (DEC-02). Gaps are fine. `effectiveAt` only decides which bookings count as future ones.
+- **Idempotency key:** `(tenant, source, eventId)`. The same event ID with the same payload is a `DUPLICATE` no-op; the same ID with a different payload is rejected with 409 `EVENT_ID_REUSED`.
+- **Version comparison:** a higher `sourceSeq` applies, a lower one is `STALE`, and an equal one is a `DUPLICATE` only if the HR content and active status match, otherwise a 409 conflict that is never resolved silently (DEC-15). A resend with a new event ID is therefore still a no-op.
+- **Field ownership:** HR owns name, email, phone, manager, office, shift and active status; the transport admin owns pickup point and special assistance. The brief does not assign phone or shift, so they are treated as HR data. An HR payload that names a transport field is rejected (`UNKNOWN_FIELD`). An office transfer keeps the pickup point and flags it `PICKUP_REVIEW_NEEDED` (DEC-07); a rehire keeps the transport fields (DEC-06).
+- **The nightly export arrives with a manifest:** source ID, cutoff version and export time, plus an optional row count and SHA-256. Only employees last changed at or before the cutoff can be deactivated for being missing, so a change that came through the API after the export is never undone by it (DEC-04).
+- **A bad row is not evidence that someone left.** Invalid or conflicting rows block every inferred deactivation in that run (DEC-08).
+- **"Missing 30%" is measured against the active employees the export should contain**, those last changed at or before its cutoff. The threshold is per tenant in basis points (default 3000) and exactly 30% trips it (DEC-05).
+- **A future booking** is a reserved booking whose trip starts after the deactivation's `effectiveAt` (DEC-13). A rehire does not restore cancelled bookings (DEC-14).
+- **Phone numbers are E.164**, and office codes must exist in the tenant's office catalog, which an admin maintains.
+- **The tenant always comes from the signed token**, never from the request. A built-in demo issuer stands in for the client's identity provider (DEC-16).
+
 ## Judgement calls
 
 Detailed context, rejected alternatives and consequences are in [DEC-01–23](docs/decisions.md).
@@ -237,10 +253,10 @@ This preserves every requirement ID from the original coverage audit and links t
 | C32 | Diff a 200,000-row snapshot in under 60 s with bounded memory | [Measured benchmark](docs/benchmark.md) |
 | C33 | Test that crashes the process between the DB write and the event publish | [Process crash script](scripts/faults/kill-roster-after-commit.sh), [18 runs](docs/fault-runs/SUMMARY.txt) |
 | P1 | Authentication, roles (employee/admin/operator), tenant isolation | [booking SecurityMatrixIT](booking-service/src/test/java/com/moveinsync/rostersync/booking/SecurityMatrixIT.java), [roster SecurityMatrixIT](roster-service/src/test/java/com/moveinsync/rostersync/roster/SecurityMatrixIT.java), [booking RlsIT](booking-service/src/test/java/com/moveinsync/rostersync/booking/RlsIT.java), [roster RlsIT](roster-service/src/test/java/com/moveinsync/rostersync/roster/RlsIT.java) |
-| P2 | Time/space complexity + benchmark + where it stops scaling | [Complexity and limits](#trade-offs-and-scaling-limits), [benchmark](docs/benchmark.md) |
+| P2 | Time/space complexity + benchmark + where it stops scaling | [Complexity and limits](#complexity-and-limits), [benchmark](docs/benchmark.md) |
 | P3 | Crashes, timeouts, duplicate/out-of-order messages, partial failures; failure-injection test | [Fault evidence](docs/fault-runs/SUMMARY.txt), [roster DbFailuresTest](roster-service/src/test/java/com/moveinsync/rostersync/roster/api/DbFailuresTest.java) |
 | P4 | OOP: encapsulation, inheritance, polymorphism, controller/service/repository | [roster CoreIsPureTest](roster-service/src/test/java/com/moveinsync/rostersync/roster/core/CoreIsPureTest.java), [layers](#architecture) |
-| P5 | Trade-offs: consistency vs availability vs latency; what's left out | [Design note](docs/design-note.md), [trade-offs](#trade-offs-and-scaling-limits) |
+| P5 | Trade-offs: consistency vs availability vs latency; what's left out | [Consistency vs availability vs latency](#consistency-vs-availability-vs-latency), [deliberately left out](#deliberately-left-out), [design note](docs/design-note.md) |
 | P6 | Metrics + structured logging; lag, error rate, rejections, retries, queue depth | [Monitoring configuration](ops/README.md), [rendered dashboard](docs/validation/dashboard.png) |
 | P7 | Caching with eviction; what's stale, how long, how bounded | [roster CacheIT](roster-service/src/test/java/com/moveinsync/rostersync/roster/CacheIT.java) |
 | P8 | Error framework, non-leaking messages, no PII in logs or responses | [roster ErrorContractIT](roster-service/src/test/java/com/moveinsync/rostersync/roster/ErrorContractIT.java), [roster NoPiiIT](roster-service/src/test/java/com/moveinsync/rostersync/roster/NoPiiIT.java) |
@@ -253,7 +269,7 @@ This preserves every requirement ID from the original coverage audit and links t
 | I3 | Design first: data model, components, APIs, failure modes in the design note | [Design note](docs/design-note.md) |
 | I4 | Clean layered code, core algorithm in plain classes testable without web/DB | [roster CoreIsPureTest](roster-service/src/test/java/com/moveinsync/rostersync/roster/core/CoreIsPureTest.java) |
 | I5 | Normal + edge-case tests; unit, concurrency, failure, benchmark | [Required test manifest](scripts/required-tests.txt), [faults](docs/fault-runs/SUMMARY.txt), [benchmarks](docs/benchmark.md) |
-| I6 | README: how to run, assumptions, benchmark results, trade-offs | This README and [measurements](docs/benchmark.md) |
+| I6 | README: how to run, assumptions, benchmark results, trade-offs | [Run it](#run-it), [assumptions](#assumptions), [results](#results), [trade-offs](#consistency-vs-availability-vs-latency) |
 | I7 | Public GitHub repo, meaningful commit history | [Commit history](https://github.com/Theroid00/HR/commits/main): small, reviewed steps from scaffold to release |
 | I8 | Demo video: main flows, one live failure, sample API calls (Postman/curl) | [Automated demo](scripts/demo/run-all.sh), [Postman](postman/README.md); the video is linked at the top of this README |
 
@@ -285,15 +301,27 @@ Both databases run in one PostgreSQL container. A transaction writes each employ
 
 ## Trade-offs and scaling limits
 
-- Atomic reconciliation holds a tenant/source lock, increasing concurrent API latency; the measured overlap p99 is about 1.1 seconds. Lock waits beyond three seconds return retryable 503.
-- Bookings are eventually consistent with roster commits. At 1,000/s, the measured relay accumulates backlog even while ingest remains fast; consult queue age as well as delivered-event latency.
-- Safety takes precedence over inferred absence: a brake blocks all live changes, and invalid/conflicting evidence suppresses inferred deactivations. Incomplete manifests require corrected uploads.
+### Consistency vs availability vs latency
+
+| Where | Chosen | Given up | Measured cost |
+|---|---|---|---|
+| Roster writes | **Consistency.** Each employee change, its history row and its outbox event commit in one PostgreSQL transaction. | Availability: during a database outage, or a lock wait over three seconds, the API returns a retryable 503 with `Retry-After` instead of accepting a write it cannot make durable. | None in normal operation: API p99 4.33 ms at 1,000/s. |
+| Nightly reconciliation | **Consistency.** Assessment and apply run as one transaction under an exclusive tenant lock, so nobody sees a half-applied export. | Latency: live writes for that tenant wait while the lock is held. | API p99 about 1.1 s for requests overlapping the lock at 250/s. |
+| Booking side effects | **Availability and low latency.** Ingest returns once the roster commits; the relay delivers to booking at least once, and booking deduplicates. If booking is down, the roster keeps accepting changes. | Immediate consistency: cancellations and freed seats lag the roster change. | Delivered-event p99 lag about 15.7 s at 1,000/s, with a growing backlog. |
+| Safety brake | **Safety over freshness.** A tripped brake blocks the whole run, not only the deactivations. | Legitimate changes in a blocked file wait for a human. | Operator time. |
+
+### Complexity and limits
+
 - Digest work scans both sides. Staging uses O(M) database space, 5,000-row chunks and a seen-ID set; Java digest maps use O(B) entries for B=65,536. Quiet changes touched 99 buckets; heavy nights touch most useful buckets.
 - API writes use indexed employee lookup/locking, roughly O(log N); snapshot classification and apply operate on mismatched buckets. A single database primary, tenant lock duration and the HTTP relay bound scale. Chunked/resumable apply, tenant partitioning and CDC/broker delivery would require a new design and measurements.
-- Delivered outbox retention is seven days. Consumer dedup is currently retained indefinitely; a 30-day purge is not implemented. Snapshot uploads and operator history also require an operational retention policy.
-- The development issuer, demo credentials, public actuator metrics and unencrypted demo database credentials are for this local assessment setup. Production needs managed identity/secrets, network access controls, backup/retention and PII encryption/erasure policies.
 
-No broker, patch-event protocol, multi-source resolution, multi-region system or frontend application is included. Prometheus rules are available locally; external notification routing requires Alertmanager configuration.
+### Deliberately left out
+
+- **Message broker.** The relay pushes outbox events to booking over HTTP (DEC-11); Kafka or CDC would be the next step past the relay's measured limit.
+- **Patch events, multi-source conflict resolution, multi-region deployment and a frontend.**
+- **Most retention jobs.** Delivered outbox rows are purged after seven days, but consumer dedup rows are kept forever (a 30-day purge is not implemented); snapshot uploads and operator history also need a retention policy.
+- **Alert routing.** Prometheus alert rules ship and are tested; sending them to a pager needs Alertmanager configuration.
+- **Production identity and secrets.** The demo issuer, demo credentials, public actuator metrics and plain-text database passwords are for this local setup. Production needs managed identity and secrets, network access controls, backups, and PII encryption and erasure.
 
 ### Cache behavior
 
