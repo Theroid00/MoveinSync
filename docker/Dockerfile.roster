@@ -10,7 +10,7 @@ COPY booking-service/pom.xml booking-service/pom.xml
 COPY event-contract/src event-contract/src
 COPY roster-service/src/main roster-service/src/main
 RUN --mount=type=cache,target=/root/.m2 \
-    ./mvnw -q -B -pl roster-service -am package -Dmaven.test.skip=true \
+    sh ./mvnw -q -B -pl roster-service -am package -Dmaven.test.skip=true \
  && cp roster-service/target/roster-service-*.jar /app.jar
 
 FROM eclipse-temurin:21.0.13_9-jre-noble

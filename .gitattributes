@@ -1,5 +1,7 @@
-* text=auto
+# LF everywhere, so a Windows checkout builds the same images (mvnw and SQL run inside Linux containers).
+* text=auto eol=lf
 *.sh text eol=lf
 mvnw text eol=lf
 *.cmd text eol=crlf
 *.pdf binary
+*.png binary
